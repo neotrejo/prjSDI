@@ -9,6 +9,7 @@ import core.controller.MainController;
 import core.data.ConfigModel;
 import core.data.User;
 import core.main.ExploradorGlobal;
+import core.main.ExploradorGlobal1;
 import core.utils.GenericUtils;
 import java.awt.Color;
 import javax.swing.BorderFactory;
@@ -76,25 +77,42 @@ public class CreateAccount extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("RaspClass");
 
+        backLk.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         backLk.setForeground(new java.awt.Color(0, 51, 204));
         backLk.setText("<< back");
-        backLk.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        backLk.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         backLk.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 backLkMouseClicked(evt);
             }
         });
 
+        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         jLabel1.setText("Name:");
 
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         jLabel2.setText("Username:");
 
+        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         jLabel3.setText("Password:");
 
+        jLabel4.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         jLabel4.setText("Email:");
 
+        jLabel5.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         jLabel5.setText("Hostname:");
 
+        nameTextF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        usernameTextF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        passwordTextF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        emailTextF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        hostnameTextF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        createAccountBtn.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         createAccountBtn.setText("Create");
         createAccountBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -102,7 +120,10 @@ public class CreateAccount extends javax.swing.JFrame {
             }
         });
 
+        jLabel6.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         jLabel6.setText("Shared Folder:");
+
+        sharedfolderTextF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         sharedFolderBtn.setText("...");
         sharedFolderBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -127,24 +148,28 @@ public class CreateAccount extends javax.swing.JFrame {
                     .addComponent(jLabel5)
                     .addComponent(jLabel3)
                     .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(27, 27, 27)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(passwordTextF, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-                            .addComponent(emailTextF, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(usernameTextF)
-                            .addComponent(hostnameTextF, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(nameTextF)
-                            .addComponent(sharedfolderTextF, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(sharedFolderBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(35, 35, 35)
+                        .addGap(59, 59, 59)
                         .addComponent(createAccountBtn)
-                        .addContainerGap())))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addComponent(sharedfolderTextF)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(sharedFolderBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(3, 3, 3))
+                                .addComponent(passwordTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(usernameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(nameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(emailTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(hostnameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(44, Short.MAX_VALUE)
+                .addContainerGap(40, Short.MAX_VALUE)
                 .addComponent(logLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(51, 51, 51))
         );
@@ -178,7 +203,7 @@ public class CreateAccount extends javax.swing.JFrame {
                     .addComponent(sharedFolderBtn))
                 .addGap(18, 18, 18)
                 .addComponent(createAccountBtn)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
                 .addComponent(logLabel)
                 .addContainerGap())
         );
@@ -188,11 +213,11 @@ public class CreateAccount extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(31, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(backLk))
-                .addGap(27, 27, 27))
+                .addContainerGap(32, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(backLk, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(62, 62, 62))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -230,7 +255,7 @@ public class CreateAccount extends javax.swing.JFrame {
                                             " ");
                                     if (saved) {
                                         this.setVisible(false);
-                                        ExploradorGlobal.getInstance(user).setVisible(true);
+                                        ExploradorGlobal1.getInstance(user).setVisible(true);
                                     } else {
                                         logLabel.setText("Error..");
                                     }

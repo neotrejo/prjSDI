@@ -43,6 +43,7 @@ public class DAOSubject {
             if (result != null) {
                 if(result.next()){
                     subject = new Subject();
+                    subject.setId(result.getObject("id").toString());
                     subject.setName(result.getObject("subjetcName").toString());
                     subject.setPassword(result.getObject("passKey").toString());
                     subject.setDescription(result.getObject("description").toString());
@@ -59,7 +60,7 @@ public class DAOSubject {
     public ArrayList<Subject> getByUserId(String id){        
         try {
             ArrayList<Subject> subjects = new ArrayList<>();
-            String query = "SELECT * FROM Subject WHERE user_id=" + id;
+            String query = "SELECT * FROM Subject WHERE user_id=" + id + " or user_id=\"" + id + "\"";
             ResultSet result = connection.select(query);
             Subject subject = null;
             String file = "";

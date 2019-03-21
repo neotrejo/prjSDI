@@ -9,6 +9,7 @@ import core.controller.MainController;
 import core.data.User;
 import core.db.sqlite.SQLiteConnection;
 import core.main.ExploradorGlobal;
+import core.main.ExploradorGlobal1;
 import core.main.SDrive;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,19 +59,27 @@ public class Login extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("RaspClass");
 
+        createAccountLk.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         createAccountLk.setForeground(new java.awt.Color(0, 51, 153));
         createAccountLk.setText("Create account");
-        createAccountLk.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        createAccountLk.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         createAccountLk.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 createAccountLkMouseClicked(evt);
             }
         });
 
+        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText("Username:");
 
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel2.setText("Password:");
 
+        usernameTextF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        passwordTextF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        logInBtn.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         logInBtn.setText("Log in");
         logInBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -164,7 +173,7 @@ public class Login extends javax.swing.JFrame {
             user = MainController.existUser(usernameTextF.getText(), passwordTextF.getText());
             if (user != null) {
                 this.setVisible(false);
-                ExploradorGlobal.getInstance(user).setVisible(true);
+                ExploradorGlobal1.getInstance(user).setVisible(true);
             } else {
                 logText.setText("Username not exist...");
             }
@@ -185,7 +194,7 @@ public class Login extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Metal".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -201,7 +210,7 @@ public class Login extends javax.swing.JFrame {
         }
         //</editor-fold>
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
