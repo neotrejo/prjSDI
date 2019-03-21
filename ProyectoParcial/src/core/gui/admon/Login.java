@@ -28,6 +28,7 @@ public class Login extends javax.swing.JFrame {
     public Login() {
         try {
             initComponents();
+            setLocationRelativeTo(null);
             jPanel1.setBorder(BorderFactory.createTitledBorder("Log in"));
             mainParent = this;
             SQLiteConnection.getInstance().conectar();

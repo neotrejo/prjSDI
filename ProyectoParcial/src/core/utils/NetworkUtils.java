@@ -12,7 +12,7 @@ import java.util.Enumeration;
 
 /**
  *
- * @author Luis
+ * @author Yomero
  */
 public class NetworkUtils {
     
@@ -20,11 +20,15 @@ public class NetworkUtils {
             try {
                 for (Enumeration en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
                     NetworkInterface intf = (NetworkInterface) en.nextElement();
-                    for (Enumeration enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-                        InetAddress inetAddress = (InetAddress) enumIpAddr.nextElement();
-                        if (!inetAddress.isLoopbackAddress()&&inetAddress instanceof Inet4Address) {
-                            String ipAddress=inetAddress.getHostAddress().toString();
-                            return ipAddress;
+                    if(!intf.getDisplayName().contains("VMware")){
+                        System.out.println("MyIP IS: " + intf.getDisplayName());
+                        for (Enumeration enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                            InetAddress inetAddress = (InetAddress) enumIpAddr.nextElement();
+                            if (!inetAddress.isLoopbackAddress()&&inetAddress instanceof Inet4Address) {
+                                String ipAddress=inetAddress.getHostAddress().toString();
+                                MyLogger.log("NetworkUtils : IP Address: " + ipAddress);
+                                return ipAddress;
+                            }
                         }
                     }
                 }

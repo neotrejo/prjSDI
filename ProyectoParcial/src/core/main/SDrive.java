@@ -40,6 +40,7 @@ public class SDrive extends javax.swing.JFrame {
         try {
             initComponents();
             
+
             config = GenericUtils.readData();
             
             fileChooser = new JFileChooser();

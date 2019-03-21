@@ -29,6 +29,7 @@ public class CreateAccount extends javax.swing.JFrame {
 
     public CreateAccount(String title) {
         initComponents();
+        setLocationRelativeTo(null);
         fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setAcceptAllFileFilterUsed(false);
@@ -215,10 +216,18 @@ public class CreateAccount extends javax.swing.JFrame {
                         if (!hostnameTextF.getText().isEmpty()) {
                             if (!sharedfolderTextF.getText().isEmpty()) {
                                 User user = null;
-                                user = MainController.existUser(usernameTextF.getText(), passwordTextF.getText());
+                                user = MainController.                           
+                                        existUser(usernameTextF.getText(), passwordTextF.getText());
                                 if (user == null) {
                                     Boolean saved = false;
-                                    saved = MainController.addUser(nameTextF.getText(), usernameTextF.getText(), passwordTextF.getText(), emailTextF.getText(), hostnameTextF.getText(), sharedfolderTextF.getText(), "");
+                                    saved = MainController.addUser(
+                                            nameTextF.getText(), 
+                                            usernameTextF.getText(), 
+                                            passwordTextF.getText(), 
+                                            emailTextF.getText(), 
+                                            hostnameTextF.getText(), 
+                                            sharedfolderTextF.getText(),
+                                            " ");
                                     if (saved) {
                                         this.setVisible(false);
                                         ExploradorGlobal.getInstance(user).setVisible(true);

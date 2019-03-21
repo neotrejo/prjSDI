@@ -30,7 +30,7 @@ public class SessionI extends javax.swing.JFrame {
 
     public SessionI(String title, User user) {
         initComponents();
-
+        setLocationRelativeTo(null);
         this.user = user;
         //this.classrooms = new ArrayList();
         //this.subjects = new ArrayList();

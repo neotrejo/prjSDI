@@ -26,6 +26,7 @@ public class SubjectI extends javax.swing.JFrame {
 
     public SubjectI(String title, User user) {
         initComponents();
+        setLocationRelativeTo(null);
         this.user = user;
         fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
