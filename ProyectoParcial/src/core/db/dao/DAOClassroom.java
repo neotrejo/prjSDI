@@ -17,13 +17,15 @@ import java.util.Map;
  * @author Diana
  */
 public class DAOClassroom {
+
     private SQLiteConnection connection;
-    
+
     public DAOClassroom() {
         connection = SQLiteConnection.getInstance();
     }
+
     public void insertClassroom(String name, String location, String hostname) {
-        
+
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
         params.put("location", location);
@@ -31,8 +33,8 @@ public class DAOClassroom {
 
         connection.insert("ClassRoom", params);
     }
-    
-    public ArrayList<Classroom> getClassrooms(){        
+
+    public ArrayList<Classroom> getClassrooms() {
         try {
             ArrayList<Classroom> classrooms = new ArrayList<>();
             String query = "SELECT * FROM ClassRoom";
@@ -40,7 +42,7 @@ public class DAOClassroom {
             Classroom classroom = null;
             String file = "";
             if (result != null) {
-                while(result.next()){
+                while (result.next()) {
                     classroom = new Classroom();
                     classroom.setId(result.getObject("id").toString());
                     classroom.setName(result.getObject("name").toString());
@@ -48,12 +50,42 @@ public class DAOClassroom {
                     classroom.setHostname(result.getObject("hostName").toString());
                     classrooms.add(classroom);
                 }
-            }            
+            }
             return classrooms;
         } catch (Exception ex) {
             ex.printStackTrace();
-        }        
+        }
         return null;
     }
-    
+
+    public Classroom getByName(String name) {
+        String query = "SELECT * FROM ClassRoom WHERE name=\"" + name + "\"";
+        return executeQuery(query);
+    }
+
+    public Classroom getById(String id) {
+        String query = "SELECT * FROM ClassRoom WHERE id=" + id;
+        return executeQuery(query);
+    }
+
+    private Classroom executeQuery(String query) {
+        try {
+            ResultSet result = connection.select(query);
+            Classroom classroom = null;
+            if (result != null) {
+                if (result.next()) {
+                    classroom = new Classroom();
+                    classroom.setId(result.getObject("id").toString());
+                    classroom.setName(result.getObject("name").toString());
+                    classroom.setLocation(result.getObject("location").toString());
+                    classroom.setHostname(result.getObject("hostName").toString());
+                }
+            }
+            return classroom;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
 }

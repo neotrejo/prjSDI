@@ -35,7 +35,7 @@ public class SessionI extends javax.swing.JFrame {
         //this.classrooms = new ArrayList();
         //this.subjects = new ArrayList();
         classrooms = MainController.getClassrooms();
-        subjects = MainController.getSubjects(user.getId());
+        subjects = MainController.getSubjectsUser(user.getId());
         if (classrooms != null) {
             classrooms.forEach((n) -> classroomsCB.addItem(n.getName()));
             if (subjects != null) {

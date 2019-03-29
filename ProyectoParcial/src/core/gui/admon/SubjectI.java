@@ -187,10 +187,10 @@ public class SubjectI extends javax.swing.JFrame {
             if (!passwordTextF.getText().isEmpty()) {
                 if (!sharedFolderTextF.getText().isEmpty()) {
                     Subject subject = null;
-                    subject = MainController.existSubject(nameTextF.getText(), passwordTextF.getText());
+                    subject = MainController.existSubjectNamePass(nameTextF.getText(), passwordTextF.getText());
                     if (subject == null) {
                         Boolean saved = false;
-                        saved = MainController.addSubject(nameTextF.getText(), passwordTextF.getText(), descriptionTextA.getText(), sharedFolderTextF.getText(), this.user.getId());
+                        //saved = MainController.addSubject(nameTextF.getText(), passwordTextF.getText(), descriptionTextA.getText(), sharedFolderTextF.getText(), this.user.getId());
                         if (saved) {
                             this.setVisible(false);
                             logLabel.setText("Saved..");

@@ -3,19 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/main/FileExplorer.java</file>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/gui/admon/Login.java</file>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/main/Transferencias.java</file>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/main/ExploradorGlobal.java</file>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/gui/admon/CreateAccount.java</file>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/main/Notificacion.java</file>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/main/Buscar.java</file>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/utils/NetworkUtils.java</file>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/main/Dashboard.java</file>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/main/SDrive.java</file>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/gui/admon/SessionI.java</file>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/gui/admon/SubjectI.java</file>
-            <file>file:/C:/Users/martin-trejo/Dropbox/PhD_Computer_Science/00%20-%20Lectures/Distributed_Systems_1/Final_Project/FileTransfer/ProyectoParcial/src/core/main/Descargas.java</file>
+            <file>file:/C:/Users/Diana/Documents/GitHub/prjSDI/ProyectoParcial/src/core/controller/MainController.java</file>
+            <file>file:/C:/Users/Diana/Documents/GitHub/prjSDI/ProyectoParcial/src/core/db/dao/DAOSubject.java</file>
+            <file>file:/C:/Users/Diana/Documents/GitHub/prjSDI/ProyectoParcial/src/core/db/dao/DAOFile.java</file>
+            <file>file:/C:/Users/Diana/Documents/GitHub/prjSDI/ProyectoParcial/src/core/db/dao/DAOFilesSession.java</file>
+            <file>file:/C:/Users/Diana/Documents/GitHub/prjSDI/ProyectoParcial/src/core/gui/admon/Login.java</file>
+            <file>file:/C:/Users/Diana/Documents/GitHub/prjSDI/ProyectoParcial/src/core/main/ExploradorGlobal1.java</file>
+            <file>file:/C:/Users/Diana/Documents/GitHub/prjSDI/ProyectoParcial/src/core/db/sqlite/SQLiteConnection.java</file>
         </group>
     </open-files>
 </project-private>

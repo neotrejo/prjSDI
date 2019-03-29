@@ -111,7 +111,7 @@ public class SQLiteConnection {
             conexion.setAutoCommit(false);
             
             String query = "INSERT INTO "+table+" "+createParamString(params);
-            
+            System.out.println(query);
             stm = conexion.createStatement();
             stm2 = conexion.createStatement();
             
@@ -152,7 +152,7 @@ public class SQLiteConnection {
         
         try {
             String query = "UPDATE "+table+" SET "+createUpdateParamString(params)+" WHERE "+where;
-                        
+            System.out.println(query);         
             response = statement.executeUpdate(query);
             
             return response;
@@ -186,7 +186,7 @@ public class SQLiteConnection {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println(query);
+        //System.out.println(query);
         return result;
    }
    

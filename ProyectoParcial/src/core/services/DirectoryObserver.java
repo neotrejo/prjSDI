@@ -109,7 +109,7 @@ public class DirectoryObserver extends Thread {
                             System.out.println("Registrar: " + fileName);
                         } else {
                             System.out.println("Agregar a la base de datos");
-                            daoArchivo.insertArchivo(mFile.getName(), filePath,fullPath.toString(),mFile.length());
+                            //daoArchivo.insertArchivo(mFile.getName(), filePath,fullPath.toString(),mFile.length());
                         }
                         // process create event
 
@@ -117,9 +117,9 @@ public class DirectoryObserver extends Thread {
                        
                         if (!mFile.isDirectory()) {  
                             System.out.println("Borrar de la base de datos");
-                            daoArchivo.deleteArchivo(mFile.getName(), filePath);
+                            //daoArchivo.deleteArchivo(mFile.getName(), filePath);
                         }else{
-                            daoArchivo.deleteDirectory(filePath);
+                            //daoArchivo.deleteDirectory(filePath);
                         }
                         // process delete event
                     } else if (kind == ENTRY_MODIFY) {

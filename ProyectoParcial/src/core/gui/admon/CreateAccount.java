@@ -12,6 +12,9 @@ import core.main.ExploradorGlobal;
 import core.main.ExploradorGlobal1;
 import core.utils.GenericUtils;
 import java.awt.Color;
+import java.beans.PropertyVetoException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
 
@@ -244,21 +247,20 @@ public class CreateAccount extends javax.swing.JFrame {
                                 user = MainController.                           
                                         existUser(usernameTextF.getText(), passwordTextF.getText());
                                 if (user == null) {
-                                    Boolean saved = false;
-                                    saved = MainController.addUser(
+                                     MainController.addUser(
                                             nameTextF.getText(), 
                                             usernameTextF.getText(), 
                                             passwordTextF.getText(), 
                                             emailTextF.getText(), 
                                             hostnameTextF.getText(), 
                                             sharedfolderTextF.getText(),
-                                            " ");
-                                    if (saved) {
+                                            " ");                           
                                         this.setVisible(false);
-                                        ExploradorGlobal1.getInstance(user).setVisible(true);
-                                    } else {
-                                        logLabel.setText("Error..");
-                                    }
+                                        try {
+                                            ExploradorGlobal1.getInstance(user).setVisible(true);
+                                        } catch (PropertyVetoException ex) {
+                                            Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
                                 } else {
                                     logLabel.setText("Username and password already exist.");
                                 }

@@ -14,8 +14,12 @@ import core.controller.MainController;
 import core.data.Classroom;
 import core.data.ClientModel;
 import core.data.FileModel;
+import core.data.FilesSession;
 import core.data.ServerFile;
+import core.data.Session;
 import core.data.Subject;
+import core.data.FileD;
+import core.data.Subscription;
 import core.data.User;
 import core.data.Usuario;
 import core.gui.admon.SessionI;
@@ -27,15 +31,32 @@ import core.services.DirectoryObserver;
 import core.services.NetworkConnections;
 import core.tasks.UserDisconnection;
 import core.utils.MyLogger;
+import java.beans.PropertyVetoException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Stack;
+import java.time.*;
+import java.io.File;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner.DateEditor;
+import javax.swing.SpinnerDateModel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.DateFormatter;
 
 /**
  *
@@ -54,13 +75,32 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     private int descargasActivas = 0;
     private int transferenciasActivas = 0;
     private User user;
+    private Subject subject;
+    private Classroom classroom;
+    private FilesSession filesession;
+    private int session_id;
+    private int file_id;
     private ArrayList<Classroom> classrooms;
     private ArrayList<Subject> subjects;
+    private ArrayList<Session> sessions;
+    private ArrayList<Subscription> subscriptions;
+    private ArrayList<Subject> subjectsSubscriptions;
     private JFileChooser fileChooserSub;
     private JFileChooser fileChooserSes;
     private DefaultTableModel modelSubj;
+    private DefaultTableModel modelSess;
+    private DefaultTableModel modelSubscription;
+    private SpinnerDateModel modelStar;
+    private SpinnerDateModel modelDuration;
 
-    private ExploradorGlobal1(ArrayList<ServerFile> rootFiles, ClientModel client, User user) {
+    private SimpleDateFormat sourceFormat;
+    private DateEditor editorStart;
+    private DateEditor editorDuration;
+    private Calendar calendarD;
+    private Boolean actionAdd; //  true is Add and false is Modify
+    private String subject_id; // for update subject
+
+    private ExploradorGlobal1(ArrayList<ServerFile> rootFiles, ClientModel client, User user) throws PropertyVetoException {
         initComponents();
 
         stack = new ArrayList<>();
@@ -72,11 +112,19 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         lista = this.archivos;
         lista.setCellRenderer(new ExplorerCellRenderer());
 
+        //----------------tabbedPanel------------//
         tabPanel.setTitleAt(0, "Files");
         tabPanel.setTitleAt(1, "Subject");
         tabPanel.setTitleAt(2, "Session");
+        tabPanel.setTitleAt(3, "Subscription");
+        tabPanel.setSelectedIndex(0);
 
-        fileChooserSub = new JFileChooser();
+        //-----------JDateChooser----------------//
+        datePicker.getJCalendar().setMinSelectableDate(new Date());
+        //datePicker.setDateFormatString("yyyy-mm-dd HH:mm:ss");
+
+        //---------filechooser----------------------//
+        fileChooserSub = new JFileChooser(user.getSharedFolder());
         fileChooserSub.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooserSub.setAcceptAllFileFilterUsed(false);
 
@@ -88,75 +136,212 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
 
         fileChooserSes.setAcceptAllFileFilterUsed(false);
 
-        formuPanel.setBorder(BorderFactory.createTitledBorder("Add subject"));
-        formuPanel.setVisible(false);
+        //---------internalFrame----------------//
+        formaSubjectIFrame.setClosed(true);
+        formaSessionIFrame.setClosed(true);
+        formaSubscripIFrame.setClosed(true);
+
+        //------------spinners--------------//
+        calendarD = Calendar.getInstance();
+        calendarD.set(Calendar.HOUR_OF_DAY, 24); // 24 == 12 PM == 00:00:00
+        calendarD.set(Calendar.MINUTE, 0);
+        calendarD.set(Calendar.SECOND, 0);
+
+        modelStar = new SpinnerDateModel();
+        modelStar.setValue(calendarD.getTime());
+        startTimeSpin.setModel(modelStar);
+        editorStart = new DateEditor(startTimeSpin, "HH:mm");
+        DateFormatter formatter = (DateFormatter) editorStart.getTextField().getFormatter();
+        formatter.setAllowsInvalid(false);
+        formatter.setOverwriteMode(true);
+        startTimeSpin.setEditor(editorStart);
+
+        modelDuration = new SpinnerDateModel();
+        modelDuration.setValue(calendarD.getTime());
+        durationSpin.setModel(modelDuration);
+        editorDuration = new DateEditor(durationSpin, "HH:mm");
+        DateFormatter formatterD = (DateFormatter) editorDuration.getTextField().getFormatter();
+        formatterD.setAllowsInvalid(false);
+        formatterD.setOverwriteMode(true);
+        durationSpin.setEditor(editorDuration);
+
         //--------tables-----------------//
+        String[] headSubject = {"Name", "SharedFolder", "Description", "", ""};
         modelSubj = new DefaultTableModel();
-        jTable1.setModel(modelSubj);
-        modelSubj.addColumn("Name");
-        modelSubj.addColumn("SharedFolder");
-        modelSubj.addColumn("Description");
-        update_SubjectTable(true);
-
-        //--------subjectTab----//
-        classrooms = MainController.getClassrooms();
-        if (classrooms != null) {
-            classrooms.forEach((n) -> classroomsCB.addItem(n.getName()));
-            if (subjects != null) {
-                subjects.forEach((n) -> subjectsCB.addItem(n.getName()));
-            } else {
-                logSubjLabel.setText("There aren´t subjects.");
-            }
-        } else {
-            logSubjLabel.setText("There aren´t classrooms.");
+        subjectsTable.setModel(modelSubj);
+        for (String s : headSubject) {
+            modelSubj.addColumn(s);
         }
+        update_SubjectTable(false);
+
+        String[] headSession = {"Date", "Subject", "Classroom", "File", "", ""};
+        modelSess = new DefaultTableModel();
+        sessionsTable.setModel(modelSess);
+        for (String s : headSession) {
+            modelSess.addColumn(s);
+        }
+        sourceFormat = new SimpleDateFormat("dd/MM/yyyy");
+        update_SessionTable(false);
+
+        String[] headSubscription = {"Subject", "Speaker", ""};
+        modelSubscription = new DefaultTableModel();
+        subscriptionsTable.setModel(modelSubscription);
+        for (String s : headSubscription) {
+            modelSubscription.addColumn(s);
+        }
+        update_SubscriptionsTable(false);
+        //------------------------------//
+        update_cbSession();
+
         //-----------------------------//
-        savedSubjBtn.enable(false);
-
-        tituloLbl.setText("Explorador de archivos");
-
         stack.add(rootFiles);
 
         NetworkConnections.getInstance().start(this);
-
         UserDisconnection.getInstance().start();
         UserDisconnection.getInstance().register(this);
-
         setLocationRelativeTo(null);
     }
 
-    public static ExploradorGlobal1 getInstance() {
+    public static ExploradorGlobal1 getInstance() throws PropertyVetoException {
         if (instance == null) {
             instance = new ExploradorGlobal1(new ArrayList<ServerFile>(), null, null);
         }
         return instance;
     }
 
-    public static ExploradorGlobal1 getInstance(User user) {
+    public static ExploradorGlobal1 getInstance(User user) throws PropertyVetoException {
         if (instance == null) {
             instance = new ExploradorGlobal1(new ArrayList<ServerFile>(), null, user);
         }
         return instance;
     }
 
-    private void update_SubjectTable(boolean first) {
-        if (!first){
-            int filas=jTable1.getRowCount();
-            for (int i = 0;filas>i; i++) {
+    private void update_SubjectTable(boolean clean) {
+        if (clean) {
+            int filas = subjectsTable.getRowCount();
+            for (int i = 0; filas > i; i++) {
                 modelSubj.removeRow(0);
             }
         }
-        subjects = MainController.getSubjects(user.getId());
-        if (subjects != null) {
-            subjects.forEach((n) -> modelSubj.addRow(new Object[]{n.getName(), n.getSharedFolder(), n.getDescription()}));
+        subjects = MainController.getSubjectsUser(user.getId());
+        if (subjects != null || subjects.size() == 0) {
+            subjects.forEach((n) -> modelSubj.addRow(new Object[]{n.getName(), n.getSharedFolder(), n.getDescription(), "Edit", "Deleted"}));
         }
     }
-    
-    private void cleanFieldsSubject(){
+
+    private void update_cbSession() {
+        classrooms = MainController.getClassrooms();
+        if (classrooms != null || classrooms.size() == 0) {
+            classroomsCB.removeAllItems();
+            classrooms.forEach((n) -> classroomsCB.addItem(n.getName()));
+            if (subjects != null || subjects.size() == 0) {
+                subjectsCB.removeAllItems();
+                subjects.forEach((n) -> subjectsCB.addItem(n.getName()));
+                savedSessBtn.setEnabled(true);
+            } else {
+                logSessLabel.setText("There aren´t subjects.");
+            }
+        } else {
+            logSessLabel.setText("There aren´t classrooms.");
+        }
+    }
+
+    private void update_SessionTable(boolean clean) {
+        if (clean) {
+            int filas = sessionsTable.getRowCount();
+            for (int i = 0; filas > i; i++) {
+                modelSess.removeRow(0);
+            }
+        }
+        sessions = MainController.getSessions(user.getId());
+        if (sessions != null || sessions.size() == 0) {
+            sessions.forEach((n) -> {
+                try {
+                    modelSess.addRow(new Object[]{n.getDate(), n.getSubjectId(), n.getClassRoomId(), n.getFile(), "Edit", "Delete"});
+                } catch (ParseException ex) {
+                    Logger.getLogger(ExploradorGlobal1.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            });
+        }
+    }
+
+    private void update_SubscriptionsTable(boolean clean) {
+        if (clean) {
+            int filas = subscriptionsTable.getRowCount();
+            for (int i = 0; filas > i; i++) {
+                modelSubscription.removeRow(0);
+            }
+        }
+        subscriptions = MainController.getSubscriptionUserId(user.getId());
+        //ImageIcon edit = new ImageIcon(getClass().getResource("/core/images/edit.png"));
+        if (subscriptions.size() == 0 || subscriptions != null) {
+            subscriptions.forEach((n) -> {
+                modelSubscription.addRow(new Object[]{n.getSubject(), n.getprofessor(), "Cancel"});
+            });
+        }
+    }
+
+    private void cleanFieldsSubject() {
         nameTextF.setText("");
         passwordTextF.setText("");
         sharedFolderTextF.setText("");
         descriptionTextA.setText("");
+        logSubjLabel.setText("");
+    }
+
+    private void cleanFieldsSession() {
+        datePicker.setCalendar(null);
+        sharedFileTextF.setText("");
+        classroomsCB.setSelectedIndex(0);
+        subjectsCB.setSelectedIndex(0);
+        startTimeSpin.setValue(calendarD.getTime());
+        durationSpin.setValue(calendarD.getTime());
+        logSessLabel.setText("");
+    }
+
+    private void cleanFieldsSubscription() {
+        subjectsSubsCb.setSelectedIndex(0);
+        passwordSubscField.setText("");
+        logSubsLabel.setText("");
+    }
+
+    private void setFieldsSession(FileD file, Session sesion, String subject, String classroom) throws ParseException {
+
+        formaSessionIFrame.setTitle("Modify session");
+        Calendar calendarAux = Calendar.getInstance();
+
+        String[] date = sesion.getDate().split("-");
+        datePicker.setDate(new GregorianCalendar(Integer.parseInt(date[2]), Integer.parseInt(date[1]) - 1, Integer.parseInt(date[0])).getTime());
+
+        fileChooserSes.setCurrentDirectory(new File(file.getPath()));
+        sharedFileTextF.setText(file.getFileName());
+
+        classroomsCB.setSelectedItem(classroom);
+        subjectsCB.setSelectedItem(subject);
+
+        String[] startTime = sesion.getStartTime().split(":");
+        String[] duration = sesion.getDurationHrs().split(":");
+
+        calendarAux.set(Calendar.HOUR_OF_DAY, Integer.parseInt(startTime[0])); // 24 == 12 PM == 00:00:00
+        calendarAux.set(Calendar.MINUTE, Integer.parseInt(startTime[1]));
+        calendarAux.set(Calendar.SECOND, 0);
+        startTimeSpin.setValue(calendarAux.getTime());
+
+        calendarAux.set(Calendar.HOUR_OF_DAY, Integer.parseInt(duration[0])); // 24 == 12 PM == 00:00:00
+        calendarAux.set(Calendar.MINUTE, Integer.parseInt(duration[1]));
+        durationSpin.setValue(calendarAux.getTime());
+        formaSessionIFrame.setVisible(true);
+    }
+
+    private void setFieldsSubject(Subject subject) {
+        formaSubjectIFrame.setTitle("Modify subject");
+        nameTextF.setText(subject.getName());
+        passwordTextF.setText(subject.getPassword());
+        fileChooserSub.setCurrentDirectory(new File(subject.getSharedFolder()));
+        sharedFolderTextF.setText(subject.getSharedFolder());
+        descriptionTextA.setText(subject.getDescription());
+        logSubjLabel.setText("");
+        formaSubjectIFrame.setVisible(true);
     }
 
     private void refresh(ArrayList<ServerFile> file) {
@@ -181,17 +366,21 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     private void initComponents() {
 
         jSeparator1 = new javax.swing.JSeparator();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        tituloLbl = new javax.swing.JLabel();
         tLabel = new javax.swing.JLabel();
         dLabel = new javax.swing.JLabel();
         userLabel = new javax.swing.JLabel();
         tabPanel = new javax.swing.JTabbedPane();
-        docusPanel = new javax.swing.JScrollPane();
+        filesPanel = new javax.swing.JPanel();
+        docPanel = new javax.swing.JScrollPane();
         archivos = new javax.swing.JList<>();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         subjectPanel = new javax.swing.JPanel();
-        formuPanel = new javax.swing.JPanel();
+        conSubPanel = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        subjectsTable = new javax.swing.JTable();
+        addSubjectBtn = new javax.swing.JButton();
+        formaSubjectIFrame = new javax.swing.JInternalFrame();
         savedSubjBtn = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -203,13 +392,13 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         sharedFolderBtn = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         descriptionTextA = new javax.swing.JTextArea();
-        cancelSubjectBtn = new javax.swing.JButton();
         logSubjLabel = new javax.swing.JLabel();
-        consultPanel = new javax.swing.JPanel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        addSubjectBtn = new javax.swing.JButton();
         sessionPanel = new javax.swing.JPanel();
+        conSessPanel = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        sessionsTable = new javax.swing.JTable();
+        addSession = new javax.swing.JButton();
+        formaSessionIFrame = new javax.swing.JInternalFrame();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -218,11 +407,27 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         subjectsCB = new javax.swing.JComboBox<>();
         classroomsCB = new javax.swing.JComboBox<>();
         FilesSharedBtn = new javax.swing.JButton();
-        dateTextF = new javax.swing.JTextField();
         durationSpin = new javax.swing.JSpinner();
         savedSessBtn = new javax.swing.JButton();
         logSessLabel = new javax.swing.JLabel();
         sharedFileTextF = new javax.swing.JTextField();
+        datePicker = new com.toedter.calendar.JDateChooser();
+        jLabel11 = new javax.swing.JLabel();
+        startTimeSpin = new javax.swing.JSpinner();
+        subscriptionPanel = new javax.swing.JPanel();
+        conSubsPanel = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        subscriptionsTable = new javax.swing.JTable();
+        addSubscription = new javax.swing.JButton();
+        formaSubscripIFrame = new javax.swing.JInternalFrame();
+        jLabel10 = new javax.swing.JLabel();
+        subjectsSubsCb = new javax.swing.JComboBox<>();
+        savedSubscriptionBtn = new javax.swing.JButton();
+        logSubsLabel = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        passwordSubscField = new javax.swing.JPasswordField();
+        jLabel12 = new javax.swing.JLabel();
+        speakerTextF = new javax.swing.JTextField();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -241,8 +446,36 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         setTitle("RaspClass");
         setResizable(false);
 
+        tLabel.setText("Transfiriendo: 0");
+
+        dLabel.setText("Descargando: 0");
+
+        userLabel.setFont(new java.awt.Font("Tahoma", 1, 15)); // NOI18N
+        userLabel.setForeground(new java.awt.Color(0, 51, 153));
+        userLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        userLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/user.png"))); // NOI18N
+        userLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                userLabelMouseClicked(evt);
+            }
+        });
+
+        tabPanel.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
+        tabPanel.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
+
+        filesPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
+
+        docPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
+
+        archivos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                archivosMouseClicked(evt);
+            }
+        });
+        docPanel.setViewportView(archivos);
+
         jButton1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jButton1.setText("<");
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/ant2.png"))); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -250,42 +483,99 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         });
 
         jButton2.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
-        jButton2.setText(">");
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/next2.png"))); // NOI18N
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
             }
         });
 
-        tituloLbl.setText("Explorador de archivos");
+        javax.swing.GroupLayout filesPanelLayout = new javax.swing.GroupLayout(filesPanel);
+        filesPanel.setLayout(filesPanelLayout);
+        filesPanelLayout.setHorizontalGroup(
+            filesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, filesPanelLayout.createSequentialGroup()
+                .addGap(0, 677, Short.MAX_VALUE)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(filesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(filesPanelLayout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(docPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 774, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+        );
+        filesPanelLayout.setVerticalGroup(
+            filesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(filesPanelLayout.createSequentialGroup()
+                .addGroup(filesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
+                .addGap(0, 677, Short.MAX_VALUE))
+            .addGroup(filesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(filesPanelLayout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(docPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 611, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+        );
 
-        tLabel.setText("Transfiriendo: 0");
-
-        dLabel.setText("Descargando: 0");
-
-        userLabel.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
-        userLabel.setForeground(new java.awt.Color(0, 51, 153));
-
-        tabPanel.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
-        tabPanel.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
-
-        docusPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
-
-        archivos.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                archivosMouseClicked(evt);
-            }
-        });
-        docusPanel.setViewportView(archivos);
-
-        tabPanel.addTab("tab1", docusPanel);
+        tabPanel.addTab("tab4", filesPanel);
 
         subjectPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
         subjectPanel.setPreferredSize(new java.awt.Dimension(258, 130));
         subjectPanel.setRequestFocusEnabled(false);
 
-        formuPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
-        formuPanel.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
+        conSubPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
+
+        jScrollPane3.setBackground(java.awt.SystemColor.controlLtHighlight);
+        jScrollPane3.setMaximumSize(new java.awt.Dimension(32767, 200));
+        jScrollPane3.setMinimumSize(new java.awt.Dimension(27, 100));
+        jScrollPane3.setPreferredSize(new java.awt.Dimension(452, 202));
+
+        subjectsTable.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        subjectsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        subjectsTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                subjectsTableMouseClicked(evt);
+            }
+        });
+        jScrollPane3.setViewportView(subjectsTable);
+
+        javax.swing.GroupLayout conSubPanelLayout = new javax.swing.GroupLayout(conSubPanel);
+        conSubPanel.setLayout(conSubPanelLayout);
+        conSubPanelLayout.setHorizontalGroup(
+            conSubPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(conSubPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 710, Short.MAX_VALUE))
+        );
+        conSubPanelLayout.setVerticalGroup(
+            conSubPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 275, Short.MAX_VALUE)
+            .addGroup(conSubPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE))
+        );
+
+        addSubjectBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        addSubjectBtn.setForeground(new java.awt.Color(51, 51, 51));
+        addSubjectBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/add2.png"))); // NOI18N
+        addSubjectBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addSubjectBtnActionPerformed(evt);
+            }
+        });
+
+        formaSubjectIFrame.setClosable(true);
+        formaSubjectIFrame.setTitle("Create subject");
+        formaSubjectIFrame.setPreferredSize(new java.awt.Dimension(300, 345));
+        formaSubjectIFrame.setVisible(true);
 
         savedSubjBtn.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         savedSubjBtn.setText("Save");
@@ -316,7 +606,8 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         passwordTextF.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
 
         sharedFolderBtn.setFont(new java.awt.Font("Tahoma", 1, 15)); // NOI18N
-        sharedFolderBtn.setText("...");
+        sharedFolderBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/folder2.png"))); // NOI18N
+        sharedFolderBtn.setMargin(new java.awt.Insets(2, 7, 2, 7));
         sharedFolderBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 sharedFolderBtnActionPerformed(evt);
@@ -328,143 +619,94 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         descriptionTextA.setRows(5);
         jScrollPane2.setViewportView(descriptionTextA);
 
-        cancelSubjectBtn.setText("Cancel");
-        cancelSubjectBtn.setMaximumSize(new java.awt.Dimension(71, 27));
-        cancelSubjectBtn.setMinimumSize(new java.awt.Dimension(71, 27));
-        cancelSubjectBtn.setPreferredSize(new java.awt.Dimension(71, 27));
-        cancelSubjectBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelSubjectBtnActionPerformed(evt);
-            }
-        });
-
         logSubjLabel.setForeground(new java.awt.Color(153, 0, 0));
         logSubjLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
-        javax.swing.GroupLayout formuPanelLayout = new javax.swing.GroupLayout(formuPanel);
-        formuPanel.setLayout(formuPanelLayout);
-        formuPanelLayout.setHorizontalGroup(
-            formuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(formuPanelLayout.createSequentialGroup()
-                .addGap(76, 76, 76)
-                .addGroup(formuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(logSubjLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, formuPanelLayout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(nameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, formuPanelLayout.createSequentialGroup()
-                        .addGroup(formuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout formaSubjectIFrameLayout = new javax.swing.GroupLayout(formaSubjectIFrame.getContentPane());
+        formaSubjectIFrame.getContentPane().setLayout(formaSubjectIFrameLayout);
+        formaSubjectIFrameLayout.setHorizontalGroup(
+            formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
+                .addGap(40, 40, 40)
+                .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
+                        .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel3)
                             .addComponent(jLabel4)
                             .addComponent(jLabel2))
-                        .addGap(28, 28, 28)
-                        .addGroup(formuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, formuPanelLayout.createSequentialGroup()
-                                .addComponent(sharedFolderTextF)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(sharedFolderBtn))
-                            .addComponent(passwordTextF)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE))))
-                .addGap(67, 67, 67))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, formuPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(savedSubjBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27)
-                .addComponent(cancelSubjectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(230, 230, 230))
+                        .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
+                                .addGap(23, 23, 23)
+                                .addComponent(passwordTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
+                                .addGap(22, 22, 22)
+                                .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
+                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(0, 0, Short.MAX_VALUE))
+                                    .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
+                                        .addComponent(sharedFolderTextF)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(sharedFolderBtn))))))
+                    .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(nameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(672, 672, 672))
+            .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
+                .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
+                        .addGap(256, 256, 256)
+                        .addComponent(savedSubjBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
+                        .addGap(93, 93, 93)
+                        .addComponent(logSubjLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        formuPanelLayout.setVerticalGroup(
-            formuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, formuPanelLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(formuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+        formaSubjectIFrameLayout.setVerticalGroup(
+            formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(nameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(formuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(passwordTextF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(formuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(sharedFolderTextF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sharedFolderBtn)
-                    .addComponent(jLabel4))
+                .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(sharedFolderBtn, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(sharedFolderTextF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel4)))
                 .addGap(18, 18, 18)
-                .addGroup(formuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(formuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(savedSubjBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cancelSubjectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(savedSubjBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(logSubjLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(428, 428, 428))
+                .addGap(331, 331, 331))
         );
-
-        consultPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
-
-        jScrollPane3.setBackground(java.awt.SystemColor.controlLtHighlight);
-        jScrollPane3.setBorder(null);
-        jScrollPane3.setMaximumSize(new java.awt.Dimension(32767, 200));
-        jScrollPane3.setMinimumSize(new java.awt.Dimension(27, 100));
-        jScrollPane3.setPreferredSize(new java.awt.Dimension(452, 202));
-
-        jTable1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-
-            }
-        ));
-        jScrollPane3.setViewportView(jTable1);
-
-        javax.swing.GroupLayout consultPanelLayout = new javax.swing.GroupLayout(consultPanel);
-        consultPanel.setLayout(consultPanelLayout);
-        consultPanelLayout.setHorizontalGroup(
-            consultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-            .addGroup(consultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(consultPanelLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 665, Short.MAX_VALUE)
-                    .addContainerGap()))
-        );
-        consultPanelLayout.setVerticalGroup(
-            consultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 275, Short.MAX_VALUE)
-            .addGroup(consultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(consultPanelLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-        );
-
-        addSubjectBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        addSubjectBtn.setForeground(new java.awt.Color(51, 51, 51));
-        addSubjectBtn.setText("+");
-        addSubjectBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addSubjectBtnActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout subjectPanelLayout = new javax.swing.GroupLayout(subjectPanel);
         subjectPanel.setLayout(subjectPanelLayout);
         subjectPanelLayout.setHorizontalGroup(
             subjectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, subjectPanelLayout.createSequentialGroup()
-                .addGap(37, 37, 37)
-                .addComponent(consultPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(addSubjectBtn))
-            .addGroup(subjectPanelLayout.createSequentialGroup()
-                .addGap(49, 49, 49)
-                .addComponent(formuPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 102, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(subjectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(subjectPanelLayout.createSequentialGroup()
+                        .addComponent(conSubPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(subjectPanelLayout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addComponent(formaSubjectIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, 566, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 117, Short.MAX_VALUE)))
+                .addComponent(addSubjectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         subjectPanelLayout.setVerticalGroup(
             subjectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -473,15 +715,64 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                     .addComponent(addSubjectBtn)
                     .addGroup(subjectPanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(consultPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, Short.MAX_VALUE)
-                .addComponent(formuPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(73, 73, 73))
+                        .addComponent(conSubPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addComponent(formaSubjectIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, 323, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(73, Short.MAX_VALUE))
         );
 
         tabPanel.addTab("tab1", subjectPanel);
 
         sessionPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
+
+        conSessPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
+
+        jScrollPane1.setBackground(java.awt.SystemColor.controlLtHighlight);
+
+        sessionsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {},
+                {},
+                {},
+                {}
+            },
+            new String [] {
+
+            }
+        ));
+        sessionsTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                sessionsTableMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(sessionsTable);
+
+        javax.swing.GroupLayout conSessPanelLayout = new javax.swing.GroupLayout(conSessPanel);
+        conSessPanel.setLayout(conSessPanelLayout);
+        conSessPanelLayout.setHorizontalGroup(
+            conSessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 702, Short.MAX_VALUE)
+            .addGroup(conSessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 702, Short.MAX_VALUE))
+        );
+        conSessPanelLayout.setVerticalGroup(
+            conSessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 310, Short.MAX_VALUE)
+            .addGroup(conSessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE))
+        );
+
+        addSession.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/add2.png"))); // NOI18N
+        addSession.setToolTipText("");
+        addSession.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addSessionActionPerformed(evt);
+            }
+        });
+
+        formaSessionIFrame.setClosable(true);
+        formaSessionIFrame.setTitle("Create session");
+        formaSessionIFrame.setVisible(true);
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         jLabel5.setText("Subject:");
@@ -490,7 +781,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         jLabel6.setText("Classroom:");
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
-        jLabel7.setText("Duration (hrs):");
+        jLabel7.setText("Duration:");
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         jLabel8.setText("Date:");
@@ -499,21 +790,29 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         jLabel9.setText("Files:");
 
         subjectsCB.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        subjectsCB.setPreferredSize(new java.awt.Dimension(32, 26));
+        subjectsCB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                subjectsCBActionPerformed(evt);
+            }
+        });
 
         classroomsCB.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        classroomsCB.setPreferredSize(new java.awt.Dimension(32, 26));
 
-        FilesSharedBtn.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        FilesSharedBtn.setText("...");
+        FilesSharedBtn.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        FilesSharedBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/folder2.png"))); // NOI18N
+        FilesSharedBtn.setMargin(new java.awt.Insets(2, 7, 2, 7));
         FilesSharedBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 FilesSharedBtnActionPerformed(evt);
             }
         });
 
-        dateTextF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-
         durationSpin.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        durationSpin.setPreferredSize(new java.awt.Dimension(31, 26));
 
+        savedSessBtn.setBackground(javax.swing.UIManager.getDefaults().getColor("Button.shadow"));
         savedSessBtn.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         savedSessBtn.setText("Save");
         savedSessBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -523,75 +822,301 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         });
 
         logSessLabel.setForeground(new java.awt.Color(153, 0, 51));
+        logSessLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
         sharedFileTextF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        sharedFileTextF.setText("....");
         sharedFileTextF.setEnabled(false);
+        sharedFileTextF.setMinimumSize(new java.awt.Dimension(6, 26));
+
+        datePicker.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        datePicker.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/calendar.png")));
+        datePicker.setPreferredSize(new java.awt.Dimension(88, 26));
+
+        jLabel11.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel11.setText("StartTime:");
+
+        startTimeSpin.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        startTimeSpin.setPreferredSize(new java.awt.Dimension(31, 26));
+
+        javax.swing.GroupLayout formaSessionIFrameLayout = new javax.swing.GroupLayout(formaSessionIFrame.getContentPane());
+        formaSessionIFrame.getContentPane().setLayout(formaSessionIFrameLayout);
+        formaSessionIFrameLayout.setHorizontalGroup(
+            formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, formaSessionIFrameLayout.createSequentialGroup()
+                .addGap(33, 33, 33)
+                .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(formaSessionIFrameLayout.createSequentialGroup()
+                        .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel5)
+                            .addGroup(formaSessionIFrameLayout.createSequentialGroup()
+                                .addGap(4, 4, 4)
+                                .addComponent(jLabel9))
+                            .addComponent(jLabel8))
+                        .addGap(59, 59, 59)
+                        .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(subjectsCB, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(formaSessionIFrameLayout.createSequentialGroup()
+                                .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(classroomsCB, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(datePicker, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(39, 39, 39)
+                                .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, formaSessionIFrameLayout.createSequentialGroup()
+                                        .addComponent(jLabel11)
+                                        .addGap(31, 31, 31)))
+                                .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(startTimeSpin, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(durationSpin, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(formaSessionIFrameLayout.createSequentialGroup()
+                                .addComponent(sharedFileTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(FilesSharedBtn))))
+                    .addComponent(jLabel6))
+                .addContainerGap(25, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, formaSessionIFrameLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, formaSessionIFrameLayout.createSequentialGroup()
+                        .addComponent(savedSessBtn)
+                        .addGap(231, 231, 231))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, formaSessionIFrameLayout.createSequentialGroup()
+                        .addComponent(logSessLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(96, 96, 96))))
+        );
+        formaSessionIFrameLayout.setVerticalGroup(
+            formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(formaSessionIFrameLayout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(subjectsCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(formaSessionIFrameLayout.createSequentialGroup()
+                        .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel6)
+                            .addComponent(classroomsCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel11))
+                        .addGap(18, 18, 18)
+                        .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel7)
+                            .addComponent(datePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel8)))
+                    .addGroup(formaSessionIFrameLayout.createSequentialGroup()
+                        .addComponent(startTimeSpin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(durationSpin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(FilesSharedBtn)
+                    .addComponent(sharedFileTextF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
+                .addComponent(savedSessBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(logSessLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(125, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout sessionPanelLayout = new javax.swing.GroupLayout(sessionPanel);
         sessionPanel.setLayout(sessionPanelLayout);
         sessionPanelLayout.setHorizontalGroup(
             sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(sessionPanelLayout.createSequentialGroup()
-                .addGap(89, 89, 89)
-                .addGroup(sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel6)
-                    .addComponent(jLabel7)
-                    .addComponent(jLabel9)
-                    .addComponent(jLabel8))
-                .addGap(42, 42, 42)
-                .addGroup(sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(sessionPanelLayout.createSequentialGroup()
-                        .addComponent(sharedFileTextF, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
-                        .addGap(18, 18, 18)
-                        .addComponent(FilesSharedBtn))
-                    .addComponent(dateTextF)
-                    .addComponent(classroomsCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(durationSpin)
-                    .addComponent(subjectsCB, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(87, 87, 87))
-            .addGroup(sessionPanelLayout.createSequentialGroup()
-                .addGap(174, 174, 174)
-                .addComponent(logSessLabel)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, sessionPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(savedSessBtn)
-                .addGap(281, 281, 281))
+                .addGap(0, 729, Short.MAX_VALUE)
+                .addComponent(addSession, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(sessionPanelLayout.createSequentialGroup()
+                .addGap(45, 45, 45)
+                .addComponent(formaSessionIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, sessionPanelLayout.createSequentialGroup()
+                    .addContainerGap(14, Short.MAX_VALUE)
+                    .addComponent(conSessPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(58, Short.MAX_VALUE)))
         );
         sessionPanelLayout.setVerticalGroup(
             sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(sessionPanelLayout.createSequentialGroup()
-                .addGap(49, 49, 49)
-                .addGroup(sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(subjectsCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(22, 22, 22)
-                .addGroup(sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(classroomsCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(20, 20, 20)
-                .addGroup(sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(durationSpin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(26, 26, 26)
-                .addGroup(sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(dateTextF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(29, 29, 29)
-                .addGroup(sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
-                    .addComponent(FilesSharedBtn)
-                    .addComponent(sharedFileTextF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(27, 27, 27)
-                .addComponent(savedSessBtn)
-                .addGap(20, 20, 20)
-                .addComponent(logSessLabel)
-                .addContainerGap(275, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, sessionPanelLayout.createSequentialGroup()
+                .addComponent(addSession)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 144, Short.MAX_VALUE)
+                .addComponent(formaSessionIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(107, 107, 107))
+            .addGroup(sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(sessionPanelLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(conSessPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(379, Short.MAX_VALUE)))
         );
 
         tabPanel.addTab("tab3", sessionPanel);
+
+        subscriptionPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
+
+        conSubsPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
+
+        jScrollPane4.setBackground(java.awt.SystemColor.controlLtHighlight);
+
+        subscriptionsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {},
+                {},
+                {},
+                {}
+            },
+            new String [] {
+
+            }
+        ));
+        subscriptionsTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                subscriptionsTableMouseClicked(evt);
+            }
+        });
+        jScrollPane4.setViewportView(subscriptionsTable);
+
+        javax.swing.GroupLayout conSubsPanelLayout = new javax.swing.GroupLayout(conSubsPanel);
+        conSubsPanel.setLayout(conSubsPanelLayout);
+        conSubsPanelLayout.setHorizontalGroup(
+            conSubsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 702, Short.MAX_VALUE)
+            .addGroup(conSubsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 702, Short.MAX_VALUE))
+        );
+        conSubsPanelLayout.setVerticalGroup(
+            conSubsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 310, Short.MAX_VALUE)
+            .addGroup(conSubsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE))
+        );
+
+        addSubscription.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/add2.png"))); // NOI18N
+        addSubscription.setToolTipText("");
+        addSubscription.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addSubscriptionActionPerformed(evt);
+            }
+        });
+
+        formaSubscripIFrame.setClosable(true);
+        formaSubscripIFrame.setTitle("Add subscription");
+        formaSubscripIFrame.setToolTipText("");
+        formaSubscripIFrame.setVisible(true);
+
+        jLabel10.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
+        jLabel10.setText("Subject:");
+
+        subjectsSubsCb.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        subjectsSubsCb.setPreferredSize(new java.awt.Dimension(32, 26));
+        subjectsSubsCb.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                subjectsSubsCbActionPerformed(evt);
+            }
+        });
+
+        savedSubscriptionBtn.setBackground(javax.swing.UIManager.getDefaults().getColor("Button.shadow"));
+        savedSubscriptionBtn.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        savedSubscriptionBtn.setText("Save");
+        savedSubscriptionBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                savedSubscriptionBtnActionPerformed(evt);
+            }
+        });
+
+        logSubsLabel.setForeground(new java.awt.Color(153, 0, 51));
+        logSubsLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        jLabel17.setText("Password:");
+
+        passwordSubscField.setPreferredSize(new java.awt.Dimension(10, 22));
+
+        jLabel12.setText("Speaker:");
+        jLabel12.setToolTipText("");
+
+        speakerTextF.setEnabled(false);
+
+        javax.swing.GroupLayout formaSubscripIFrameLayout = new javax.swing.GroupLayout(formaSubscripIFrame.getContentPane());
+        formaSubscripIFrame.getContentPane().setLayout(formaSubscripIFrameLayout);
+        formaSubscripIFrameLayout.setHorizontalGroup(
+            formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(formaSubscripIFrameLayout.createSequentialGroup()
+                .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(formaSubscripIFrameLayout.createSequentialGroup()
+                        .addGap(226, 226, 226)
+                        .addComponent(savedSubscriptionBtn))
+                    .addGroup(formaSubscripIFrameLayout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel10)
+                            .addGroup(formaSubscripIFrameLayout.createSequentialGroup()
+                                .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel17)
+                                    .addComponent(jLabel12))
+                                .addGap(59, 59, 59)
+                                .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(passwordSubscField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(subjectsSubsCb, 0, 290, Short.MAX_VALUE)
+                                    .addComponent(speakerTextF)))))
+                    .addGroup(formaSubscripIFrameLayout.createSequentialGroup()
+                        .addGap(81, 81, 81)
+                        .addComponent(logSubsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 336, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(45, Short.MAX_VALUE))
+        );
+        formaSubscripIFrameLayout.setVerticalGroup(
+            formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(formaSubscripIFrameLayout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(subjectsSubsCb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(25, 25, 25)
+                .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel12)
+                    .addComponent(speakerTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 57, Short.MAX_VALUE)
+                .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel17)
+                    .addComponent(passwordSubscField, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(37, 37, 37)
+                .addComponent(savedSubscriptionBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(logSubsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout subscriptionPanelLayout = new javax.swing.GroupLayout(subscriptionPanel);
+        subscriptionPanel.setLayout(subscriptionPanelLayout);
+        subscriptionPanelLayout.setHorizontalGroup(
+            subscriptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, subscriptionPanelLayout.createSequentialGroup()
+                .addGap(0, 729, Short.MAX_VALUE)
+                .addComponent(addSubscription, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(subscriptionPanelLayout.createSequentialGroup()
+                .addGap(47, 47, 47)
+                .addComponent(formaSubscripIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(subscriptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, subscriptionPanelLayout.createSequentialGroup()
+                    .addContainerGap(14, Short.MAX_VALUE)
+                    .addComponent(conSubsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(58, Short.MAX_VALUE)))
+        );
+        subscriptionPanelLayout.setVerticalGroup(
+            subscriptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, subscriptionPanelLayout.createSequentialGroup()
+                .addComponent(addSubscription)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 248, Short.MAX_VALUE)
+                .addComponent(formaSubscripIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(109, 109, 109))
+            .addGroup(subscriptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(subscriptionPanelLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(conSubsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(379, Short.MAX_VALUE)))
+        );
+
+        tabPanel.addTab("tab3", subscriptionPanel);
 
         jMenuBar1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
@@ -682,45 +1207,28 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(tituloLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(364, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(userLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(dLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(tLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(10, 10, 10)
-                                .addComponent(tabPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 779, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jSeparator1))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(dLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(tLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addContainerGap())))
+                        .addGap(10, 10, 10)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(userLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tabPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 779, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 3, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(userLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(tituloLbl))
+                .addComponent(userLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(tabPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 644, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                    .addComponent(tabPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 735, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dLabel)
                     .addComponent(tLabel))
@@ -805,12 +1313,13 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void addSubjectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSubjectItemActionPerformed
-        SubjectI.getInstance("Add subject", this.user).setVisible(true);
-
+        tabPanel.setSelectedIndex(0);
+        formaSubjectIFrame.setVisible(true);
     }//GEN-LAST:event_addSubjectItemActionPerformed
 
     private void addSessionItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSessionItemActionPerformed
-        SessionI.getInstance("Add session", this.user).setVisible(true);
+        tabPanel.setSelectedIndex(1);
+        formaSessionIFrame.setVisible(true);
     }//GEN-LAST:event_addSessionItemActionPerformed
 
     private void savedSubjBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savedSubjBtnActionPerformed
@@ -819,21 +1328,28 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
             if (!passwordTextF.getText().isEmpty()) {
                 if (!sharedFolderTextF.getText().isEmpty()) {
                     Subject subject = null;
-                    subject = MainController.existSubject(nameTextF.getText(), passwordTextF.getText());
-                    if (subject == null) {
-                        Boolean saved = false;
-                        saved = MainController.addSubject(nameTextF.getText(), passwordTextF.getText(), descriptionTextA.getText(), sharedFolderTextF.getText(), this.user.getId());
-                        if (saved) {
-                            cleanFieldsSubject();
-                            formuPanel.setVisible(false);
-                            update_SubjectTable(false);
-                        } else {
-                            logSubjLabel.setText("Error..");
-                        }
-                    } else {
-                        logSubjLabel.setText("Subject and password already exist.");
+                    if (actionAdd) {
+                        subject = MainController.existSubjectName(nameTextF.getText());
+                        if (subject == null) {
+                            MainController.addSubject(nameTextF.getText(), passwordTextF.getText(), descriptionTextA.getText(), sharedFolderTextF.getText(), this.user.getId());
 
+                        } else {
+                            logSubjLabel.setText("Subject witn same name already exist.");
+                        }
+
+                    } else {
+                        subject = MainController.existSubjectNameNotId(nameTextF.getText(), subject_id);
+                        if (subject == null) {
+                            MainController.updateSubject(subject_id, nameTextF.getText(), passwordTextF.getText(), descriptionTextA.getText(), sharedFolderTextF.getText());
+
+                        } else {
+                            logSubjLabel.setText("Subject witn same name already exist.");
+                        }
                     }
+                    cleanFieldsSubject();
+                    formaSubjectIFrame.doDefaultCloseAction();
+                    update_SubjectTable(true);
+
                 } else {
                     logSubjLabel.setText("Shared Folder is empty.");
                 }
@@ -849,8 +1365,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         // TODO add your handling code here:
         if (fileChooserSub.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             sharedFolderTextF.setText(fileChooserSub.getSelectedFile().toString());
-            //MainController.updateSharedFolder(sharedFolderTxt.getText());
-
         } else {
             System.out.println("No Selection ");
         }
@@ -858,48 +1372,212 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
 
     private void FilesSharedBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FilesSharedBtnActionPerformed
         if (fileChooserSes.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            sharedFileTextF.setText(fileChooserSes.getSelectedFile().toString());
-            //MainController.updateSharedFolder(sharedFolderTxt.getText());
-
+            sharedFileTextF.setText(fileChooserSes.getSelectedFile().getName());
         } else {
             System.out.println("No Selection ");
         }
     }//GEN-LAST:event_FilesSharedBtnActionPerformed
 
     private void savedSessBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savedSessBtnActionPerformed
-        // TODO add your handling code here:
+        if (!sharedFileTextF.getText().isEmpty()) {
+            if (datePicker.getDate().after(new Date())) {
+                if (editorStart.getFormat().format(startTimeSpin.getValue()) != "00:00") {
+
+                    String hour = editorStart.getFormat().format(startTimeSpin.getValue()) + ":00";
+                    String duration = editorDuration.getFormat().format(durationSpin.getValue()) + ":00";
+                    String date = new SimpleDateFormat("yyyy-MM-dd").format(datePicker.getDate()) + " " + hour;
+                    classroom = MainController.getClassroomName(classroomsCB.getSelectedItem().toString());
+                    if (actionAdd) {
+                        session_id = MainController.addSession(date, hour, duration, classroom.getId(), subject.getId());
+                        file_id = MainController.addFile(fileChooserSes.getSelectedFile().getName(), "", fileChooserSes.getSelectedFile().toString());
+                        MainController.addFileSession(String.valueOf(session_id), String.valueOf(file_id), String.valueOf(false));
+                    } else {
+                        MainController.updateSession(filesession.getSessionId(), date, hour, duration, classroom.getId(), subject.getId());
+                        MainController.updateFile(filesession.getFileId(), fileChooserSes.getSelectedFile().getName(), "", fileChooserSes.getSelectedFile().toString());
+                    }
+                    formaSessionIFrame.doDefaultCloseAction();
+                    cleanFieldsSession();
+                    update_SessionTable(true);
+                } else {
+                    logSessLabel.setText("There are empty fields.");
+                }
+            } else {
+                logSessLabel.setText("There are empty fields.");
+            }
+        } else {
+            logSessLabel.setText("There are empty fields.");
+        }
+
 
     }//GEN-LAST:event_savedSessBtnActionPerformed
 
     private void addSubjectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSubjectBtnActionPerformed
-        // TODO add your handling code here:
-        formuPanel.setVisible(true);
+        formaSubjectIFrame.setTitle("Add subject");
+        actionAdd = true;
+        formaSubjectIFrame.setVisible(true);
     }//GEN-LAST:event_addSubjectBtnActionPerformed
 
-    private void cancelSubjectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelSubjectBtnActionPerformed
+    private void addSessionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSessionActionPerformed
+        //--------ComboBox----//
+        formaSessionIFrame.setTitle("Add session");
+        savedSessBtn.setEnabled(false);
+        update_cbSession();
+        actionAdd = true;
+        formaSessionIFrame.setVisible(true);
+
+    }//GEN-LAST:event_addSessionActionPerformed
+
+    private void subjectsCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_subjectsCBActionPerformed
+        subject = MainController.getSubjectNameUserId(subjectsCB.getSelectedItem().toString(), user.getId());
+        if (subject != null) {
+            fileChooserSes.setCurrentDirectory(new File(subject.getSharedFolder()));
+        }
+    }//GEN-LAST:event_subjectsCBActionPerformed
+
+    private void sessionsTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sessionsTableMouseClicked
         // TODO add your handling code here:
-        formuPanel.setVisible(false);
-    }//GEN-LAST:event_cancelSubjectBtnActionPerformed
+        int rowIndex = sessionsTable.getSelectedRow();
+        int colIndex = sessionsTable.getSelectedColumn();
+        System.out.println(rowIndex + "-" + colIndex);
+        String session_id = sessions.get(rowIndex).getId();
+        filesession = MainController.getFilesSession(session_id);
+
+        if (colIndex == 4) { // edit session      
+            FileD file = MainController.getFile(filesession.getFileId());
+            Session session = MainController.getSession(filesession.getSessionId());                    
+            DefaultTableModel tm = (DefaultTableModel) sessionsTable.getModel();
+            String subjectName = String.valueOf(tm.getValueAt(rowIndex, 1));
+            String classroomName = String.valueOf(tm.getValueAt(rowIndex, 2));
+            try {
+                actionAdd = false;
+                setFieldsSession(file, session, subjectName, classroomName);
+            } catch (ParseException ex) {
+                Logger.getLogger(ExploradorGlobal1.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            if (colIndex == 5) { // delete session                
+                int response = JOptionPane.showConfirmDialog(this, "Do you want to delete session?", "Accept",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (response == JOptionPane.YES_OPTION) {
+                    MainController.deleteFilesSession(Integer.parseInt(filesession.getId()));
+                    update_SessionTable(true);
+                }
+            }
+        }
+
+    }//GEN-LAST:event_sessionsTableMouseClicked
+
+    private void subscriptionsTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_subscriptionsTableMouseClicked
+        int rowIndex = subscriptionsTable.getSelectedRow();
+        int colIndex = subscriptionsTable.getSelectedColumn();
+        subscriptions.get(rowIndex).getId();
+        if (colIndex == 2) { // delete session                
+            int response = JOptionPane.showConfirmDialog(this, "Do you want to cancel subscription?", "Accept",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (response == JOptionPane.YES_OPTION) {
+                MainController.deleteSubscription(Integer.parseInt(subscriptions.get(rowIndex).getId()));
+                update_SubscriptionsTable(true);
+            }
+
+        }
+    }//GEN-LAST:event_subscriptionsTableMouseClicked
+
+    private void addSubscriptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSubscriptionActionPerformed
+        formaSubscripIFrame.setVisible(true);
+        subjectsSubscriptions = MainController.getSubjectsNotUser(user.getId());
+        if (subjectsSubscriptions.size() == 0 || subjectsSubscriptions == null) {
+            logSubsLabel.setText("There aren't subjects for subscription your.");
+            savedSubscriptionBtn.setEnabled(false);
+        } else {
+            subjectsSubsCb.removeAllItems();
+            subjectsSubscriptions.forEach((n) -> subjectsSubsCb.addItem(n.getName()));
+            savedSubscriptionBtn.setEnabled(true);
+        }
+    }//GEN-LAST:event_addSubscriptionActionPerformed
+
+    private void savedSubscriptionBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savedSubscriptionBtnActionPerformed
+        if (!passwordSubscField.getText().isEmpty()) {
+            subject = MainController.existSubjectNamePass(subjectsSubsCb.getSelectedItem().toString(), passwordSubscField.getText());
+            if (subject != null) {
+
+                Subscription subscription = MainController.getSubscriptionSubjectUser(subjectsSubscriptions.get(subjectsSubsCb.getSelectedIndex()).getId(), user.getId());
+                if (subscription == null) {
+                    MainController.addSubscription(subject.getId(), user.getId(), String.valueOf(false));
+                    update_SubscriptionsTable(true);
+                    cleanFieldsSubscription();
+                    formaSubscripIFrame.doDefaultCloseAction();
+                } else {
+                    logSubsLabel.setText("you are already subscribed to this subject.");
+                }
+            } else {
+                logSubsLabel.setText("The password is incorrect.");
+            }
+        } else {
+            logSubsLabel.setText("The password is empty.");
+        }
+
+    }//GEN-LAST:event_savedSubscriptionBtnActionPerformed
+
+    private void subjectsTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_subjectsTableMouseClicked
+        int rowIndex = subjectsTable.getSelectedRow();
+        int colIndex = subjectsTable.getSelectedColumn();
+        System.out.println(rowIndex + "-" + colIndex);
+        subject_id = subjects.get(rowIndex).getId();
+        Subject subject = MainController.getSubjectId(subject_id);
+        if (colIndex == 3) { // edit session
+            actionAdd = false;
+            setFieldsSubject(subject);
+        } else {
+            if (colIndex == 4) { // delete session                
+                int response = JOptionPane.showConfirmDialog(this, "Do you want to delete subject?", "Accept",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (response == JOptionPane.YES_OPTION) {
+                    MainController.deleteSubject(Integer.parseInt(subject.getId()));
+                    update_SubjectTable(true);
+                }
+            }
+        }
+    }//GEN-LAST:event_subjectsTableMouseClicked
+
+    private void subjectsSubsCbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_subjectsSubsCbActionPerformed
+        User speaker =  MainController.getUserId(subjectsSubscriptions.get(subjectsSubsCb.getSelectedIndex()).getUserId());
+        speakerTextF.setText(speaker.getName());
+        
+    }//GEN-LAST:event_subjectsSubsCbActionPerformed
+
+    private void userLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_userLabelMouseClicked
+        
+    }//GEN-LAST:event_userLabelMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton FilesSharedBtn;
+    private javax.swing.JButton addSession;
     private javax.swing.JMenuItem addSessionItem;
     private javax.swing.JButton addSubjectBtn;
     private javax.swing.JMenuItem addSubjectItem;
+    private javax.swing.JButton addSubscription;
     private javax.swing.JList<String> archivos;
-    private javax.swing.JButton cancelSubjectBtn;
     private javax.swing.JComboBox<String> classroomsCB;
-    private javax.swing.JPanel consultPanel;
+    private javax.swing.JPanel conSessPanel;
+    private javax.swing.JPanel conSubPanel;
+    private javax.swing.JPanel conSubsPanel;
     private javax.swing.JLabel dLabel;
-    private javax.swing.JTextField dateTextF;
+    private com.toedter.calendar.JDateChooser datePicker;
     private javax.swing.JTextArea descriptionTextA;
-    private javax.swing.JScrollPane docusPanel;
+    private javax.swing.JScrollPane docPanel;
     private javax.swing.JSpinner durationSpin;
-    private javax.swing.JPanel formuPanel;
+    private javax.swing.JPanel filesPanel;
+    private javax.swing.JInternalFrame formaSessionIFrame;
+    private javax.swing.JInternalFrame formaSubjectIFrame;
+    private javax.swing.JInternalFrame formaSubscripIFrame;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -915,27 +1593,37 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel logSessLabel;
     private javax.swing.JLabel logSubjLabel;
+    private javax.swing.JLabel logSubsLabel;
     private javax.swing.JTextField nameTextF;
+    private javax.swing.JPasswordField passwordSubscField;
     private javax.swing.JPasswordField passwordTextF;
     private javax.swing.JButton savedSessBtn;
     private javax.swing.JButton savedSubjBtn;
+    private javax.swing.JButton savedSubscriptionBtn;
     private javax.swing.JMenu sessionMenu;
     private javax.swing.JPanel sessionPanel;
+    private javax.swing.JTable sessionsTable;
     private javax.swing.JTextField sharedFileTextF;
     private javax.swing.JButton sharedFolderBtn;
     private javax.swing.JTextField sharedFolderTextF;
+    private javax.swing.JTextField speakerTextF;
+    private javax.swing.JSpinner startTimeSpin;
     private javax.swing.JMenu subjectMenu;
     private javax.swing.JPanel subjectPanel;
     private javax.swing.JComboBox<String> subjectsCB;
+    private javax.swing.JComboBox<String> subjectsSubsCb;
+    private javax.swing.JTable subjectsTable;
+    private javax.swing.JPanel subscriptionPanel;
+    private javax.swing.JTable subscriptionsTable;
     private javax.swing.JLabel tLabel;
     private javax.swing.JTabbedPane tabPanel;
-    private javax.swing.JLabel tituloLbl;
     private javax.swing.JMenuItem updateSessionItem;
     private javax.swing.JMenuItem updateSubjectItem;
     private javax.swing.JLabel userLabel;

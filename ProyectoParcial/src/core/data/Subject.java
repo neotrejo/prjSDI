@@ -16,17 +16,19 @@ public class Subject {
     private String password;
     private String description;
     private String sharedfolder;
+    private String user_id;
 
     public Subject() {
 
     }
 
-    public Subject(String id, String name, String password, String description, String sharedfolder) {
+    public Subject(String id, String name, String password, String description, String sharedfolder, String user_id) {
         this.id = id;
         this.name = name;
         this.password = password;
         this.description = description;
         this.sharedfolder = sharedfolder;
+        this.user_id = user_id;
     }
 
     public String getId() {
@@ -68,5 +70,14 @@ public class Subject {
     public void setSharedFolder(String sharedfolder) {
         this.sharedfolder = sharedfolder;
     }
+    
+    public String getUserId() {
+        return user_id;
+    }
+
+    public void setUserId(String user_id) {
+        this.user_id = user_id;
+    }
+    
 
 }
