@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyVetoException;
+import javax.swing.KeyStroke;
 
 /**
  *
@@ -32,7 +33,7 @@ public class Login extends javax.swing.JFrame {
         try {
             initComponents();
             setLocationRelativeTo(null);
-            jPanel1.setBorder(BorderFactory.createTitledBorder("Log in"));
+            jPanel1.setBorder(BorderFactory.createTitledBorder("Log in"));      
             mainParent = this;
             SQLiteConnection.getInstance().conectar();
         } catch (ClassNotFoundException ex) {
@@ -60,6 +61,11 @@ public class Login extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("RaspClass");
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+        });
 
         createAccountLk.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         createAccountLk.setForeground(new java.awt.Color(0, 51, 153));
@@ -143,7 +149,7 @@ public class Login extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(32, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -191,6 +197,12 @@ public class Login extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_logInBtnActionPerformed
+
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+        if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
+                logInBtn.doClick();
+            }
+    }//GEN-LAST:event_formKeyPressed
 
     /**
      * @param args the command line arguments

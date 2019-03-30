@@ -38,15 +38,13 @@ public class DAOUser {
         connection.insert("User", params);
     }
 
-    public void updateUser(String id, String name, String username, String password, String email, String hostcomputer, String sharedfolder, String fingerprint) {
+    public void updateUser(String id, String name, String password, String email, String hostcomputer, String sharedfolder) {
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
-        params.put("userName", username);
         params.put("password", password);
         params.put("email", email);
         params.put("hostComputer", hostcomputer);
         params.put("sharedFolder", sharedfolder);
-        params.put("fingerPrint", fingerprint);
         connection.update("User", params, "id=\"" + id + "\"");
     }
 

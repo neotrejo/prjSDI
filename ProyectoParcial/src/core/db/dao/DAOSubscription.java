@@ -6,6 +6,7 @@
 package core.db.dao;
 
 import core.data.Subscription;
+import core.data.Subscriptor;
 import core.db.sqlite.SQLiteConnection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public class DAOSubscription {
             String query = "SELECT * FROM Subscription WHERE subject_id=\""+ subject_id+"\" and user_id=\""+user_id+"\" and deleted=\"false\"" ;
             return executeQuery(query);
     }
+    
     private Subscription executeQuery(String query){
          try {
             ResultSet result = connection.select(query);

@@ -6,6 +6,7 @@
 package core.db.dao;
 
 import core.data.Subject;
+import core.data.Subscriptor;
 import core.db.sqlite.SQLiteConnection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -85,6 +86,32 @@ public class DAOSubject {
     public ArrayList<Subject> getByNotUserId(String user_id) {
         String query = "SELECT * FROM Subject WHERE (user_id <> " + user_id + " and user_id <> \"" + user_id + "\") and deleted=\"false\"";
         return executeQueryList(query);
+    }
+
+    public ArrayList<Subscriptor> findSubscriptors(String subject_id, String user_id) {
+        try {
+            String query = "SELECT Subscription.id subscription_id, User.name, User.email, Subject.subjectName FROM Subject\n"
+                    + "INNER JOIN Subscription on Subscription.subject_id = Subject.id\n"
+                    + "INNER JOIN User on User.id = Subscription.user_id\n"
+                    + "WHERE Subject.user_id = \"" + user_id + "\"  and  Subject.id=" + subject_id;
+            ResultSet result = connection.select(query);
+            Subscriptor subscriptor = null;
+            ArrayList<Subscriptor> subscriptors = new ArrayList<>();
+            if (result != null) {
+                while (result.next()) {
+                    subscriptor = new Subscriptor();
+                    subscriptor.setSubscriptionId(result.getObject("subscription_id").toString());
+                    subscriptor.setName(result.getObject("name").toString());
+                    subscriptor.setEmail(result.getObject("email").toString());
+                    subscriptor.setSubject(result.getObject("subjectName").toString());
+                    subscriptors.add(subscriptor);
+                }
+            }
+            return subscriptors;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     private Subject executeQuery(String query) {

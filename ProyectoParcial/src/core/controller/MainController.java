@@ -19,6 +19,7 @@ import core.data.Session;
 import core.data.User;
 import core.data.Subject;
 import core.data.Subscription;
+import core.data.Subscriptor;
 import core.db.dao.DAOArchivo;
 import core.db.dao.DAOClassroom;
 import core.db.dao.DAODescarga;
@@ -142,7 +143,12 @@ public class MainController {
         //---------------------------------------------------
         public static void addUser(String name, String username, String pass,String email, String hostcomputer, String sharedfolder,String fingerprint){
                 daoUser.insertUser(name, username, pass, email, hostcomputer, sharedfolder, fingerprint);
-        }        
+        } 
+        
+        public static void updateUser(String id, String name, String pass, String email, String hostcomputer, String sharedfolder){
+                daoUser.updateUser(id, name, pass, email, hostcomputer, sharedfolder);
+            
+        }
         
         public static User existUser(String username, String password){         
             return daoUser.findByUserAndPass(username, password);
@@ -158,6 +164,10 @@ public class MainController {
         
         public static void updateSubject(String id,String name, String password,String description, String sharedfolder){
             daoSubject.updateSubject(id, name, password, description, sharedfolder);
+        }
+        
+        public static ArrayList<Subscriptor> getSubscriptorToSubject(String user_id, String subject_id){
+            return daoSubject.findSubscriptors(subject_id, user_id);
         }
         
         public static void deleteSubject (int id){
