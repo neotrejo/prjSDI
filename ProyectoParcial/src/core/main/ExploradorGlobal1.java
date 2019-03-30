@@ -32,6 +32,8 @@ import core.services.DirectoryObserver;
 import core.services.NetworkConnections;
 import core.tasks.UserDisconnection;
 import core.utils.MyLogger;
+import core.utils.ColorColumnRenderer;
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyVetoException;
@@ -53,12 +55,15 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner.DateEditor;
 import javax.swing.SpinnerDateModel;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.text.DateFormatter;
 
 /**
@@ -130,7 +135,8 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         tabPanel.setTitleAt(3, "Subscription");
         tabPanel.setMnemonicAt(3, KeyEvent.VK_4);
         tabPanel.setSelectedIndex(0);
-
+        tabPanel.setEnabledAt(4, false);
+        tabPanel.setTitleAt(4, "User");
         //-----------JDateChooser----------------//
         datePicker.getJCalendar().setMinSelectableDate(new Date());
 
@@ -186,6 +192,9 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         for (String s : headSubject) {
             modelSubj.addColumn(s);
         }
+        subjectsTable.getColumnModel().getColumn(3).setCellRenderer(new ColorColumnRenderer(Color.WHITE, Color.blue));
+        subjectsTable.getColumnModel().getColumn(4).setCellRenderer(new ColorColumnRenderer(Color.WHITE, Color.blue));
+        subjectsTable.getColumnModel().getColumn(5).setCellRenderer(new ColorColumnRenderer(Color.WHITE, Color.blue));
         updateSubjectTable(false);
 
         String[] headSession = {"Date", "Subject", "Classroom", "File", "", ""};
@@ -194,8 +203,10 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         for (String s : headSession) {
             modelSess.addColumn(s);
         }
-        sourceFormat = new SimpleDateFormat("dd/MM/yyyy");
+        sessionsTable.getColumnModel().getColumn(4).setCellRenderer(new ColorColumnRenderer(Color.WHITE, Color.blue));
+        sessionsTable.getColumnModel().getColumn(5).setCellRenderer(new ColorColumnRenderer(Color.WHITE, Color.blue));
         updateSessionTable(false);
+        sourceFormat = new SimpleDateFormat("dd/MM/yyyy");
 
         String[] headSubscription = {"Subject", "Speaker", ""};
         modelSubscription = new DefaultTableModel();
@@ -203,6 +214,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         for (String s : headSubscription) {
             modelSubscription.addColumn(s);
         }
+        subscriptionsTable.getColumnModel().getColumn(2).setCellRenderer(new ColorColumnRenderer(Color.WHITE, Color.blue));
         updateSubscriptionsTable(false);
 
         String[] headSubscriptor = {"Name", "Email"};
@@ -333,7 +345,9 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     }
 
     private void cleanFieldsSubscription() {
-        subjectsSubsCb.setSelectedIndex(0);
+        if (subjectsSubsCb.getItemCount() > 0) {
+            subjectsSubsCb.setSelectedIndex(0);
+        }
         passwordSubscField.setText("");
         logSubsLabel.setText("");
     }
@@ -464,6 +478,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         passwordSubscField = new javax.swing.JPasswordField();
         jLabel12 = new javax.swing.JLabel();
         speakerTextF = new javax.swing.JTextField();
+        accountPanel = new javax.swing.JPanel();
         accountIFrame = new javax.swing.JInternalFrame();
         jPanel1 = new javax.swing.JPanel();
         jLabel13 = new javax.swing.JLabel();
@@ -488,12 +503,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
-        subjectMenu = new javax.swing.JMenu();
-        addSubjectItem = new javax.swing.JMenuItem();
-        updateSubjectItem = new javax.swing.JMenuItem();
-        sessionMenu = new javax.swing.JMenu();
-        addSessionItem = new javax.swing.JMenuItem();
-        updateSessionItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("RaspClass");
@@ -666,26 +675,19 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                             .addComponent(jLabel3)
                             .addComponent(jLabel4)
                             .addComponent(jLabel2))
+                        .addGap(18, 18, 18)
                         .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
-                                .addGap(23, 23, 23)
-                                .addComponent(passwordTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
-                                .addGap(22, 22, 22)
-                                .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
-                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(0, 0, Short.MAX_VALUE))
-                                    .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
-                                        .addComponent(sharedFolderTextF)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(sharedFolderBtn))))))
+                                .addComponent(sharedFolderTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(sharedFolderBtn))
+                            .addComponent(passwordTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(nameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 365, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(nameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(672, 672, 672))
+                        .addGap(1043, 1043, 1043))))
             .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
                 .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
@@ -699,29 +701,29 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         formaSubjectIFrameLayout.setVerticalGroup(
             formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(formaSubjectIFrameLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(24, 24, 24)
                 .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(nameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(nameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(passwordTextF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(passwordTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(sharedFolderBtn, javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(sharedFolderTextF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel4)))
-                .addGap(18, 18, 18)
+                        .addComponent(sharedFolderTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel4))
+                    .addComponent(sharedFolderBtn))
+                .addGap(22, 22, 22)
                 .addGroup(formaSubjectIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(savedSubjBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(logSubjLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(331, 331, 331))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                .addComponent(logSubjLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout conSubPanelLayout = new javax.swing.GroupLayout(conSubPanel);
@@ -738,13 +740,20 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         conSubPanelLayout.setVerticalGroup(
             conSubPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(conSubPanelLayout.createSequentialGroup()
-                .addComponent(formaSubjectIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, 323, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(formaSubjectIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, 347, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(conSubPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(conSubPanelLayout.createSequentialGroup()
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 384, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(0, 187, Short.MAX_VALUE)))
+                    .addGap(0, 0, Short.MAX_VALUE)))
         );
+
+        try {
+            formaSubjectIFrame.setMaximum(true);
+        } catch (java.beans.PropertyVetoException e1) {
+            e1.printStackTrace();
+        }
 
         addSubjectBtn.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         addSubjectBtn.setForeground(new java.awt.Color(51, 51, 51));
@@ -773,20 +782,20 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         subscriptorsPanel.setLayout(subscriptorsPanelLayout);
         subscriptorsPanelLayout.setHorizontalGroup(
             subscriptorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 710, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
             .addGroup(subscriptorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(subscriptorsPanelLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 686, Short.MAX_VALUE)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 726, Short.MAX_VALUE)
                     .addContainerGap()))
         );
         subscriptorsPanelLayout.setVerticalGroup(
             subscriptorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 249, Short.MAX_VALUE)
+            .addGap(0, 286, Short.MAX_VALUE)
             .addGroup(subscriptorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(subscriptorsPanelLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
                     .addContainerGap()))
         );
 
@@ -798,24 +807,23 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                 .addContainerGap()
                 .addGroup(subjectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(subjectPanelLayout.createSequentialGroup()
-                        .addComponent(conSubPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(addSubjectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(subjectPanelLayout.createSequentialGroup()
-                        .addComponent(subscriptorsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 52, Short.MAX_VALUE))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, subjectPanelLayout.createSequentialGroup()
+                        .addGroup(subjectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(subscriptorsPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(conSubPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 750, Short.MAX_VALUE))
+                        .addContainerGap())))
         );
         subjectPanelLayout.setVerticalGroup(
             subjectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(subjectPanelLayout.createSequentialGroup()
-                .addGroup(subjectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(addSubjectBtn)
-                    .addGroup(subjectPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(conSubPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 383, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addComponent(addSubjectBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(subscriptorsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addComponent(conSubPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(subscriptorsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         tabPanel.addTab("tab1", subjectPanel);
@@ -823,9 +831,11 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         sessionPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
 
         conSessPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
+        conSessPanel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         jScrollPane1.setBackground(java.awt.SystemColor.controlLtHighlight);
 
+        sessionsTable.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         sessionsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {},
@@ -848,15 +858,15 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         conSessPanel.setLayout(conSessPanelLayout);
         conSessPanelLayout.setHorizontalGroup(
             conSessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 704, Short.MAX_VALUE)
+            .addGap(0, 750, Short.MAX_VALUE)
             .addGroup(conSessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 704, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 750, Short.MAX_VALUE))
         );
         conSessPanelLayout.setVerticalGroup(
             conSessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 310, Short.MAX_VALUE)
+            .addGap(0, 656, Short.MAX_VALUE)
             .addGroup(conSessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 656, Short.MAX_VALUE))
         );
 
         addSessionBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/add2.png"))); // NOI18N
@@ -929,7 +939,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         logSessLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
         sharedFileTextF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        sharedFileTextF.setEnabled(false);
         sharedFileTextF.setMinimumSize(new java.awt.Dimension(6, 26));
 
         datePicker.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -977,7 +986,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(FilesSharedBtn))))
                     .addComponent(jLabel6))
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(42, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, formaSessionIFrameLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -994,33 +1003,33 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                 .addGap(27, 27, 27)
                 .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(subjectsCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(subjectsCB, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(formaSessionIFrameLayout.createSequentialGroup()
                         .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
-                            .addComponent(classroomsCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(classroomsCB, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel11))
                         .addGap(18, 18, 18)
                         .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel7)
-                            .addComponent(datePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(datePicker, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel8)))
                     .addGroup(formaSessionIFrameLayout.createSequentialGroup()
-                        .addComponent(startTimeSpin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(startTimeSpin, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(durationSpin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(durationSpin, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addGroup(formaSessionIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
                     .addComponent(FilesSharedBtn)
-                    .addComponent(sharedFileTextF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(26, 26, 26)
+                    .addComponent(sharedFileTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addComponent(savedSessBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(logSessLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(77, Short.MAX_VALUE))
+                .addContainerGap(41, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout sessionPanelLayout = new javax.swing.GroupLayout(sessionPanel);
@@ -1031,27 +1040,27 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                 .addGap(0, 729, Short.MAX_VALUE)
                 .addComponent(addSessionBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(sessionPanelLayout.createSequentialGroup()
-                .addGap(45, 45, 45)
+                .addGap(100, 100, 100)
                 .addComponent(formaSessionIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(sessionPanelLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(conSessPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(58, Short.MAX_VALUE)))
+                    .addComponent(conSessPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
         sessionPanelLayout.setVerticalGroup(
             sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, sessionPanelLayout.createSequentialGroup()
                 .addComponent(addSessionBtn)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 192, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 76, Short.MAX_VALUE)
                 .addComponent(formaSessionIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(107, 107, 107))
+                .addGap(270, 270, 270))
             .addGroup(sessionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(sessionPanelLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(conSessPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(379, Short.MAX_VALUE)))
+                    .addGap(33, 33, 33)
+                    .addComponent(conSessPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
 
         tabPanel.addTab("tab3", sessionPanel);
@@ -1059,9 +1068,12 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         subscriptionPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
 
         conSubsPanel.setBackground(java.awt.SystemColor.controlLtHighlight);
+        conSubsPanel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         jScrollPane4.setBackground(java.awt.SystemColor.controlLtHighlight);
+        jScrollPane4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
+        subscriptionsTable.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         subscriptionsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {},
@@ -1084,15 +1096,15 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         conSubsPanel.setLayout(conSubsPanelLayout);
         conSubsPanelLayout.setHorizontalGroup(
             conSubsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 706, Short.MAX_VALUE)
+            .addGap(0, 750, Short.MAX_VALUE)
             .addGroup(conSubsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 706, Short.MAX_VALUE))
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 750, Short.MAX_VALUE))
         );
         conSubsPanelLayout.setVerticalGroup(
             conSubsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 310, Short.MAX_VALUE)
+            .addGap(0, 655, Short.MAX_VALUE)
             .addGroup(conSubsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE))
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 655, Short.MAX_VALUE))
         );
 
         addSubscription.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/add2.png"))); // NOI18N
@@ -1108,7 +1120,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         formaSubscripIFrame.setToolTipText("");
         formaSubscripIFrame.setVisible(true);
 
-        jLabel10.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
+        jLabel10.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel10.setText("Subject:");
 
         subjectsSubsCb.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -1131,13 +1143,17 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         logSubsLabel.setForeground(new java.awt.Color(153, 0, 51));
         logSubsLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
+        jLabel17.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel17.setText("Password:");
 
+        passwordSubscField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         passwordSubscField.setPreferredSize(new java.awt.Dimension(10, 22));
 
+        jLabel12.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel12.setText("Speaker:");
         jLabel12.setToolTipText("");
 
+        speakerTextF.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         speakerTextF.setEnabled(false);
 
         javax.swing.GroupLayout formaSubscripIFrameLayout = new javax.swing.GroupLayout(formaSubscripIFrame.getContentPane());
@@ -1157,15 +1173,15 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                                 .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel17)
                                     .addComponent(jLabel12))
-                                .addGap(59, 59, 59)
+                                .addGap(38, 38, 38)
                                 .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(passwordSubscField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(subjectsSubsCb, 0, 290, Short.MAX_VALUE)
-                                    .addComponent(speakerTextF)))))
+                                    .addComponent(speakerTextF)
+                                    .addComponent(passwordSubscField, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)))
+                            .addComponent(subjectsSubsCb, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(formaSubscripIFrameLayout.createSequentialGroup()
                         .addGap(81, 81, 81)
                         .addComponent(logSubsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 336, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(45, Short.MAX_VALUE))
+                .addContainerGap(34, Short.MAX_VALUE))
         );
         formaSubscripIFrameLayout.setVerticalGroup(
             formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1173,16 +1189,16 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                 .addGap(27, 27, 27)
                 .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
-                    .addComponent(subjectsSubsCb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(25, 25, 25)
+                    .addComponent(subjectsSubsCb, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
-                    .addComponent(speakerTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 78, Short.MAX_VALUE)
+                    .addComponent(speakerTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 46, Short.MAX_VALUE)
                 .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel17)
-                    .addComponent(passwordSubscField, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(37, 37, 37)
+                    .addComponent(passwordSubscField, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addComponent(savedSubscriptionBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(logSubsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1197,27 +1213,27 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                 .addGap(0, 729, Short.MAX_VALUE)
                 .addComponent(addSubscription, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(subscriptionPanelLayout.createSequentialGroup()
-                .addGap(47, 47, 47)
+                .addGap(134, 134, 134)
                 .addComponent(formaSubscripIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(subscriptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(subscriptionPanelLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(conSubsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(56, Short.MAX_VALUE)))
+                    .addComponent(conSubsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
         subscriptionPanelLayout.setVerticalGroup(
             subscriptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, subscriptionPanelLayout.createSequentialGroup()
                 .addComponent(addSubscription)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 227, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 177, Short.MAX_VALUE)
                 .addComponent(formaSubscripIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(109, 109, 109))
+                .addGap(212, 212, 212))
             .addGroup(subscriptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(subscriptionPanelLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(conSubsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(379, Short.MAX_VALUE)))
+                    .addGap(34, 34, 34)
+                    .addComponent(conSubsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
 
         tabPanel.addTab("tab3", subscriptionPanel);
@@ -1226,6 +1242,23 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         accountIFrame.setTitle("Modify user");
         accountIFrame.setPreferredSize(new java.awt.Dimension(507, 392));
         accountIFrame.setVisible(true);
+        accountIFrame.addInternalFrameListener(new javax.swing.event.InternalFrameListener() {
+            public void internalFrameActivated(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameClosed(javax.swing.event.InternalFrameEvent evt) {
+                accountIFrameInternalFrameClosed(evt);
+            }
+            public void internalFrameClosing(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameDeactivated(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameDeiconified(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameIconified(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameOpened(javax.swing.event.InternalFrameEvent evt) {
+            }
+        });
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         jLabel13.setText("Name:");
@@ -1368,6 +1401,25 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                     .addGap(8, 8, 8)))
         );
 
+        javax.swing.GroupLayout accountPanelLayout = new javax.swing.GroupLayout(accountPanel);
+        accountPanel.setLayout(accountPanelLayout);
+        accountPanelLayout.setHorizontalGroup(
+            accountPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(accountPanelLayout.createSequentialGroup()
+                .addGap(112, 112, 112)
+                .addComponent(accountIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(155, Short.MAX_VALUE))
+        );
+        accountPanelLayout.setVerticalGroup(
+            accountPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(accountPanelLayout.createSequentialGroup()
+                .addGap(55, 55, 55)
+                .addComponent(accountIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(255, Short.MAX_VALUE))
+        );
+
+        tabPanel.addTab("tab5", accountPanel);
+
         jMenuBar1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
         jMenu1.setText("Archivo");
@@ -1415,38 +1467,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
 
         jMenuBar1.add(jMenu1);
 
-        subjectMenu.setText("Subject");
-        subjectMenu.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-
-        addSubjectItem.setText("Add");
-        addSubjectItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addSubjectItemActionPerformed(evt);
-            }
-        });
-        subjectMenu.add(addSubjectItem);
-
-        updateSubjectItem.setText("Update");
-        subjectMenu.add(updateSubjectItem);
-
-        jMenuBar1.add(subjectMenu);
-
-        sessionMenu.setText("Session");
-        sessionMenu.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-
-        addSessionItem.setText("Add");
-        addSessionItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addSessionItemActionPerformed(evt);
-            }
-        });
-        sessionMenu.add(addSessionItem);
-
-        updateSessionItem.setText("Update");
-        sessionMenu.add(updateSessionItem);
-
-        jMenuBar1.add(sessionMenu);
-
         setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -1469,11 +1489,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 1, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(158, 158, 158)
-                    .addComponent(accountIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(156, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1488,11 +1503,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                     .addComponent(dLabel)
                     .addComponent(tLabel))
                 .addGap(9, 9, 9))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(231, 231, 231)
-                    .addComponent(accountIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(182, Short.MAX_VALUE)))
         );
 
         pack();
@@ -1570,17 +1580,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
             System.exit(0);
         }
     }//GEN-LAST:event_jMenuItem5ActionPerformed
-
-    private void addSubjectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSubjectItemActionPerformed
-        tabPanel.setSelectedIndex(0);
-        formaSubjectIFrame.setVisible(true);
-    }//GEN-LAST:event_addSubjectItemActionPerformed
-
-    private void addSessionItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSessionItemActionPerformed
-        tabPanel.setSelectedIndex(1);
-        formaSessionIFrame.setVisible(true);
-        actionAdd = true;
-    }//GEN-LAST:event_addSessionItemActionPerformed
 
     private void savedSubjBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savedSubjBtnActionPerformed
         // TODO add your handling code here:
@@ -1671,21 +1670,23 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     private void addSubjectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSubjectBtnActionPerformed
         formaSubjectIFrame.setTitle("Add subject");
         actionAdd = true;
+        cleanFieldsSubject();
         formaSubjectIFrame.setVisible(true);
     }//GEN-LAST:event_addSubjectBtnActionPerformed
 
     private void addSessionBtnBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSessionBtnBtnActionPerformed
         formaSessionIFrame.setTitle("Add session");
         actionAdd = true;
+        cleanFieldsSession();
         formaSessionIFrame.setVisible(true);
     }//GEN-LAST:event_addSessionBtnBtnActionPerformed
 
     private void subjectsCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_subjectsCBActionPerformed
-        if(subjectsCB.getItemCount()>0){
-        subject = MainController.getSubjectNameUserId(subjectsCB.getSelectedItem().toString(), user.getId());
-        if (subject != null) {
-            fileChooserSes.setCurrentDirectory(new File(subject.getSharedFolder()));
-        }
+        if (subjectsCB.getItemCount() > 0) {
+            subject = MainController.getSubjectNameUserId(subjectsCB.getSelectedItem().toString(), user.getId());
+            if (subject != null) {
+                fileChooserSes.setCurrentDirectory(new File(subject.getSharedFolder()));
+            }
         }
     }//GEN-LAST:event_subjectsCBActionPerformed
 
@@ -1738,7 +1739,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     }//GEN-LAST:event_subscriptionsTableMouseClicked
 
     private void addSubscriptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSubscriptionActionPerformed
-        formaSubscripIFrame.setVisible(true);
+
         subjectsSubscriptions = MainController.getSubjectsNotUser(user.getId());
         if (subjectsSubscriptions.size() == 0 || subjectsSubscriptions == null) {
             logSubsLabel.setText("There aren't subjects for subscription your.");
@@ -1748,6 +1749,8 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
             subjectsSubscriptions.forEach((n) -> subjectsSubsCb.addItem(n.getName()));
             savedSubscriptionBtn.setEnabled(true);
         }
+        cleanFieldsSubscription();
+        formaSubscripIFrame.setVisible(true);
     }//GEN-LAST:event_addSubscriptionActionPerformed
 
     private void savedSubscriptionBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savedSubscriptionBtnActionPerformed
@@ -1793,10 +1796,10 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
             } else {
                 if (colIndex == 5) {
                     ArrayList<Subscriptor> subscriptors;
-                    subscriptors = MainController.getSubscriptorToSubject(user.getId(),subject_id);
+                    subscriptors = MainController.getSubscriptorToSubject(user.getId(), subject_id);
                     updateSubscriptorsTable(subscriptors);
                     subscriptorsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, subject.getName() + " (subscriptors)", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Font", 0, 14)));
-                    
+
                 }
             }
 
@@ -1811,23 +1814,23 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     }//GEN-LAST:event_subjectsSubsCbActionPerformed
 
     private void userLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_userLabelMouseClicked
-        try {
-            nameUserTextF.setText(user.getName());
-            usernameTextF.setEnabled(false);
-            usernameTextF.setText(user.getUserName());
-            passwordUserTextF.setText(user.getPassword());
-            emailTextF.setText(user.getEmail());
-            hostnameTextF.setText(user.getHostComputer());
-            sharedfolderUserTextF.setText(user.getSharedFolder());
-            if (MainController.getSubjectsUser(user.getId()).size() > 0) {
-                sharedfolderUserTextF.enable(false);
-            }
-            accountIFrame.setSelected(true);
-            accountIFrame.moveToFront();
-            accountIFrame.setVisible(true);
-        } catch (PropertyVetoException ex) {
-            Logger.getLogger(ExploradorGlobal1.class.getName()).log(Level.SEVERE, null, ex);
+        nameUserTextF.setText(user.getName());
+        usernameTextF.setEnabled(false);
+        usernameTextF.setText(user.getUserName());
+        passwordUserTextF.setText(user.getPassword());
+        emailTextF.setText(user.getEmail());
+        hostnameTextF.setText(user.getHostComputer());
+        sharedfolderUserTextF.setText(user.getSharedFolder());
+        if (MainController.getSubjectsUser(user.getId()).size() > 0) {
+            sharedfolderUserTextF.enable(false);
+            fileChooserUser.setControlButtonsAreShown(false);
+        } else {
+            sharedfolderUserTextF.enable(true);
+            fileChooserUser.setControlButtonsAreShown(true);
         }
+        tabPanel.setSelectedIndex(4);
+        tabPanel.setEnabledAt(4, true);
+        accountIFrame.setVisible(true);
 
 
     }//GEN-LAST:event_userLabelMouseClicked
@@ -1841,6 +1844,8 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                         if (!sharedfolderUserTextF.getText().isEmpty()) {
                             MainController.updateUser(user.getId(), nameUserTextF.getText(), passwordUserTextF.getText(), emailTextF.getText(), hostnameTextF.getText(), sharedfolderUserTextF.getText());
                             accountIFrame.doDefaultCloseAction();
+                            tabPanel.setEnabledAt(4, false);
+                            tabPanel.setSelectedIndex(0);
                             userLabel.setText(nameUserTextF.getText());
                         } else {
                             logUserLabel.setText("Shared folder is empty.");
@@ -1868,19 +1873,24 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     }//GEN-LAST:event_sharedFolderUserBtnActionPerformed
 
     private void subjectsCBInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_subjectsCBInputMethodTextChanged
-        // TODO add your handling code here:
-        User speaker = MainController.getUserId(subjectsSubscriptions.get(subjectsSubsCb.getSelectedIndex()).getUserId());
-        speakerTextF.setText(speaker.getName());
+        if (subjectsSubsCb.getItemCount() > 0) {
+            User speaker = MainController.getUserId(subjectsSubscriptions.get(subjectsSubsCb.getSelectedIndex()).getUserId());
+            speakerTextF.setText(speaker.getName());
+        }
     }//GEN-LAST:event_subjectsCBInputMethodTextChanged
+
+    private void accountIFrameInternalFrameClosed(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_accountIFrameInternalFrameClosed
+        tabPanel.setEnabledAt(4, false);
+        tabPanel.setSelectedIndex(0);
+    }//GEN-LAST:event_accountIFrameInternalFrameClosed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton FilesSharedBtn;
     private javax.swing.JInternalFrame accountIFrame;
+    private javax.swing.JPanel accountPanel;
     private javax.swing.JButton addSessionBtn;
-    private javax.swing.JMenuItem addSessionItem;
     private javax.swing.JButton addSubjectBtn;
-    private javax.swing.JMenuItem addSubjectItem;
     private javax.swing.JButton addSubscription;
     private javax.swing.JList<String> archivos;
     private javax.swing.JComboBox<String> classroomsCB;
@@ -1946,7 +1956,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     private javax.swing.JButton savedSessBtn;
     private javax.swing.JButton savedSubjBtn;
     private javax.swing.JButton savedSubscriptionBtn;
-    private javax.swing.JMenu sessionMenu;
     private javax.swing.JPanel sessionPanel;
     private javax.swing.JTable sessionsTable;
     private javax.swing.JTextField sharedFileTextF;
@@ -1956,7 +1965,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     private javax.swing.JTextField sharedfolderUserTextF;
     private javax.swing.JTextField speakerTextF;
     private javax.swing.JSpinner startTimeSpin;
-    private javax.swing.JMenu subjectMenu;
     private javax.swing.JPanel subjectPanel;
     private javax.swing.JComboBox<String> subjectsCB;
     private javax.swing.JComboBox<String> subjectsSubsCb;
@@ -1967,8 +1975,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     private javax.swing.JTable subscriptorsTable;
     private javax.swing.JLabel tLabel;
     private javax.swing.JTabbedPane tabPanel;
-    private javax.swing.JMenuItem updateSessionItem;
-    private javax.swing.JMenuItem updateSubjectItem;
     private javax.swing.JLabel userLabel;
     private javax.swing.JTextField usernameTextF;
     // End of variables declaration//GEN-END:variables
