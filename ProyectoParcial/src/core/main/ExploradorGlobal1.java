@@ -258,7 +258,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
 
     public static ExploradorGlobal1 getInstance(User user, Boolean presentation) throws PropertyVetoException {
         if (instance == null) {
-            instance = new ExploradorGlobal1(new ArrayList<ServerFile>(), null, user, presentation);
+            instance = new ExploradorGlobal1(new ArrayList<ServerFile>(), null, new User(), presentation);
         }
         return instance;
     }
