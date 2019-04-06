@@ -30,6 +30,7 @@ import core.db.dao.DAOSubject;
 import core.db.dao.DAOSubscription;
 import core.db.dao.DAOTransferencias;
 import core.db.dao.DAOUser;
+import core.gui.custom.OpenFile;
 import core.main.Descargas;
 import core.utils.JSONUtils;
 import core.utils.MyLogger;
@@ -57,6 +58,7 @@ public class MainController {
         private static DAOFile daoFile = new DAOFile();
         private static DAOFilesSession daoFileSession = new DAOFilesSession();
         private static DAOSubscription daoSubscription = new DAOSubscription();
+        private static OpenFile openFile = new OpenFile();
         
         public MainController(){
             
@@ -118,7 +120,7 @@ public class MainController {
         }
         
         
-        ///-------------------------------------
+        ///---------------------------------DATA BASE------------------------------------
         
         public static ArrayList<Descarga> getDescargas() {
             return daoDescarga.getDescargas();
@@ -216,6 +218,9 @@ public class MainController {
             return daoSession.findById(id);
         }
         
+        public static ArrayList<Session> getSessionsDates(String user_id, String dateFirst, String dateLast){
+            return daoSession.getBetweenDates(user_id, dateFirst, dateLast);
+        }        
         public static ArrayList<Classroom> getClassrooms() {
             return daoClassroom.getClassrooms();
         }
@@ -223,8 +228,13 @@ public class MainController {
         public static Classroom getClassroomName(String name) {
             return daoClassroom.getByName(name);
         }
+        
         public static Classroom getClassroomId(String id) {
             return daoClassroom.getById(id);
+        }
+        
+        public static Classroom existClassroomHostName(String hostName){
+            return daoClassroom.getByHostName(hostName);
         }
         
         public static int addFile(String name,String currentPage, String path){
@@ -245,7 +255,7 @@ public class MainController {
         
         public static FilesSession getFilesSession(String session_id){
             return daoFileSession.findBySession(session_id);
-        }
+        }      
         
         public static void deleteFilesSession (int id){
             daoFileSession.deleteFilesSession(id);
@@ -268,6 +278,14 @@ public class MainController {
         
         public static void deleteSubscription (int id){
             daoSubscription.deleteSubscription(id);
+        }
+        
+        //-----------------------------------------------------------------------------------------
+        
+        public static void getFileToOpen(String name, String path ){
+            openFile.setNameFile(name);
+            openFile.setPathFile(path);
+            openFile.openFile();
         }
         
         

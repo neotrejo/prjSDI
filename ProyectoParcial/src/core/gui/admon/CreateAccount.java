@@ -8,10 +8,8 @@ package core.gui.admon;
 import core.controller.MainController;
 import core.data.ConfigModel;
 import core.data.User;
-import core.main.ExploradorGlobal;
 import core.main.ExploradorGlobal1;
 import core.utils.GenericUtils;
-import java.awt.Color;
 import java.beans.PropertyVetoException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -199,10 +197,11 @@ public class CreateAccount extends javax.swing.JFrame {
                     .addComponent(hostnameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(sharedfolderTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sharedFolderBtn))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(sharedFolderBtn)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel6)
+                        .addComponent(sharedfolderTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addComponent(createAccountBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -259,7 +258,7 @@ public class CreateAccount extends javax.swing.JFrame {
                                             " ");                           
                                         this.setVisible(false);
                                         try {
-                                            ExploradorGlobal1.getInstance(user).setVisible(true);
+                                            ExploradorGlobal1.getInstance(user, false).setVisible(true);
                                         } catch (PropertyVetoException ex) {
                                             Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
                                         }

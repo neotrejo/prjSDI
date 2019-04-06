@@ -14,16 +14,18 @@ public class Classroom {
     private String name;
     private String location;
     private String hostname;
+    private String rootFolder;
 
     public Classroom() {
 
     }
 
-    public Classroom(String id, String name, String location, String hostname) {
+    public Classroom(String id, String name, String location, String hostname, String rootFolder) {
         this.id = id;
         this.name = name;
         this.location = location;
         this.hostname = hostname;
+        this.rootFolder = rootFolder;
     }
 
     public String getId() {
@@ -57,5 +59,15 @@ public class Classroom {
     public void setHostname(String hostname) {
         this.hostname = hostname;
     }
+    
+    public String getRootFolder() {
+        return rootFolder;
+    }
+
+    public void setRootFolder(String rootFolder) {
+        this.rootFolder = rootFolder;
+    }
+    
+    
     
 }

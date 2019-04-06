@@ -6,11 +6,13 @@
 package core.gui.admon;
 
 import core.controller.MainController;
+import core.data.Classroom;
 import core.data.User;
 import core.db.sqlite.SQLiteConnection;
 import core.main.ExploradorGlobal;
 import core.main.ExploradorGlobal1;
 import core.main.SDrive;
+import core.utils.GenericUtils;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
@@ -28,6 +30,7 @@ public class Login extends javax.swing.JFrame {
      * Creates new form login
      */
     private static Login mainParent;
+    private static Boolean presentation;
 
     public Login() {
         try {
@@ -178,22 +181,24 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_createAccountLkMouseClicked
 
     private void logInBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logInBtnActionPerformed
-        // TODO add your handling code here:
         if (!usernameTextF.getText().isEmpty() && passwordTextF.getPassword().length!=0) {
             User user = null;
             user = MainController.existUser(usernameTextF.getText(), passwordTextF.getText());
             if (user != null) {
                 this.setVisible(false);
                 try {
-                    ExploradorGlobal1.getInstance(user).setVisible(true);
+                    Classroom classroom = MainController.existClassroomHostName(GenericUtils.getHostname());
+                    String hostNameLocal = GenericUtils.getHostname();
+                    presentation = hostNameLocal!= user.getHostComputer() && classroom!=null ? true:false;
+                    ExploradorGlobal1.getInstance(user,presentation).setVisible(true);
                 } catch (PropertyVetoException ex) {
                     Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
-                logText.setText("Username not exist...");
+                logText.setText("Username not exist.");
             }
         } else {
-            logText.setText("Username or password is empty...");
+            logText.setText("Username or password is empty.");
         }
 
     }//GEN-LAST:event_logInBtnActionPerformed

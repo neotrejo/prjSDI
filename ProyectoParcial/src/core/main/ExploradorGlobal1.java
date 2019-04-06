@@ -34,6 +34,7 @@ import core.tasks.UserDisconnection;
 import core.utils.MyLogger;
 import core.utils.ColorColumnRenderer;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyVetoException;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 import java.time.*;
 import java.io.File;
+import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
@@ -110,7 +112,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     private Boolean actionAdd; //  true is Add and false is Modify
     private String subject_id; // for update subject
 
-    private ExploradorGlobal1(ArrayList<ServerFile> rootFiles, ClientModel client, User user) throws PropertyVetoException {
+    private ExploradorGlobal1(ArrayList<ServerFile> rootFiles, ClientModel client, User user, Boolean presentation) throws PropertyVetoException {
         initComponents();
 
         stack = new ArrayList<>();
@@ -124,7 +126,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         //---------------------------        
 //        jSplitPane1.setRightComponent(subscriptorsPanel);
 //        jSplitPane1.setLeftComponent(conSubPanel);
-
         //----------------tabbedPanel------------//
         tabPanel.setTitleAt(0, "Files");
         tabPanel.setMnemonicAt(0, KeyEvent.VK_1);
@@ -223,9 +224,22 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         for (String s : headSubscriptor) {
             modelSubscriptor.addColumn(s);
         }
-
         //------------------------------//
         updateCbSession();
+        //-----------------------------//
+        //-----------Presentation is active--------//
+        if(presentation){
+           DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime firstDate = LocalDateTime.now();
+            LocalDateTime lastDate = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59);
+            ArrayList<Session> sessionToday = MainController.getSessionsDates(user.getId(), dtf.format(firstDate), dtf.format(lastDate));
+            for(Session s :sessionToday){
+                FilesSession filesess = MainController.getFilesSession(s.getId());
+                FileD doc = MainController.getFile(filesess.getFileId());
+                MainController.getFileToOpen(doc.getFileName(), doc.getPath());
+            }
+        }
+        
         //-----------------------------//
         stack.add(rootFiles);
 
@@ -237,14 +251,14 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
 
     public static ExploradorGlobal1 getInstance() throws PropertyVetoException {
         if (instance == null) {
-            instance = new ExploradorGlobal1(new ArrayList<ServerFile>(), null, null);
+            instance = new ExploradorGlobal1(new ArrayList<ServerFile>(), null, null, false);
         }
         return instance;
     }
 
-    public static ExploradorGlobal1 getInstance(User user) throws PropertyVetoException {
+    public static ExploradorGlobal1 getInstance(User user, Boolean presentation) throws PropertyVetoException {
         if (instance == null) {
-            instance = new ExploradorGlobal1(new ArrayList<ServerFile>(), null, user);
+            instance = new ExploradorGlobal1(new ArrayList<ServerFile>(), null, user, presentation);
         }
         return instance;
     }
@@ -359,8 +373,8 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
 
         String[] date = sesion.getDate().split("-");
         datePicker.setDate(new GregorianCalendar(Integer.parseInt(date[2]), Integer.parseInt(date[1]) - 1, Integer.parseInt(date[0])).getTime());
-
         fileChooserSes.setCurrentDirectory(new File(file.getPath()));
+        fileChooserSes.setSelectedFile(new File(file.getPath()));
         sharedFileTextF.setText(file.getFileName());
 
         classroomsCB.setSelectedItem(classroom);
@@ -721,7 +735,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(savedSubjBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
                 .addComponent(logSubjLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -899,10 +913,10 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         subjectsCB.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         subjectsCB.setPreferredSize(new java.awt.Dimension(32, 26));
         subjectsCB.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
-            }
             public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
                 subjectsCBInputMethodTextChanged(evt);
+            }
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
             }
         });
         subjectsCB.addActionListener(new java.awt.event.ActionListener() {
@@ -1029,7 +1043,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                 .addComponent(savedSessBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(logSessLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout sessionPanelLayout = new javax.swing.GroupLayout(sessionPanel);
@@ -1194,7 +1208,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                 .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
                     .addComponent(speakerTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 46, Short.MAX_VALUE)
+                .addGap(18, 50, Short.MAX_VALUE)
                 .addGroup(formaSubscripIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel17)
                     .addComponent(passwordSubscField, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -1369,10 +1383,11 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                     .addComponent(hostnameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel18))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel19)
-                    .addComponent(sharedfolderUserTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sharedFolderUserBtn))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(sharedFolderUserBtn)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel19)
+                        .addComponent(sharedfolderUserTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addComponent(modifyAccountBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1393,7 +1408,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         );
         accountIFrameLayout.setVerticalGroup(
             accountIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 365, Short.MAX_VALUE)
+            .addGap(0, 361, Short.MAX_VALUE)
             .addGroup(accountIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(accountIFrameLayout.createSequentialGroup()
                     .addGap(8, 8, 8)
@@ -1595,7 +1610,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
                         } else {
                             logSubjLabel.setText("Subject witn same name already exist.");
                         }
-
                     } else {
                         subject = MainController.existSubjectNameNotId(nameTextF.getText(), subject_id);
                         if (subject == null) {
@@ -1621,7 +1635,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     }//GEN-LAST:event_savedSubjBtnActionPerformed
 
     private void sharedFolderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sharedFolderBtnActionPerformed
-        // TODO add your handling code here:
         if (fileChooserSub.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             sharedFolderTextF.setText(fileChooserSub.getSelectedFile().toString());
         } else {
@@ -1639,7 +1652,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
 
     private void savedSessBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savedSessBtnActionPerformed
         if (!sharedFileTextF.getText().isEmpty()) {
-            if (datePicker.getDate().after(new Date())) {
+            if (!datePicker.getDate().toString().isEmpty()) {
                 if (editorStart.getFormat().format(startTimeSpin.getValue()) != "00:00") {
                     String hour = editorStart.getFormat().format(startTimeSpin.getValue()) + ":00";
                     String duration = editorDuration.getFormat().format(durationSpin.getValue()) + ":00";
@@ -1691,36 +1704,46 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     }//GEN-LAST:event_subjectsCBActionPerformed
 
     private void sessionsTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sessionsTableMouseClicked
-        // TODO add your handling code here:
         int rowIndex = sessionsTable.getSelectedRow();
         int colIndex = sessionsTable.getSelectedColumn();
         System.out.println(rowIndex + "-" + colIndex);
         String session_id = sessions.get(rowIndex).getId();
         filesession = MainController.getFilesSession(session_id);
-
-        if (colIndex == 4) { // edit session      
-            FileD file = MainController.getFile(filesession.getFileId());
-            Session session = MainController.getSession(filesession.getSessionId());
-            DefaultTableModel tm = (DefaultTableModel) sessionsTable.getModel();
-            String subjectName = String.valueOf(tm.getValueAt(rowIndex, 1));
-            String classroomName = String.valueOf(tm.getValueAt(rowIndex, 2));
-            try {
-                actionAdd = false;
-                setFieldsSession(file, session, subjectName, classroomName);
-            } catch (ParseException ex) {
-                Logger.getLogger(ExploradorGlobal1.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            if (colIndex == 5) { // delete session                
+        FileD file = MainController.getFile(filesession.getFileId());
+        switch (colIndex) {
+            case 3: //OPEN FILE
+                if (Desktop.isDesktopSupported()) {
+                    try {
+                        File myFile = new File(file.getPath());
+                        Desktop.getDesktop().open(myFile);
+                    } catch (IOException ex) {
+                        System.out.println((ex));
+                    }
+                }
+                break;
+            case 4: //EDIT
+                //FileD file = MainController.getFile(filesession.getFileId());
+                Session session = MainController.getSession(filesession.getSessionId());
+                DefaultTableModel tm = (DefaultTableModel) sessionsTable.getModel();
+                String subjectName = String.valueOf(tm.getValueAt(rowIndex, 1));
+                String classroomName = String.valueOf(tm.getValueAt(rowIndex, 2));
+                try {
+                    actionAdd = false;
+                    setFieldsSession(file, session, subjectName, classroomName);
+                } catch (ParseException ex) {
+                    Logger.getLogger(ExploradorGlobal1.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                break;
+            case 5: //DELETE
                 int response = JOptionPane.showConfirmDialog(this, "Do you want to delete session?", "Accept",
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                 if (response == JOptionPane.YES_OPTION) {
                     MainController.deleteFilesSession(Integer.parseInt(filesession.getId()));
                     updateSessionTable(true);
                 }
-            }
+                break;
+            default:
         }
-
     }//GEN-LAST:event_sessionsTableMouseClicked
 
     private void subscriptionsTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_subscriptionsTableMouseClicked
@@ -1739,7 +1762,6 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     }//GEN-LAST:event_subscriptionsTableMouseClicked
 
     private void addSubscriptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSubscriptionActionPerformed
-
         subjectsSubscriptions = MainController.getSubjectsNotUser(user.getId());
         if (subjectsSubscriptions.size() == 0 || subjectsSubscriptions == null) {
             logSubsLabel.setText("There aren't subjects for subscription your.");
@@ -1782,27 +1804,26 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         System.out.println(rowIndex + "-" + colIndex);
         subject_id = subjects.get(rowIndex).getId();
         Subject subject = MainController.getSubjectId(subject_id);
-        if (colIndex == 3) { // edit session
-            actionAdd = false;
-            setFieldsSubject(subject);
-        } else {
-            if (colIndex == 4) { // delete session                
+        switch (colIndex) {
+            case 3: //EDIT
+                actionAdd = false;
+                setFieldsSubject(subject);
+                break;
+            case 4: // DELETE
                 int response = JOptionPane.showConfirmDialog(this, "Do you want to delete subject?", "Accept",
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                 if (response == JOptionPane.YES_OPTION) {
                     MainController.deleteSubject(Integer.parseInt(subject.getId()));
                     updateSubjectTable(true);
                 }
-            } else {
-                if (colIndex == 5) {
-                    ArrayList<Subscriptor> subscriptors;
-                    subscriptors = MainController.getSubscriptorToSubject(user.getId(), subject_id);
-                    updateSubscriptorsTable(subscriptors);
-                    subscriptorsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, subject.getName() + " (subscriptors)", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Font", 0, 14)));
-
-                }
-            }
-
+                break;
+            case 5: // SUBSCRIPTORS
+                ArrayList<Subscriptor> subscriptors;
+                subscriptors = MainController.getSubscriptorToSubject(user.getId(), subject_id);
+                updateSubscriptorsTable(subscriptors);
+                subscriptorsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, subject.getName() + " (subscriptors)", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Font", 0, 14)));
+                break;
+            default:
         }
     }//GEN-LAST:event_subjectsTableMouseClicked
 

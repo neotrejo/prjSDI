@@ -67,6 +67,17 @@ public class DAOSession {
                 + "WHERE (Subject.user_id=\"" + user_id + "\"  or Subject.user_id=" + user_id + ") and FilesSession.deleted = \"false\"";
         return executeQueryList(query);
     }
+    
+    public ArrayList<Session> getBetweenDates(String user_id, String dateFirst, String dateLast){
+         String query = "SELECT Session.date, Session.startTime, Session.durationHrs, Subject.subjectName subject, ClassRoom.name classroom, FileD.fileName file, Session.id "
+                + "FROM Session "
+                + "INNER JOIN Subject on Subject.id = Session.subject_id "
+                + "INNER JOIN ClassRoom on ClassRoom.id = Session.classRoom_id "
+                + "INNER JOIN FilesSession on FilesSession.session_id = Session.id "
+                + "INNER JOIN FileD on FileD.id = FilesSession.file_id "
+                + "WHERE (Subject.user_id=\"" + user_id + "\"  or Subject.user_id=" + user_id + ") and FilesSession.deleted = \"false\" and  Session.date between \""+dateFirst+"\" and  \""+dateLast+"\"";
+        return executeQueryList(query);
+    } 
 
     public Session findById(String id) {
         try {

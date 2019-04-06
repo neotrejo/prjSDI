@@ -24,12 +24,13 @@ public class DAOClassroom {
         connection = SQLiteConnection.getInstance();
     }
 
-    public void insertClassroom(String name, String location, String hostname) {
+    public void insertClassroom(String name, String location, String hostname, String rootFolder) {
 
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
         params.put("location", location);
         params.put("hostName", hostname);
+        params.put("root", rootFolder );
 
         connection.insert("ClassRoom", params);
     }
@@ -48,6 +49,7 @@ public class DAOClassroom {
                     classroom.setName(result.getObject("name").toString());
                     classroom.setLocation(result.getObject("location").toString());
                     classroom.setHostname(result.getObject("hostName").toString());
+                    classroom.setRootFolder(result.getObject("rootFolder").toString());
                     classrooms.add(classroom);
                 }
             }
@@ -62,6 +64,11 @@ public class DAOClassroom {
         String query = "SELECT * FROM ClassRoom WHERE name=\"" + name + "\"";
         return executeQuery(query);
     }
+    
+    public Classroom getByHostName(String hostName) {
+        String query = "SELECT * FROM ClassRoom WHERE hostName=\"" + hostName + "\" LIMIT 1";
+        return executeQuery(query);
+    }    
 
     public Classroom getById(String id) {
         String query = "SELECT * FROM ClassRoom WHERE id=" + id;
@@ -79,6 +86,7 @@ public class DAOClassroom {
                     classroom.setName(result.getObject("name").toString());
                     classroom.setLocation(result.getObject("location").toString());
                     classroom.setHostname(result.getObject("hostName").toString());
+                    classroom.setRootFolder(result.getObject("rootFolder").toString());
                 }
             }
             return classroom;
