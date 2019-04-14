@@ -5,11 +5,10 @@
  */
 package core.crypt;
 
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import java.util.Base64;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -17,8 +16,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 /**
  *
@@ -61,7 +58,7 @@ public class CryptCipher {
         }catch(Exception ex){}
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
         byte[] encrypted = cipher.doFinal(toBeEncrypt.getBytes());
-        return Base64.encode(encrypted);
+        return Base64.getEncoder().encodeToString(encrypted);
     }
     /**
      * decripta
@@ -78,7 +75,7 @@ public class CryptCipher {
         startConfig();
         }catch(Exception ex){}
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
-        byte[] decryptedBytes = cipher.doFinal(Base64.decode(encrypted));
+        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encrypted));
         return new String(decryptedBytes);
     }
 

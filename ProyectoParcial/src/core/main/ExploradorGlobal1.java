@@ -112,7 +112,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
     private Boolean actionAdd; //  true is Add and false is Modify
     private String subject_id; // for update subject
 
-    private ExploradorGlobal1(ArrayList<ServerFile> rootFiles, ClientModel client, User user, Boolean presentation) throws PropertyVetoException {
+    private ExploradorGlobal1(ArrayList<ServerFile> rootFiles, ClientModel client, User user, boolean presentation) throws PropertyVetoException {
         initComponents();
 
         stack = new ArrayList<>();
@@ -256,7 +256,7 @@ public class ExploradorGlobal1 extends javax.swing.JFrame implements MulticastLi
         return instance;
     }
 
-    public static ExploradorGlobal1 getInstance(User user, Boolean presentation) throws PropertyVetoException {
+    public static ExploradorGlobal1 getInstance(User user, boolean presentation) throws PropertyVetoException {
         if (instance == null) {
             instance = new ExploradorGlobal1(new ArrayList<ServerFile>(), null, new User(), presentation);
         }

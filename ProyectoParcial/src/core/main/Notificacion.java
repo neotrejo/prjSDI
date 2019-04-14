@@ -7,23 +7,7 @@ package core.main;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.Timer;
-import sun.audio.AudioPlayer;
-import sun.audio.AudioStream;
 
 /**
  *

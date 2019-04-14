@@ -5,7 +5,8 @@
  */
 package core.controller;
 
-import core.data.Config;
+import java.sql.SQLException;
+import java.util.List;
 import core.connections.multicast.MulticastServer;
 import core.connections.rmi.remote.RMIServer;
 import core.connections.rmi.remote.RemoteMachine;
@@ -31,13 +32,9 @@ import core.db.dao.DAOSubscription;
 import core.db.dao.DAOTransferencias;
 import core.db.dao.DAOUser;
 import core.gui.custom.OpenFile;
-import core.main.Descargas;
 import core.utils.JSONUtils;
-import core.utils.MyLogger;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,10 +55,10 @@ public class MainController {
         private static DAOFile daoFile = new DAOFile();
         private static DAOFilesSession daoFileSession = new DAOFilesSession();
         private static DAOSubscription daoSubscription = new DAOSubscription();
-        private static OpenFile openFile = new OpenFile();
+        private static OpenFile openFile;
         
         public MainController(){
-            
+            openFile = new OpenFile();
         }
     
         public static void startListenForMulticast(){          
@@ -120,7 +117,7 @@ public class MainController {
         }
         
         
-        ///---------------------------------DATA BASE------------------------------------
+        ///-------------------------------------
         
         public static ArrayList<Descarga> getDescargas() {
             return daoDescarga.getDescargas();
@@ -143,8 +140,15 @@ public class MainController {
         } 
         
         //---------------------------------------------------
-        public static void addUser(String name, String username, String pass,String email, String hostcomputer, String sharedfolder,String fingerprint){
-                daoUser.insertUser(name, username, pass, email, hostcomputer, sharedfolder, fingerprint);
+        public static void addUser(String name, String username, String pass,
+                String email, 
+                String hostcomputer, 
+                String sharedfolder,
+                String fingerprint1, 
+                String fingerprint2, 
+                String fingerprintimage1,
+                String fingerprintimage2){
+                daoUser.insertUser(name, username, pass, email, hostcomputer, sharedfolder, fingerprint1, fingerprint2, fingerprintimage1, fingerprintimage2);
         } 
         
         public static void updateUser(String id, String name, String pass, String email, String hostcomputer, String sharedfolder){
@@ -158,6 +162,10 @@ public class MainController {
         
         public static User getUserId(String id){         
             return daoUser.findById(id);
+        }
+        
+        public static List<User> getAllUsers() throws SQLException{         
+            return daoUser.getAllUsers();
         }
         
         public static void addSubject(String name, String pass,String description, String sharedfolder, String user_id){
@@ -255,7 +263,7 @@ public class MainController {
         
         public static FilesSession getFilesSession(String session_id){
             return daoFileSession.findBySession(session_id);
-        }      
+        }
         
         public static void deleteFilesSession (int id){
             daoFileSession.deleteFilesSession(id);
