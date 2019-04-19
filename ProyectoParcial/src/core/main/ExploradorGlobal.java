@@ -1426,38 +1426,39 @@ public class ExploradorGlobal extends javax.swing.JFrame implements MulticastLis
                     String duration = editorDuration.getFormat().format(durationSpin.getValue()) + ":00";
                     String date = new SimpleDateFormat("yyyy-MM-dd").format(datePicker.getDate()) + " " + hour;
                     classroom = MainController.getClassroomName(classroomsCB.getSelectedItem().toString());
+
+//
+                    JSONObject fileData = new JSONObject();
+
+                    fileData.put("user_id", user.getId());
+                    fileData.put("date", date);
+                    fileData.put("startTime", hour);
+                    fileData.put("subjectName", subject.getName());
+                    fileData.put("fileName", fileChooserSes.getSelectedFile().getName());
+                    fileData.put("pathFile", fileChooserSes.getSelectedFile().toString());
+                    //
+
                     if (actionAdd) {
                         session_id = MainController.addSession(date, hour, duration, classroom.getId(), subject.getId());
                         file_id = MainController.addFile(fileChooserSes.getSelectedFile().getName(), "", fileChooserSes.getSelectedFile().toString());
-                        //                        
-                        JSONObject fileData = new JSONObject();
-                        fileData.put("event", "add");
 
+                        //
                         fileData.put("session_id", session_id + "");
-                        fileData.put("user_id", user.getId());
-                        fileData.put("date", date);
-                        fileData.put("startTime", hour);
-                        fileData.put("subjectName", subject.getName());
-                        fileData.put("fileName", fileChooserSes.getSelectedFile().getName());
-                        fileData.put("pathFile", fileChooserSes.getSelectedFile().toString());
-
+                        fileData.put("event", "add");
                         new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(fileData.toJSONString());
                         //
-
                         MainController.addFileSession(String.valueOf(session_id), String.valueOf(file_id), String.valueOf(false));
                     } else {
                         MainController.updateSession(filesession.getSessionId(), date, hour, duration, classroom.getId(), subject.getId());
                         MainController.updateFile(filesession.getFileId(), fileChooserSes.getSelectedFile().getName(), "", fileChooserSes.getSelectedFile().toString());
+
+                        //
+                        fileData.put("session_id", filesession.getSessionId());
+                        fileData.put("event", "update");
+                        new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(fileData.toJSONString());
+                        //
+
                     }
-                    //                        
-//                    JSONObject fileData = new JSONObject();
-//                    fileData.put("event", "add");
-//
-//                    fileData.put("file", fileChooserSes.getSelectedFile().getName());
-//                    fileData.put("path_file", fileChooserSes.getSelectedFile().toString());
-//
-//                    new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(fileData.toJSONString());
-                    //
 
                     formaSessionIFrame.doDefaultCloseAction();
                     cleanFieldsSession();
@@ -1533,6 +1534,20 @@ public class ExploradorGlobal extends javax.swing.JFrame implements MulticastLis
                 if (response == JOptionPane.YES_OPTION) {
                     MainController.deleteFilesSession(Integer.parseInt(filesession.getId()));
                     updateSessionTable(true);
+
+                    //
+                    JSONObject fileData = new JSONObject();
+
+                    fileData.put("user_id", user.getId());
+                    fileData.put("date", "");
+                    fileData.put("startTime", "");
+                    fileData.put("subjectName","");
+                    fileData.put("fileName", "");
+                    fileData.put("pathFile", "");
+                    fileData.put("session_id", filesession.getSessionId());
+                    fileData.put("event", "delete");
+                    new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(fileData.toJSONString());
+                    //
                 }
                 break;
             default:
