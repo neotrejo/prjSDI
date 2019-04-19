@@ -24,7 +24,7 @@ public class DAOActiveSession {
         try {
             connection = SQLiteConnection.getInstance();
 
-            connection.conectar();
+            //connection.conectar();
         } catch (Exception e) {
             e.printStackTrace();
         }

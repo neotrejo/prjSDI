@@ -7,6 +7,7 @@ package core.webservices;
 
 import core.data.ActiveSession;
 import core.db.dao.DAOActiveSession;
+import core.db.sqlite.SQLiteConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
@@ -30,6 +31,7 @@ public class NotificationServerRpi extends Thread {
     private void createServer() {
         try {
             socket = new Socket("10.0.5.182",10001);
+            SQLiteConnection.getInstance().conectar();
         } catch (Exception e) {
             e.printStackTrace();
         }
