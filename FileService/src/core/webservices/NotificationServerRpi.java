@@ -5,6 +5,7 @@
  */
 package core.webservices;
 
+import core.data.ActiveSession;
 import core.db.dao.DAOActiveSession;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -22,6 +23,7 @@ public class NotificationServerRpi extends Thread {
     private Socket socket;
     private String path = QueueConfig.SHARED_FOLDER;
     private String address;
+     private ActiveSession activeSession;
 
     public NotificationServerRpi(String address) {
         this.address = address;
@@ -67,7 +69,7 @@ public class NotificationServerRpi extends Thread {
                     subjectName = subjectName.replace(" ", "_");
                     
                     
-                    FileUtils.createPath(path+userID+"/"+subjectName);
+                    //FileUtils.createPath(path+userID+"/"+subjectName);
                     
                     System.out.println(event);
                     System.out.println(sessionID);
@@ -80,10 +82,27 @@ public class NotificationServerRpi extends Thread {
                     
                     DAOActiveSession daoAS = new DAOActiveSession();
                     
-                    daoAS.insertSession(sessionID, userID, date, startTime, subjectName, fileName, path+userID+"/"+subjectName+"/"+fileName);
-                    
-                    new RequestFile(filePath,path+userID+"/"+subjectName+"/"+fileName).start();
-                    
+                     switch(event){
+                        case "add":
+                            FileUtils.createPath(path+userID+"/"+subjectName);
+                            daoAS.insertSession(sessionID, userID, date, startTime, subjectName, fileName, path+userID+"/"+subjectName+"/"+fileName);
+                            new RequestFile(filePath,path+userID+"/"+subjectName+"/"+fileName).start();
+                            break;
+                        case "update":
+                            activeSession = daoAS.findBySession(sessionID, userID);
+                            if(activeSession!=null){
+                                daoAS.updateActiveSession(activeSession.getId(),sessionID, userID, date, startTime, subjectName, fileName, path+userID+"/"+subjectName+"/"+fileName);
+                                new RequestFile(filePath,path+userID+"/"+subjectName+"/"+fileName).start();
+                            }
+                            break;
+                        case "delete":
+                            activeSession = daoAS.findBySession(sessionID, userID);
+                            if(activeSession!=null){
+                                daoAS.deleteActiveSession(activeSession.getId());
+                            }
+                            break;
+                        default:                           
+                    }
                     
                 }
             }

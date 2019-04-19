@@ -7,10 +7,7 @@ package core.main;
 
 import core.webservices.NotificationServerRpi;
 import core.webservices.QueueConfig;
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
