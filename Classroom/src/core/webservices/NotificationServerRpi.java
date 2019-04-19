@@ -5,10 +5,10 @@
  */
 package core.webservices;
 
+import core.data.ActiveSession;
 import core.db.dao.DAOActiveSession;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.ServerSocket;
 import java.net.Socket;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -21,6 +21,7 @@ public class NotificationServerRpi extends Thread {
 
     private Socket socket;
     private String path = QueueConfig.SHARED_FOLDER;
+    private ActiveSession activeSession;
 
     public NotificationServerRpi() {
         createServer();
@@ -52,7 +53,7 @@ public class NotificationServerRpi extends Thread {
                     JSONParser parser = new JSONParser();
                     JSONObject obj = (JSONObject)parser.parse(input);
 
-                    String event = (String)obj.get("event");                    
+                    String event = (String)obj.get("event");
                     String sessionID = (String)obj.get("session_id");                    
                     String userID = (String) obj.get("user_id");
                     String date = (String) obj.get("date");
@@ -62,10 +63,9 @@ public class NotificationServerRpi extends Thread {
                     String filePath = (String) obj.get("pathFile");
                     
                     fileName = fileName.replace(" ", "_");
-                    subjectName = subjectName.replace(" ", "_");
+                    subjectName = subjectName.replace(" ", "_");                  
                     
-                    
-                    FileUtils.createPath(path+userID+"/"+subjectName);
+                    //FileUtils.createPath(path+userID+"/"+subjectName);
                     
                     System.out.println(event);
                     System.out.println(sessionID);
@@ -78,11 +78,27 @@ public class NotificationServerRpi extends Thread {
                     
                     DAOActiveSession daoAS = new DAOActiveSession();
                     
-                    daoAS.insertSession(sessionID, userID, date, startTime, subjectName, fileName, path+userID+"/"+subjectName+"/"+fileName);
-                    
-                    new RequestFile(filePath,path+userID+"/"+subjectName+"/"+fileName).start();
-                    
-                    
+                     switch(event){
+                        case "add":
+                            FileUtils.createPath(path+userID+"/"+subjectName);
+                            daoAS.insertSession(sessionID, userID, date, startTime, subjectName, fileName, path+userID+"/"+subjectName+"/"+fileName);
+                            new RequestFile(filePath,path+userID+"/"+subjectName+"/"+fileName).start();
+                            break;
+                        case "update":
+                            activeSession = daoAS.findBySession(sessionID, userID);
+                            if(activeSession!=null){
+                                daoAS.updateActiveSession(activeSession.getId(),sessionID, userID, date, startTime, subjectName, fileName, path+userID+"/"+subjectName+"/"+fileName);
+                                new RequestFile(filePath,path+userID+"/"+subjectName+"/"+fileName).start();
+                            }
+                            break;
+                        case "delete":
+                            activeSession = daoAS.findBySession(sessionID, userID);
+                            if(activeSession!=null){
+                                daoAS.deleteActiveSession(activeSession.getId());
+                            }
+                            break;
+                        default:                           
+                    }
                 }
             }
 
