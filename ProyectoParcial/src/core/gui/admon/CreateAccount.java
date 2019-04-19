@@ -25,8 +25,6 @@ import java.awt.Image;
 
 import javax.swing.*;
 import java.io.File;
-import Biometrics.CFingerPrint;
-import Biometrics.CFingerPrintGraphics;
 import java.sql.SQLException;
 
 /**
@@ -54,14 +52,7 @@ public class CreateAccount extends javax.swing.JFrame implements readFingerPrint
     private String fingerprintChar1;
     private String fingerprintChar2;
     private boolean presentation;
-    //uses our finger print libery
-    private CFingerPrint m_finger1 = new CFingerPrint();
-    private CFingerPrint m_finger2 = new CFingerPrint();
-    private CFingerPrintGraphics m_fingergfx = new CFingerPrintGraphics();
-    private BufferedImage m_bimage1 = new BufferedImage(m_finger1.FP_IMAGE_WIDTH, m_finger1.FP_IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
-    private BufferedImage m_bimage2 = new BufferedImage(m_finger2.FP_IMAGE_WIDTH, m_finger2.FP_IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
-    private double finger1[] = new double[m_finger1.FP_TEMPLATE_MAX_SIZE];
-    private double finger2[] = new double[m_finger2.FP_TEMPLATE_MAX_SIZE];
+
 
     @Override
     public void readFingerprintSensorEvent() {
@@ -177,55 +168,7 @@ public class CreateAccount extends javax.swing.JFrame implements readFingerPrint
         }
     }
 
-    private void processFingerPrint() throws IOException {
-        m_bimage1 = ImageIO.read(new File(fingerprintFile1));
-
-        //m_bimage2 = m_fingergfx.getGreyFingerPrintImage(m_bimage2); 
-        System.out.println("Before BinerizeImage");
-        m_bimage1 = m_fingergfx.BinerizeImage(m_bimage1, 250, 180);
-        //sm_panel1.setBufferedImage(m_bimage1);            
-
-        //Send image for skeletinization
-        m_finger1.setFingerPrintImage(m_bimage1);
-        finger1 = m_finger1.getFingerPrintTemplate();
-        //See what skeletinized image looks like
-        //m_bimage1 = m_finger1.getFingerPrintImageDetail();
-
-        //m_panel1.setBufferedImage(m_bimage1);
-        fingerprintChar1 = m_finger1.ConvertFingerPrintTemplateDoubleToString(finger1);
-        System.out.println(fingerprintChar1);
-        Image scaledfingerprintImage = m_bimage1.getScaledInstance(
-                this.fingerPrintImageLabel1.getWidth(),
-                this.fingerPrintImageLabel1.getHeight(),
-                java.awt.Image.SCALE_DEFAULT);
-        this.fingerPrintImageLabel1.setIcon(new ImageIcon(scaledfingerprintImage));
-
-        m_bimage2 = ImageIO.read(new File(fingerprintFile2));
-        m_bimage2 = m_fingergfx.BinerizeImage(m_bimage2, 250, 200);
-        //Send image for skeletinization
-        m_finger2.setFingerPrintImage(m_bimage2);
-        finger2 = m_finger2.getFingerPrintTemplate();
-        //See what skeletinized image looks like
-        //m_bimage2 = m_finger2.getFingerPrintImageDetail();
-        //m_panel1.setBufferedImage(m_bimage1);
-        fingerprintChar2 = m_finger2.ConvertFingerPrintTemplateDoubleToString(finger2);
-        System.out.println(fingerprintChar2);
-        Image scaledfingerprintImage2 = m_bimage2.getScaledInstance(
-                this.fingerPrintImageLabel2.getWidth(),
-                this.fingerPrintImageLabel2.getHeight(),
-                java.awt.Image.SCALE_DEFAULT);
-        this.fingerPrintImageLabel2.setIcon(new ImageIcon(scaledfingerprintImage2));
-
-        try {
-            double match = m_finger1.Match(finger1, finger2, 65, false);
-            this.logLabel.setText("Match %: " + Double.toString(match));
-            if (match <= 50) {
-                JOptionPane.showMessageDialog(this, "Match below threshold (< 50%), please try again.", "Fingerprint match", JOptionPane.PLAIN_MESSAGE);
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error Message", JOptionPane.PLAIN_MESSAGE);
-        }
-    }
+    
 
     public CreateAccount(String title) {
         initComponents();
