@@ -68,8 +68,8 @@ public class DAOSubject {
         return executeQuery(query);
     }
 
-    public Subject findByNameNotId(String name, String id) {
-        String query = "SELECT * FROM Subject WHERE subjectName=\"" + name + "\" and id<>" + id + " and deleted=\"false\" LIMIT 1";
+    public Subject findByNameNotId(String name, String id, String user_id) {
+        String query = "SELECT * FROM Subject WHERE subjectName=\"" + name + "\" and id<>\"" + id + "\" and  user_id=\"" + user_id + "\" and deleted=\"false\"  LIMIT 1";
         return executeQuery(query);
     }
 

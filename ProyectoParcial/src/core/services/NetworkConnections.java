@@ -9,7 +9,7 @@ import core.connections.multicast.MulticastListener;
 import core.connections.multicast.MulticastPolling;
 import core.connections.multicast.MulticastServer;
 import core.connections.rmi.remote.RMIServer;
-import core.connections.sockets.FileServer;
+import core.connections.sockets.FileServer2;
 
 /**
  *
@@ -21,7 +21,7 @@ public class NetworkConnections {
     
     private MulticastServer multicastServer;
     private MulticastPolling multicastPolling;
-    private FileServer fileServer;
+    private FileServer2 fileServer;
     private DirectoryObserver directoryObserver;
     private DirectoryIndexCreator directoryIndexCreator;
     
@@ -37,7 +37,7 @@ public class NetworkConnections {
             
             RMIServer.start();
         
-            fileServer = new FileServer();
+            fileServer = new FileServer2();
             fileServer.start();
 
             multicastServer = new MulticastServer();

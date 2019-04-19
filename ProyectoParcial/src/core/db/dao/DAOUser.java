@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -64,6 +63,10 @@ public class DAOUser {
 
     public User findByUserAndPass(String username, String pass) {
             String query = "SELECT * FROM User WHERE userName=\"" + username + "\" and password=\"" + pass + "\" LIMIT 1";
+            return executeQuery(query);
+    }
+    public User findByUserName(String username) {
+            String query = "SELECT * FROM User WHERE userName=\"" + username + "\" LIMIT 1";
             return executeQuery(query);
     }
     

@@ -8,11 +8,8 @@ package core.connections.sockets;
 import core.crypt.CryptCipher;
 import core.data.Config;
 import core.db.dao.DAOTransferencias;
-import core.main.Dashboard;
 import core.main.ExploradorGlobal;
 import core.main.listener.DownloadListener;
-import core.main.Notificacion;
-import core.main.Transferencias;
 import core.main.listener.GenericListener;
 import core.utils.GenericUtils;
 import core.utils.MyLogger;
@@ -47,8 +44,8 @@ public class SingleClient extends Thread{
     public SingleClient(Socket socket){
         this.socket = socket;
         this.daoTransferencias = new DAOTransferencias();
-        this.listener = Transferencias.getInstance();
-        this.gListener = ExploradorGlobal.getInstance();
+//        this.listener = Transferencias.getInstance();
+//        this.gListener = ExploradorGlobal.getInstance();
         this.start();
     }
     
@@ -93,7 +90,7 @@ public class SingleClient extends Thread{
                         
                         int id = daoTransferencias.insertarTransferencia(fname,filePath,socket.getInetAddress().toString(),0,"Enviando",0, raf.length());
                         
-                        Notificacion.getInstance().startNotificacion("Transfiriendo el archivo "+fname,"Destino: "+socket.getInetAddress().toString());
+//                        Notificacion.getInstance().startNotificacion("Transfiriendo el archivo "+fname,"Destino: "+socket.getInetAddress().toString());
                         listener.downloadStart(id,f.getName(),filePath, socket.getInetAddress().toString(),raf.length(),filePath,null);
                         gListener.startEvent(this, "", 1);
                         

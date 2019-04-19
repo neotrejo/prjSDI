@@ -6,11 +6,10 @@
 package core.gui.admon;
 
 import core.controller.MainController;
-import core.data.Classroom;
 import core.data.User;
 import core.db.sqlite.SQLiteConnection;
-import core.main.ExploradorGlobal1;
-import core.main.SDrive;
+import core.fileserver.FileServer;
+import core.main.ExploradorGlobal;
 import core.utils.GenericUtils;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,6 +18,8 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyVetoException;
 import core.fingerprint.auth.FingerPrintAuth;
 import core.fingerprint.auth.readFingerPrintEvent;
+import core.queue.EventQueueNotificationServer;
+import core.queue.EventQueueServer;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -51,7 +52,6 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
     private int    loginStage;
     private boolean waitComparison;
     private ListIterator<User> usersIterator;
-    private static boolean presentation;
      
     User user;
     
@@ -88,7 +88,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         String line;        
         String[] lines;
         boolean status = false;
-                  
+        String hostNameLocal = GenericUtils.getHostname();          
             
         while (usersIterator.hasNext()){
             user = (User)usersIterator.next();
@@ -140,7 +140,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
                             
                     this.setVisible(false);
                     try {
-                        ExploradorGlobal1.getInstance(user,presentation).setVisible(true);
+                        ExploradorGlobal.getInstance(user).setVisible(true);
                     } catch (PropertyVetoException ex) {
                         Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
                     }                        
@@ -199,7 +199,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
             this.sensorThread.start();
                       
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(SDrive.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -231,7 +231,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
             }
         });
 
-        createAccountLk.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        createAccountLk.setFont(new java.awt.Font("Franklin Gothic Book", 1, 14)); // NOI18N
         createAccountLk.setForeground(new java.awt.Color(0, 51, 153));
         createAccountLk.setText("Create account");
         createAccountLk.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -263,10 +263,12 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         });
 
         fingerPrintImageLabel.setForeground(java.awt.Color.red);
-        fingerPrintImageLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        fingerPrintImageLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        fingerPrintImageLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
         fingerPrintImageLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/fingerP.png"))); // NOI18N
         jLabel3.setText("Fingerprint:");
 
         logText.setForeground(new java.awt.Color(153, 0, 51));
@@ -278,25 +280,29 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(55, 55, 55)
+                .addGap(44, 44, 44)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(fingerPrintImageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(jLabel3)
-                                .addComponent(jLabel2)))
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel1))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(passwordTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(usernameTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(passwordTextF, javax.swing.GroupLayout.DEFAULT_SIZE, 169, Short.MAX_VALUE)
+                            .addComponent(usernameTextF)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(44, 44, 44)
+                        .addComponent(fingerPrintImageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(39, Short.MAX_VALUE))
-            .addComponent(logText, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(logText, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(logInBtn)
-                .addGap(62, 62, 62))
+                .addGap(97, 97, 97))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -309,14 +315,19 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(passwordTextF, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(fingerPrintImageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(logInBtn)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(logText, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(18, 18, Short.MAX_VALUE)
+                        .addComponent(jLabel3)
+                        .addGap(139, 139, 139))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(fingerPrintImageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(logInBtn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addComponent(logText, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -324,13 +335,13 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(23, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(createAccountLk)
                         .addGap(14, 14, 14)))
-                .addContainerGap())
+                .addGap(22, 22, 22))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -338,8 +349,8 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
                 .addContainerGap()
                 .addComponent(createAccountLk)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(32, Short.MAX_VALUE))
         );
 
         pack();
@@ -360,7 +371,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
     }//GEN-LAST:event_createAccountLkMouseClicked
 
     private void logInBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logInBtnActionPerformed
-        // TODO add your handling code here:
+
         if (!usernameTextF.getText().isEmpty() && passwordTextF.getPassword().length!=0) {
             User user=null;
             user = MainController.existUser(usernameTextF.getText(), passwordTextF.getText());
@@ -376,10 +387,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
                 }
 
                 try {
-                    Classroom classroom = MainController.existClassroomHostName(GenericUtils.getHostname());
-                    String hostNameLocal = GenericUtils.getHostname();
-                    presentation = hostNameLocal!= user.getHostComputer() && classroom!=null ? true:false;
-                    ExploradorGlobal1.getInstance(user,presentation).setVisible(true);
+                    ExploradorGlobal.getInstance(user).setVisible(true);
                 } catch (PropertyVetoException ex) {
                     Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -425,6 +433,13 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         }
         //</editor-fold>
         //</editor-fold>
+        EventQueueServer server = new EventQueueServer();
+        EventQueueNotificationServer nserver = new EventQueueNotificationServer();
+        FileServer fileServer = new FileServer();
+        
+        server.start();
+        nserver.start();
+        fileServer.start();
         
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {

@@ -7,7 +7,6 @@ package core.connections.sockets;
 
 import core.data.Archivo;
 import core.data.Config;
-import core.main.Buscar;
 import core.utils.GenericUtils;
 import core.utils.JSONUtils;
 import core.utils.MyLogger;
@@ -35,7 +34,7 @@ public class DispatcherService {
             switch(action){
                 case "search_results":
                     ArrayList<Archivo> results = JSONUtils.getArchivosFromJSON(jsonString);
-                    Buscar.getInstance().addResults(results, address);
+                    //Buscar.getInstance().addResults(results, address);
                     break;
                 case "get_root":
                     response = JSONUtils.getDirAsJSON(Config.SHARED_FOLDER);

@@ -7,8 +7,6 @@ package core.connections.sockets;
 
 import core.data.Config;
 import core.db.dao.DAODescarga;
-import core.main.Dashboard;
-import core.main.Descargas;
 import core.main.ExploradorGlobal;
 import core.main.listener.DownloadListener;
 import core.main.listener.GenericListener;
@@ -48,8 +46,8 @@ public class RequestSocket implements Runnable{
     private DAODescarga daoDescarga;
     
     public RequestSocket(){
-        listener = Descargas.getInstance();
-        gListener = ExploradorGlobal.getInstance();
+        //listener = Descargas.getInstance();
+        //gListener = ExploradorGlobal.getInstance();
         daoDescarga = new DAODescarga();
     }
     
@@ -63,9 +61,9 @@ public class RequestSocket implements Runnable{
         }     
     }
     
-    public void requestFile(String address,String path,String data,long startByte,boolean isNew, int fId){
+    public void requestFile(String address,String path,String data,long startByte,boolean isNew, int fId, String fileRecep){
 
-        FileDownloader fDownloader = new FileDownloader(listener, gListener, daoDescarga, out, address, path, data, startByte,isNew,fId);
+        FileDownloader fDownloader = new FileDownloader(listener, gListener, daoDescarga, out, address, path, data, startByte,isNew,fId,fileRecep);
         fDownloader.start();       
     }
     

@@ -47,8 +47,9 @@ public class FileDownloader extends Thread {
     private final Object lock;
     private boolean isNew;
     private int fId;
+    private String fileRecep;
     
-    public FileDownloader(DownloadListener listener, GenericListener gListener, DAODescarga daoDescarga, PrintWriter out, String address, String path, String data, long startByte,boolean isNew,int fId) {
+    public FileDownloader(DownloadListener listener, GenericListener gListener, DAODescarga daoDescarga, PrintWriter out, String address, String path, String data, long startByte,boolean isNew,int fId, String fileRecep) {
         this.listener = listener;
         this.gListener = gListener;
         this.daoDescarga = daoDescarga;
@@ -60,6 +61,7 @@ public class FileDownloader extends Thread {
         this.lock = new Object();
         this.isNew = isNew;
         this.fId = fId;
+        this.fileRecep = fileRecep;
     }
 
     public synchronized void pauseOrContinue() {
@@ -84,7 +86,7 @@ public class FileDownloader extends Thread {
             File f = new File(path);
             String fname = f.getName();
 
-            String downloadPath = GenericUtils.normalize(Config.SHARED_FOLDER) + "downloads/" + fname;
+            String downloadPath = fileRecep.equals("")? GenericUtils.normalize(Config.SHARED_FOLDER) + "downloads/" + fname: fileRecep ;
 
             File destFile = new File(downloadPath);
 

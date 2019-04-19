@@ -63,11 +63,15 @@ public class Session {
         this.date = date;
     }
 
-    public String getStartTime() {
-        return startTime;
+    public String getStartTime() throws ParseException {
+        DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+        Date hour = (Date) formatter.parse(this.startTime);
+        SimpleDateFormat newFormat = new SimpleDateFormat("HH:mm");
+        return newFormat.format(hour);
     }
 
     public void setStartTime(String startTime) {
+        
         this.startTime = startTime;
     }
 
