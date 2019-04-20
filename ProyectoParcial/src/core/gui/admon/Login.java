@@ -433,13 +433,13 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         }
         //</editor-fold>
         //</editor-fold>
-        EventQueueServer server = new EventQueueServer();
-        EventQueueNotificationServer nserver = new EventQueueNotificationServer();
-        FileServer fileServer = new FileServer();
-        
-        server.start();
-        nserver.start();
-        fileServer.start();
+//        EventQueueServer server = new EventQueueServer();
+//        EventQueueNotificationServer nserver = new EventQueueNotificationServer();
+//        FileServer fileServer = new FileServer();
+//        
+//        server.start();
+//        nserver.start();
+//        fileServer.start();
         
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
