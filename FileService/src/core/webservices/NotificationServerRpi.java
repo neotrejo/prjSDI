@@ -24,16 +24,19 @@ public class NotificationServerRpi extends Thread {
     private Socket socket;
     private String path = QueueConfig.SHARED_FOLDER;
     private String address;
-     private ActiveSession activeSession;
+    private ActiveSession activeSession;
+    private int port;
 
-    public NotificationServerRpi(String address) {
+    public NotificationServerRpi(String address, int port) {
         this.address = address;
+        this.port = port;
         createServer();
     }
 
     private void createServer() {
         try {
-            socket = new Socket(address,10001);
+            socket = new Socket(address,port);
+            System.out.println(address + "-"+port);
             SQLiteConnection.getInstance().conectar();
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,2 +1,0 @@
-PATH = /home/luismartin/clases/
-HOST1 = 10.0.5.182
