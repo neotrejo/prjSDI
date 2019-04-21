@@ -67,6 +67,11 @@ public class DAOUser {
             return executeQuery(query);
     }
     
+    public User findByUserName(String username) {
+            String query = "SELECT * FROM User WHERE userName=\"" + username + "\" LIMIT 1";
+            return executeQuery(query);
+    }
+    
     public List<User> getAllUsers() throws SQLException {
             String query = "SELECT * FROM User";
             return executeQuerySet(query);

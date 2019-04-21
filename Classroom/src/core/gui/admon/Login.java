@@ -9,7 +9,6 @@ import core.controller.MainController;
 import core.data.Classroom;
 import core.data.User;
 import core.db.sqlite.SQLiteConnection;import core.fileserver.FileServer;
-;
 import core.utils.GenericUtils;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,7 +55,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
     private boolean waitComparison;
     private ListIterator<User> usersIterator;
     private static boolean presentation;
-     
+    
     User user;
     
     @Override    
@@ -72,10 +71,8 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         fPrintAuth.terminate();            
         try {
             sensorThread.join(250);
-        } catch (InterruptedException ex) {
-            //Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
-        }        
-
+        } catch (InterruptedException ex) {}
+        
         usersIterator = (ListIterator<User>) usersList.listIterator();
         try {                            
             waitComparison = SearchForLogin();
@@ -83,11 +80,12 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-        }
-                
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }                
     }        
     
-    public boolean SearchForLogin() throws SQLException, IOException{
+    public boolean SearchForLogin() throws SQLException, IOException, InterruptedException{
         BufferedReader in;
         String line;        
         String[] lines;
@@ -96,67 +94,76 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
             
         while (usersIterator.hasNext()){
             user = (User)usersIterator.next();
-            System.out.println("Executed SearchFinger for: " + user.getUserName());                
-            in = this.fPrintAuth.runPySearchFinger(user.getFingerPrint1(), fingerprintLogIn);
+            if((user.getFingerPrint1().length() >= 0)&&(user.getFingerPrint1().startsWith("["))){
+                System.out.println("Executed SearchFinger for: " + user.getUserName());                
+                in = this.fPrintAuth.runPySearchFinger(user.getFingerPrint1(), fingerprintLogIn);
 
-            line = in.readLine();            
-            while(line != null){                                       
-                System.out.println("Sensor output: " + line);
-                if (line.contains("Success")){
-                    lines = line.split(";");                                                
-                    status = true;  // Wait for next fingerprint comparison from sensor.
+                line = in.readLine();            
+                while(line != null){                                       
+                    System.out.println("Sensor output: " + line);
+                    if (line.contains("Success")){
 
-
-                    System.out.println("Succesful loging: User: " + user.getName() + "Match score: " + lines[1]);                    
-                    this.logText.setText("User: " + user.getName() + " Match score: " + lines[1]);
-                    
-                    this.usernameTextF.setText(user.getName());
-                    this.passwordTextF.setText(user.getPassword());
-                    
-                    
-                    //Show fingerprint image of identified user.
-                    
-                    //Copy encoded image to clipboard.
-                    //String ctc = encodedimage;
-                    //StringSelection stringSelection = new StringSelection(ctc);
-                    //Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
-                    //clpbrd.setContents(stringSelection, null);
-                        
-                    try{
-                        BufferedImage fingerImage = fPrintAuth.convertToImage(user.getFingerPrintImage1());
-                        Image scaledfingerprintImage = fingerImage.getScaledInstance(
-                                                            this.fingerPrintImageLabel.getWidth(),
-                                                            this.fingerPrintImageLabel.getHeight(), 
-                                                            java.awt.Image.SCALE_DEFAULT);
-                        this.fingerPrintImageLabel.setText("");
-                        this.fingerPrintImageLabel.setIcon(new ImageIcon(scaledfingerprintImage));                                    
-                        this.fingerPrintImageLabel.repaint();
-                    }catch(Exception ex){
-                        Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    
-                    //Wait for a while to show the name of the identifies user.
+                    fPrintAuth.terminate();
                     try {
-                        TimeUnit.SECONDS.sleep(4);
+                        sensorThread.join(250);
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                        //Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
+                    } 
                             
-                    this.setVisible(false);
-                    try {
-                        Classroom classroom = MainController.existClassroomHostName(hostNameLocal);                   
-                        presentation = hostNameLocal!= user.getHostComputer() && classroom!=null ? true:false;
-                        ClassroomInter.getInstance(user,classroom ,presentation).setVisible(true);
-                    } catch (PropertyVetoException ex) {
-                        Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-                    }                        
+                        lines = line.split(";");                                                
+                        status = true;  // Wait for next fingerprint comparison from sensor.
 
-                    break;
-                }  
-                
-                line = in.readLine();
-            }            
 
+                        System.out.println("Succesful loging: User: " + user.getName() + "Match score: " + lines[1]);                    
+                        this.logText.setText("User: " + user.getName() + " Match score: " + lines[1]);
+
+                        this.usernameTextF.setText(user.getName());
+                        this.passwordTextF.setText(user.getPassword());
+
+
+                        //Show fingerprint image of identified user.
+
+                        //Copy encoded image to clipboard.
+                        //String ctc = encodedimage;
+                        //StringSelection stringSelection = new StringSelection(ctc);
+                        //Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
+                        //clpbrd.setContents(stringSelection, null);
+
+                        try{
+                            BufferedImage fingerImage = fPrintAuth.convertToImage(user.getFingerPrintImage1());
+                            Image scaledfingerprintImage = fingerImage.getScaledInstance(
+                                                                this.fingerPrintImageLabel.getWidth(),
+                                                                this.fingerPrintImageLabel.getHeight(), 
+                                                                java.awt.Image.SCALE_DEFAULT);
+                            this.fingerPrintImageLabel.setText("");
+                            this.fingerPrintImageLabel.setIcon(new ImageIcon(scaledfingerprintImage));                                    
+                            this.fingerPrintImageLabel.repaint();
+                        }catch(Exception ex){
+                            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
+                        //Wait for a while to show the name of the identifies user.
+                        try {
+                            TimeUnit.SECONDS.sleep(4);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
+                        this.setVisible(false);
+                        try {
+                            Classroom classroom = MainController.existClassroomHostName(hostNameLocal);                   
+                            presentation = hostNameLocal!= user.getHostComputer() && classroom!=null ? true:false;
+                            ClassroomInter.getInstance(user,classroom ,presentation).setVisible(true);
+                        } catch (PropertyVetoException ex) {
+                            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+                        }                        
+
+                        break;
+                    }  
+
+                    line = in.readLine();
+                }            
+            }
             if(status){
                 break;
             }
@@ -207,9 +214,25 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
             this.sensorThread = new Thread(this.fPrintAuth);
             this.sensorThread.start();
                       
+            
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public void readFingerPrintSensor(){
+        String basePath = System.getProperty("user.dir");
+        loginStage = 0; // Looking for sensor reading finger image.
+        this.fPrintAuth = new FingerPrintAuth(this);
+        this.fPrintAuth.setPyReadFingerPath(basePath+"/src/pythonCode/read_fingerprint.py");
+        this.fPrintAuth.setPyDownloadFingerPath(basePath+"/src/pythonCode/download_fingerprint.py");
+        this.fPrintAuth.setPySearchFingerPath(basePath+"/src/pythonCode/search_fingerprint.py");
+
+        this.fPrintAuth.execPyReadFinger();
+        //this.fPrintAuth.execPyDownloadFinger();
+
+        this.sensorThread = new Thread(this.fPrintAuth);
+        this.sensorThread.start();        
     }
 
   /**
@@ -357,16 +380,17 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
 
     private void createAccountLkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_createAccountLkMouseClicked
         // TODO add your handling code here:
+        
         //Termiante thread waiting on fingerprint sensor reading.
         fPrintAuth.terminate();
         try {
             sensorThread.join(250);
         } catch (InterruptedException ex) {
-            //Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
-        }                        
+            Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         this.setVisible(false);
-        CreateAccount.getInstance("Create account").setVisible(true); // Main Form to show after the Login Form..
+        CreateAccount.getInstance("Create account", this).setVisible(true); // Main Form to show after the Login Form..
     }//GEN-LAST:event_createAccountLkMouseClicked
 
     private void logInBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logInBtnActionPerformed
@@ -385,6 +409,8 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
                 } catch (InterruptedException ex) {
                     //Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                //Termiante thread waiting on fingerprint sensor reading.
+                
 
                 try {
                     Classroom classroom = MainController.existClassroomHostName(hostNameLocal);                   
@@ -455,7 +481,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         });
     }
     
-        public static String[] readConfig(){
+    public static String[] readConfig(){
         try {
             BufferedReader br = new BufferedReader(new FileReader("Config.txt"));
             

@@ -79,7 +79,7 @@ public class MainController {
         } 
         
         //---------------------------------------------------
-        public static void addUser(String name, String username, String pass,
+        public static User addUser(String name, String username, String pass,
                 String email, 
                 String hostcomputer, 
                 String sharedfolder,
@@ -88,6 +88,20 @@ public class MainController {
                 String fingerprintimage1,
                 String fingerprintimage2){
                 daoUser.insertUser(name, username, pass, email, hostcomputer, sharedfolder, fingerprint1, fingerprint2, fingerprintimage1, fingerprintimage2);
+                
+                User user= new User();
+                user.setName(name);
+                user.setUserName(username);
+                user.setPassword(pass);
+                user.setEmail(email);
+                user.setHostComputer(hostcomputer);
+                user.setSharedFolder(sharedfolder);
+                user.setFingerPrint1(fingerprint1);
+                user.setFingerPrint1(fingerprint2);
+                user.setFingerPrintImage1(fingerprintimage1);
+                user.setFingerPrintImage2(fingerprintimage2);
+                
+                return user;
         } 
         
         public static void updateUser(String id, String name, String pass, String email, String hostcomputer, String sharedfolder){
@@ -97,6 +111,10 @@ public class MainController {
         
         public static User existUser(String username, String password){         
             return daoUser.findByUserAndPass(username, password);
+        }
+        
+        public static User existUserName(String username){         
+            return daoUser.findByUserName(username);
         }
         
         public static User getUserId(String id){         
@@ -138,8 +156,8 @@ public class MainController {
             return daoSubject.getByNameAndUserId(name,user_id);
         }
         
-        public static Subject existSubjectNameNotId (String name, String id){
-            return daoSubject.findByNameNotId(name, id);
+        public static Subject existSubjectNameNotId (String name, String id, String user_id){
+            return daoSubject.findByNameNotId(name, user_id);
         }
         
         public static Subject getSubjectId (String id){

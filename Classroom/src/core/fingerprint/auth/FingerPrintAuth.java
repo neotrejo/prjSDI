@@ -29,6 +29,7 @@ import javax.imageio.ImageIO;
         public Process myProcess;
         public BufferedReader in;      
         public BufferedReader err;      
+        private String basePath;
         
         private volatile boolean running = true;
         
@@ -59,7 +60,7 @@ import javax.imageio.ImageIO;
         @Override 
         public void run(){ 
             String ret="";
-            while (running) {
+            while ((running)&&(myProcess.isAlive() || myProcess.exitValue()==0)) {
                 try {
                     //Logger.getLogger(CreateAccount.class.getName()).log(Level.INFO, "Sleeping...", this);
                     Thread.sleep((long)100);
@@ -83,11 +84,18 @@ import javax.imageio.ImageIO;
                         //System.out.println("The returned value is: " + ret);
                                            
                         //System.out.println(capturedValue);
+                        try{
+                            String errorLine = err.readLine();   
+                            if(errorLine!=null){
+                                System.out.println("ERROR FROM FINGERPRINT SENSOR: " + errorLine);
+                                
+                            }
+                        }catch(Exception e){}
                                           
                     }catch(IOException e){
                         System.out.println(e); 
                         System.out.println("Error reading the output from the Fingerpint Procedure");
-                        running = false;
+                                                           
                     }    
                     
                     
@@ -104,11 +112,12 @@ import javax.imageio.ImageIO;
         }
         
         public void execPyEnrollFinger(){
-            try{
-                running = true;
+            try{                
                 ProcessBuilder pb = new ProcessBuilder("python3",this.pyEnrollFinger);
                 myProcess = pb.start();                           
                 in = new BufferedReader(new InputStreamReader(myProcess.getInputStream()));                
+                err = new BufferedReader(new InputStreamReader(myProcess.getErrorStream()));                                                 
+                running = true;
             }catch(IOException e){
                 System.out.println(e); 
                 System.out.println("Error executing Python Enroll Fingerpint procedure");
@@ -118,13 +127,13 @@ import javax.imageio.ImageIO;
         public BufferedReader execPySearchFinger(String fingerPrintChar1, String fingerPrintLogIn  ){
             List<String> command = new ArrayList();
             
-            try{
-                running = true;
+            try{                
                 ProcessBuilder pb = new ProcessBuilder("python3",this.pySearchFinger + " \"" + fingerPrintChar1 + "\"" +  " \"" + fingerPrintLogIn + "\"");
                 System.out.println("Executing cmd: " + "python3 " + this.pySearchFinger + " \"" + fingerPrintChar1 + "\"" +  " \"" + fingerPrintLogIn + "\"");
                 myProcess = pb.start();
                 in = new BufferedReader(new InputStreamReader(myProcess.getInputStream()));                                 
                 err = new BufferedReader(new InputStreamReader(myProcess.getErrorStream()));                                                 
+                running = true;
             }catch(IOException e){
                 System.out.println(e); 
                 System.out.println("Error executing Python Search Fingerpint procedure");
@@ -138,7 +147,8 @@ import javax.imageio.ImageIO;
                 System.out.println("Executing cmd: " + "python3 " + this.pySearchFinger + " \"" + fingerPrintChar1 + "\"" +  " \"" + fingerPrintLogIn + "\"");
                 myProcess = pb.start();
                 in = new BufferedReader(new InputStreamReader(myProcess.getInputStream()));                                 
-                err = new BufferedReader(new InputStreamReader(myProcess.getErrorStream()));                                                 
+                err = new BufferedReader(new InputStreamReader(myProcess.getErrorStream()));                        
+                running = true;
             }catch(IOException e){
                 System.out.println(e); 
                 System.out.println("Error executing Python Search Fingerpint procedure");
@@ -147,11 +157,15 @@ import javax.imageio.ImageIO;
         } 
         
         public void execPyReadFinger(){
-            try{
-                running = true;
+            try{                
                 ProcessBuilder pb = new ProcessBuilder("python3",this.pyReadFinger );
                 myProcess = pb.start();
                 in = new BufferedReader(new InputStreamReader(myProcess.getInputStream()));                
+                err = new BufferedReader(new InputStreamReader(myProcess.getErrorStream()));                        
+                if(myProcess.isAlive() || !(myProcess.exitValue()==0))
+                    running = true;
+                else
+                    System.err.println("ERROR TO LAUCH PYTHON PROCES @ execPyReadFinger");
             }catch(IOException e){
                 System.out.println(e); 
                 System.out.println("Error executing Python Read Fingerpint procedure");
@@ -160,21 +174,24 @@ import javax.imageio.ImageIO;
                 
         public void execPyDeleteFinger(){
             try{
-                running = true;
+                
                 ProcessBuilder pb = new ProcessBuilder("python3",this.pyDeleteFinger );
                 myProcess = pb.start();
                 in = new BufferedReader(new InputStreamReader(myProcess.getInputStream()));                
+                err = new BufferedReader(new InputStreamReader(myProcess.getErrorStream()));                        
+                running = true;
             }catch(IOException e){
                 System.out.println(e); 
                 System.out.println("Error executing Python Delete Fingerprint procedure");
             }                            
         }      
         public void execPyDownloadFinger(){
-            try{
-                running = true;
+            try{                
                 ProcessBuilder pb = new ProcessBuilder("python3",this.pyDownloadFinger );
                 myProcess = pb.start();
                 in = new BufferedReader(new InputStreamReader(myProcess.getInputStream()));                
+                err = new BufferedReader(new InputStreamReader(myProcess.getErrorStream()));                        
+                running = true;
             }catch(IOException e){
                 System.out.println(e); 
                 System.out.println("Error executing Python Download Fingerprint procedure");
@@ -182,6 +199,24 @@ import javax.imageio.ImageIO;
         }      
             
         public void terminate() {
+//            if(running && this.myProcess.isAlive()){
+//                PrintWriter writer;
+//                try {
+//                    File file = new File(basePath + "/src/pythonCode/terminateSensorReading.true");
+//                    if (!file.exists())
+//                        file.createNewFile();
+//                    writer = new PrintWriter(file.getPath(), "UTF-8");
+//                    writer.println("FinishSensorReadout");                
+//                    writer.close();
+//                } catch (FileNotFoundException | UnsupportedEncodingException ex) {
+//                    Logger.getLogger(FingerPrintAuth.class.getName()).log(Level.SEVERE, null, ex);
+//                } catch (IOException ex) {
+//                    Logger.getLogger(FingerPrintAuth.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+            if(running && this.myProcess.isAlive()){
+                myProcess.destroyForcibly();
+            }
             running = false;
         }
         
