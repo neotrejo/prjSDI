@@ -236,6 +236,11 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("RaspClass");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
         addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 formKeyPressed(evt);
@@ -416,6 +421,19 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
                 logInBtn.doClick();
             }
     }//GEN-LAST:event_formKeyPressed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        
+        if(fPrintAuth!=null){
+            this.fPrintAuth.terminate();
+            try {
+                sensorThread.join(250);
+            } catch (InterruptedException ex) {
+                //Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
+            }            
+        }
+        
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
