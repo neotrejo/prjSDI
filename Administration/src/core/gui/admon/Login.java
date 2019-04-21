@@ -8,9 +8,7 @@ package core.gui.admon;
 import core.controller.MainController;
 import core.data.User;
 import core.db.sqlite.SQLiteConnection;
-import core.fileserver.FileServer;
 import core.main.ExploradorGlobal;
-import core.utils.GenericUtils;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
@@ -18,8 +16,6 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyVetoException;
 import core.fingerprint.auth.FingerPrintAuth;
 import core.fingerprint.auth.readFingerPrintEvent;
-import core.queue.EventQueueNotificationServer;
-import core.queue.EventQueueServer;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -76,11 +72,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         usersIterator = (ListIterator<User>) usersList.listIterator();
         try {                            
             waitComparison = SearchForLogin();
-        } catch (SQLException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
+        } catch (SQLException | IOException | InterruptedException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
                 
@@ -91,7 +83,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         String line;        
         String[] lines;
         boolean status = false;
-        String hostNameLocal = GenericUtils.getHostname();          
+        //String hostNameLocal = GenericUtils.getHostname();          
             
         while (usersIterator.hasNext()){
             user = (User)usersIterator.next();
@@ -181,15 +173,15 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
     }
     
     public Login() throws SQLException {
-        String basePath = System.getProperty("user.dir");
-        loginStage = 0; // Looking for sensor reading finger image.
+        
         try {
             initComponents();
             setLocationRelativeTo(null);
             jPanel1.setBorder(BorderFactory.createTitledBorder("Log in"));      
             mainParent = this;
             SQLiteConnection.getInstance().conectar();
-           
+            String basePath = System.getProperty("user.dir");
+            loginStage = 0; // Looking for sensor reading finger image.
             //Retive all users from the database.
             usersList = (List<User>) MainController.getAllUsers();       
             
@@ -389,7 +381,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
     private void logInBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logInBtnActionPerformed
 
         if (!usernameTextF.getText().isEmpty() && passwordTextF.getPassword().length!=0) {
-            User user=null;
+            User user;
             user = MainController.existUser(usernameTextF.getText(), passwordTextF.getText());
             if (user != null) {
                 this.setVisible(false);
@@ -472,6 +464,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 try {
                     new Login().setVisible(true);
