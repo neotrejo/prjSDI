@@ -453,6 +453,9 @@ public class CreateAccount extends javax.swing.JFrame implements readFingerPrint
 
     private void backLkMouseClicked(java.awt.event.MouseEvent evt) {
         // TODO add your handling code here:
+        if(fPrintAuth != null)
+            this.fPrintAuth.terminate();
+        
         this.setVisible(false);
         try {
             new Login().setVisible(true);
@@ -517,8 +520,8 @@ public class CreateAccount extends javax.swing.JFrame implements readFingerPrint
                                                 emailTextF.getText(),
                                                 hostnameTextF.getText(),
                                                 sharedfolderTextF.getText(),
-                                                (fingerprintChar1.length() > 0 ? fPrintAuth.convertImageFiletoBase64(fingerprintFile1) : ""),
-                                                (fingerprintChar2.length() > 0 ? fPrintAuth.convertImageFiletoBase64(fingerprintFile1) : ""),
+                                                    (fingerprintChar1.length() > 0 ? fingerprintChar1 : ""),
+                                                    (fingerprintChar2.length() > 0 ? fingerprintChar1 : ""),
                                                 (fingerprintFile1.length() > 0 ? fPrintAuth.convertImageFiletoBase64(fingerprintFile1) : ""),
                                                 (fingerprintFile2.length() > 0 ? fPrintAuth.convertImageFiletoBase64(fingerprintFile2) : ""));
                                         this.setVisible(false);

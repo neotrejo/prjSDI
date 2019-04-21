@@ -65,12 +65,13 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         System.out.println("fingerprintLogIn: " + this.fingerprintLogIn);
 
 
-        fPrintAuth.terminate();            
+                    
         try {
             sensorThread.join(250);
         } catch (InterruptedException ex) {
             //Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
         }        
+        fPrintAuth.terminate();
 
         usersIterator = (ListIterator<User>) usersList.listIterator();
         try {                            
@@ -94,7 +95,7 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
             
         while (usersIterator.hasNext()){
             user = (User)usersIterator.next();
-            if(user.getFingerPrint1().length() >= 0){
+            if((user.getFingerPrint1().length() >= 0)&&(user.getFingerPrint1().startsWith("["))){
                 System.out.println("Executed SearchFinger for: " + user.getUserName());                
                 in = this.fPrintAuth.runPySearchFinger(user.getFingerPrint1(), fingerprintLogIn);
 
@@ -102,13 +103,13 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
                 while(line != null){                                       
                     System.out.println("Sensor output: " + line);
                     if (line.contains("Success")){
-                        fPrintAuth.terminate();
+
                         try {
                             sensorThread.join(250);
                         } catch (InterruptedException ex) {
                             //Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
                         } 
-
+                            fPrintAuth.terminate();
                         lines = line.split(";");                                                
                         status = true;  // Wait for next fingerprint comparison from sensor.
 

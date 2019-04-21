@@ -29,6 +29,7 @@ import javax.imageio.ImageIO;
         public Process myProcess;
         public BufferedReader in;      
         public BufferedReader err;      
+        private String basePath;
         
         private volatile boolean running = true;
         
@@ -59,7 +60,7 @@ import javax.imageio.ImageIO;
         @Override 
         public void run(){ 
             String ret="";
-            while (running) {
+            while ((running)&&(myProcess.isAlive() || myProcess.exitValue()==0)) {
                 try {
                     //Logger.getLogger(CreateAccount.class.getName()).log(Level.INFO, "Sleeping...", this);
                     Thread.sleep((long)100);
@@ -87,7 +88,7 @@ import javax.imageio.ImageIO;
                             String errorLine = err.readLine();   
                             if(errorLine!=null){
                                 System.out.println("ERROR FROM FINGERPRINT SENSOR: " + errorLine);
-                                
+                                this.terminate();
                             }
                         }catch(Exception e){}
                                           
@@ -198,8 +199,25 @@ import javax.imageio.ImageIO;
         }      
             
         public void terminate() {
+//            if(running && this.myProcess.isAlive()){
+//                PrintWriter writer;
+//                try {
+//                    File file = new File(basePath + "/src/pythonCode/terminateSensorReading.true");
+//                    if (!file.exists())
+//                        file.createNewFile();
+//                    writer = new PrintWriter(file.getPath(), "UTF-8");
+//                    writer.println("FinishSensorReadout");                
+//                    writer.close();
+//                } catch (FileNotFoundException | UnsupportedEncodingException ex) {
+//                    Logger.getLogger(FingerPrintAuth.class.getName()).log(Level.SEVERE, null, ex);
+//                } catch (IOException ex) {
+//                    Logger.getLogger(FingerPrintAuth.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+            if(running && this.myProcess.isAlive()){                
+                myProcess.destroyForcibly();
+            }
             running = false;
-            myProcess.destroy();
         }
         
         public String convertImageFiletoBase64(String fingerprintFile){
