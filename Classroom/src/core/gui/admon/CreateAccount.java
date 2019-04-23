@@ -512,18 +512,20 @@ public class CreateAccount extends javax.swing.JFrame implements readFingerPrint
                                     user = MainController.
                                             existUserName(usernameTextF.getText());
                                     if (user == null) {
-                                        user =MainController.addUser(
-                                                nameTextF.getText(),
-                                                usernameTextF.getText(),
-                                                passwordTextF.getText(),
-                                                emailTextF.getText(),
-                                                hostnameTextF.getText(),
-                                                sharedfolderTextF.getText(),
-                                                    (fingerprintChar1.length() > 0 ? fingerprintChar1 : ""),
-                                                    (fingerprintChar2.length() > 0 ? fingerprintChar1 : ""),
-                                                (fingerprintFile1.length() > 0 ? fPrintAuth.convertImageFiletoBase64(fingerprintFile1) : ""),
-                                                (fingerprintFile2.length() > 0 ? fPrintAuth.convertImageFiletoBase64(fingerprintFile2) : ""));
-                                        this.setVisible(false);
+                                        try{
+                                            user =MainController.addUser(
+                                                    nameTextF.getText(),
+                                                    usernameTextF.getText(),
+                                                    passwordTextF.getText(),
+                                                    emailTextF.getText(),
+                                                    hostnameTextF.getText(),
+                                                    sharedfolderTextF.getText(),
+                                                        (fingerprintChar1.length() > 0 ? fingerprintChar1 : ""),
+                                                        (fingerprintChar2.length() > 0 ? fingerprintChar1 : ""),
+                                                    (fingerprintFile1.length() > 0 ? fPrintAuth.convertImageFiletoBase64(fingerprintFile1) : ""),
+                                                    (fingerprintFile2.length() > 0 ? fPrintAuth.convertImageFiletoBase64(fingerprintFile2) : ""));
+                                                                               
+                                        }catch(Exception e){System.out.println("Error storing new user information... "); }
                                         
                                         fPrintAuth.terminate();            
                                         try {
@@ -532,8 +534,15 @@ public class CreateAccount extends javax.swing.JFrame implements readFingerPrint
                                             //Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
                                         } 
                                         
-                                        this.getParent().setVisible(true);
-                                        this.dispose();
+                                        try{
+                                            this.parent.setVisible(true);                                            
+                                        }catch(Exception e){System.out.println("Error while showing back the log in dialog");}
+                                        
+                                        
+                                        try{
+                                            this.setVisible(false);
+                                        }catch(Exception e){System.out.println("Error while hidding the account in dialog");}
+                                        
                                         
                                     } else {
                                         logLabel.setText("Username already exist.");
