@@ -416,13 +416,16 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         
-        if(fPrintAuth!=null){
-            this.fPrintAuth.terminate();
+        if(fPrintAuth!=null){            
             try {
+                this.fPrintAuth.terminate();
                 sensorThread.join(250);
             } catch (InterruptedException ex) {
                 //Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
-            }            
+            } 
+             catch (NullPointerException ex1) {
+                //Logger.getLogger(CreateAccount.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
     }//GEN-LAST:event_formWindowClosing
