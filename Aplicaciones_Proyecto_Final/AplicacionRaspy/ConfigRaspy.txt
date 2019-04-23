@@ -1,0 +1,4 @@
+PATH = /home/pi/SDI_APP/Classes
+HOST1 = 10.0.5.182
+PPT_CMD = libreoffice --show
+PDF_CMD = qpdfview
