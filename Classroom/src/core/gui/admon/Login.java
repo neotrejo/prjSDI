@@ -92,7 +92,9 @@ public class Login extends javax.swing.JFrame implements readFingerPrintEvent {
         String[] lines;
         boolean status = false;
         String hostNameLocal = GenericUtils.getHostname();          
-            
+        
+        this.logText.setText("Searching for finger print matches in database...");
+                
         while (usersIterator.hasNext()){
             user = (User)usersIterator.next();
             if((user.getFingerPrint1().length() >= 0)&&(user.getFingerPrint1().startsWith("["))){
