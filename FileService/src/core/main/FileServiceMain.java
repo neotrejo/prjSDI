@@ -26,7 +26,7 @@ public class FileServiceMain {
         String line;
         ArrayList<String> hosts = new ArrayList<>();
         try {
-            BufferedReader br = new BufferedReader(new FileReader("Config.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("ConfigSources.txt"));
 
             String path = br.readLine().split("=")[1].trim();
             System.out.println(path);

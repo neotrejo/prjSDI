@@ -14,7 +14,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  *
  * @author Luis
@@ -30,17 +32,26 @@ public class NotificationServerRpi extends Thread {
     public NotificationServerRpi(String address, int port) {
         this.address = address;
         this.port = port;
-        createServer();
+        while(!createServer()){
+            System.out.println("Trying to connect to FileServiceClient application on " + address + ":" + port + ".");
+            System.out.println("Retry in 5 seconds...");
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(NotificationServerRpi.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
-    private void createServer() {
+    private boolean createServer() {
         try {
             socket = new Socket(address,port);
             System.out.println(address + "-"+port);
-            SQLiteConnection.getInstance().conectar();
+            SQLiteConnection.getInstance().conectar();            
         } catch (Exception e) {
-            e.printStackTrace();
+            return false;            
         }
+        return true;
     }
 
     @Override
