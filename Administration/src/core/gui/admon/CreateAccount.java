@@ -524,6 +524,7 @@ public class CreateAccount extends javax.swing.JFrame implements readFingerPrint
                                                     (fingerprintChar2.length() > 0 ? fingerprintChar1 : ""),
                                                 (fingerprintFile1.length() > 0 ? fPrintAuth.convertImageFiletoBase64(fingerprintFile1) : ""),
                                                 (fingerprintFile2.length() > 0 ? fPrintAuth.convertImageFiletoBase64(fingerprintFile2) : ""));
+                                        
                                         this.setVisible(false);
                                         
                                         fPrintAuth.terminate();            
