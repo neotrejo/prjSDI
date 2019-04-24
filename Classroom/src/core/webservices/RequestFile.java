@@ -12,7 +12,7 @@ import java.net.Socket;
 
 /**
  *
- * @author luismartin
+ * @author SDI
  */
 public class RequestFile extends Thread{
     

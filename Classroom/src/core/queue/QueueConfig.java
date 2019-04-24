@@ -7,7 +7,7 @@ package core.queue;
 
 /**
  *
- * @author Luis Martin
+ * @author SDI Martin
  */
 public class QueueConfig {
     

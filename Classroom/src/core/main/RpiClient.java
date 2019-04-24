@@ -9,7 +9,7 @@ import core.webservices.NotificationServerRpi;
 
 /**
  *
- * @author luismartin
+ * @author SDI
  */
 public class RpiClient {
 
@@ -19,7 +19,7 @@ public class RpiClient {
     public static void main(String[] args) {
         // TODO code application logic here
         
-        //OpenFileService.openFile("/home/luismartin/Documentos/Proyectos_LaboratorioComputacion_2015.pptx");
+        //OpenFileService.openFile("/home/SDI/Documentos/Proyectos_LaboratorioComputacion_2015.pptx");
         
         
         new NotificationServerRpi().start();

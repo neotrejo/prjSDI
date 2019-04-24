@@ -7,12 +7,12 @@ package core.webservices;
 
 /**
  *
- * @author Luis Martin
+ * @author SDI Martin
  */
 public class QueueConfig {
     
     public static final int SERVER_PORT = 10000;
     public static final int NOTIFICATION_SERVER_PORT = 10001;
-    public static final String SHARED_FOLDER = "/home/luismartin/clases/";
+    public static final String SHARED_FOLDER = "/home/SDI/clases/";
     
 }

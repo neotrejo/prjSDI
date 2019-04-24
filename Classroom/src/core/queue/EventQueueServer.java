@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author luismartin
+ * @author SDI
  */
 public class EventQueueServer extends Thread{
     

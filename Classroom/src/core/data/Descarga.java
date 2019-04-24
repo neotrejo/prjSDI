@@ -7,7 +7,7 @@ package core.data;
 
 /**
  *
- * @author luismartin
+ * @author SDI
  */
 public class Descarga {
     
