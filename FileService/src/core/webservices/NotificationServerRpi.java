@@ -10,7 +10,6 @@ import core.db.dao.DAOActiveSession;
 import core.db.sqlite.SQLiteConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.ServerSocket;
 import java.net.Socket;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -80,6 +79,7 @@ public class NotificationServerRpi extends Thread {
                     String subjectName = (String) obj.get("subjectName");
                     String fileName = (String) obj.get("fileName");
                     String filePath = (String) obj.get("pathFile");
+                    String userName = (String) obj.get("userName");
                     
                     fileName = fileName.replace(" ", "_");
                     subjectName = subjectName.replace(" ", "_");
@@ -95,20 +95,20 @@ public class NotificationServerRpi extends Thread {
                     System.out.println(subjectName);
                     System.out.println(fileName);
                     System.out.println(filePath);
+                    System.out.println(userName);
                     
                     DAOActiveSession daoAS = new DAOActiveSession();
-                    
+                     FileUtils.createPath(path+"/"+userName+"/"+subjectName);
                      switch(event){
-                        case "add":
-                            FileUtils.createPath(path+userID+"/"+subjectName);
+                        case "add":                            
                             daoAS.insertSession(sessionID, userID, date, startTime, subjectName, fileName, path+userID+"/"+subjectName+"/"+fileName);
-                            new RequestFile(filePath,path+userID+"/"+subjectName+"/"+fileName).start();
+                            new RequestFile(filePath,path+"/"+userName+"/"+subjectName+"/"+fileName).start();
                             break;
                         case "update":
                             activeSession = daoAS.findBySession(sessionID, userID);
                             if(activeSession!=null){
                                 daoAS.updateActiveSession(activeSession.getId(),sessionID, userID, date, startTime, subjectName, fileName, path+userID+"/"+subjectName+"/"+fileName);
-                                new RequestFile(filePath,path+userID+"/"+subjectName+"/"+fileName).start();
+                                new RequestFile(filePath,path+"/"+userName+"/"+subjectName+"/"+fileName).start();
                             }
                             break;
                         case "delete":
