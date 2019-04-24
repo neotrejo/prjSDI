@@ -13,19 +13,19 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author luismartin
+ * @author Martin
  */
 public class EventQueueNotificationServer extends Thread{
     
     private ServerSocket listener;
     
-    public EventQueueNotificationServer(){
-        createServer();
+    public EventQueueNotificationServer(int port){
+        createServer(port);
     }
     
-    private void createServer(){
+    private void createServer(int port){
         try {
-            listener = new ServerSocket(QueueConfig.NOTIFICATION_SERVER_PORT);
+            listener = new ServerSocket(port);
         } catch (IOException ex) {
             Logger.getLogger(EventQueueNotificationServer.class.getName()).log(Level.SEVERE, null, ex);
         }

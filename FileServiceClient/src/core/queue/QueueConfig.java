@@ -7,12 +7,12 @@ package core.queue;
 
 /**
  *
- * @author Luis Martin
+ * @author Martin
  */
 public class QueueConfig {
     
     public static final int SERVER_PORT = 10000;
-    public static final int NOTIFICATION_SERVER_PORT = 10001;
+    public static final int NOTIFICATION_SERVER_PORT = 10002;
     public static final String ADDRESS ="127.0.0.1";
     
 }

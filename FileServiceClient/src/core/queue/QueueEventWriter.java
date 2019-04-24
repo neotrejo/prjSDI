@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Luis Martin
+ * @author  Martin
  */
 public class QueueEventWriter {
     

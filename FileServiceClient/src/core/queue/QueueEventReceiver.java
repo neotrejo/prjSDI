@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Luis
+ * @author 
  */
 public class QueueEventReceiver extends Thread{
     

@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Luis
+ * @author 
  */
 public class FileServerHandler extends Thread implements Observer{
     
