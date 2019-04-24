@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public interface RemoteMachine extends Remote{
     

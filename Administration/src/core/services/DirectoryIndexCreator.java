@@ -11,7 +11,7 @@ import java.io.File;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class DirectoryIndexCreator extends Thread{
     

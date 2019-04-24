@@ -7,7 +7,7 @@ package core.data;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class Usuario {
 

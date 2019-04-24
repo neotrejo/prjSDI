@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class ConfigModel implements Serializable{
     

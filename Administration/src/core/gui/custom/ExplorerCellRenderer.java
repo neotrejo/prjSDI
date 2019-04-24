@@ -21,7 +21,7 @@ import javax.swing.border.Border;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class ExplorerCellRenderer extends JLabel implements ListCellRenderer<FileModel>{
 

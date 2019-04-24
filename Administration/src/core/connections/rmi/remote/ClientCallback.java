@@ -10,7 +10,7 @@ import java.rmi.RemoteException;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public interface ClientCallback extends Remote{
     

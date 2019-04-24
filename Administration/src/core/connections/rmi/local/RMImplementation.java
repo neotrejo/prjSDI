@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class RMImplementation extends UnicastRemoteObject implements RemoteMachine{
     

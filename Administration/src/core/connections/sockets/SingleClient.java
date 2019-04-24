@@ -31,7 +31,7 @@ import org.json.simple.parser.JSONParser;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class SingleClient extends Thread{
     

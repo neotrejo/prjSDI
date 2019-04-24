@@ -9,7 +9,7 @@ import core.connections.sockets.FileDownloader;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public interface DownloadListener {
     

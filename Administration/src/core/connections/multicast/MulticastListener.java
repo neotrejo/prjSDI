@@ -9,7 +9,7 @@ import core.data.ClientModel;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public interface MulticastListener {
     public void updateList();

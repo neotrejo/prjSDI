@@ -19,7 +19,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class SQLiteConnection {
 

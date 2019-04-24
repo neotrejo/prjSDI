@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class FileWalker {
  

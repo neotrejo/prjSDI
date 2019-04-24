@@ -17,7 +17,7 @@ import org.json.simple.parser.ParseException;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class ClientList {
     

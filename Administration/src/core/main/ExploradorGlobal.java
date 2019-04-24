@@ -18,12 +18,9 @@ import core.data.FileD;
 import core.data.Subscription;
 import core.data.Subscriptor;
 import core.data.User;
-import core.gui.custom.ExplorerCellRenderer;
 import core.main.listener.GenericListener;
 import core.queue.QueueConfig;
 import core.queue.QueueEventWriter;
-import core.services.NetworkConnections;
-import core.tasks.UserDisconnection;
 import core.utils.ColorColumnRenderer;
 import java.awt.Color;
 import java.awt.Desktop;
@@ -32,16 +29,13 @@ import java.beans.PropertyVetoException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.time.*;
 import java.io.File;
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
@@ -55,7 +49,7 @@ import org.json.simple.JSONObject;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class ExploradorGlobal extends javax.swing.JFrame implements MulticastListener, GenericListener {
 
@@ -1372,10 +1366,10 @@ public class ExploradorGlobal extends javax.swing.JFrame implements MulticastLis
                         subject = MainController.getSubjectNameUserId(nameTextF.getText(), user.getId());
                         if (subject == null) {
                             MainController.addSubject(nameTextF.getText(), passwordTextF.getText(), descriptionTextA.getText(), sharedFolderTextF.getText(), this.user.getId());
+                            updateSubjectTable(true);
                             updateCbSession();
                             cleanFieldsSubject();
-                            formaSubjectIFrame.doDefaultCloseAction();
-                            updateSubjectTable(true);
+                            formaSubjectIFrame.doDefaultCloseAction();                           
                         } else {
                             logSubjLabel.setText("Subject with same name already exist.");
                         }
@@ -1519,8 +1513,8 @@ public class ExploradorGlobal extends javax.swing.JFrame implements MulticastLis
                 //FileD file = MainController.getFile(filesession.getFileId());
                 Session session = MainController.getSession(filesession.getSessionId());
                 DefaultTableModel tm = (DefaultTableModel) sessionsTable.getModel();
-                String subjectName = String.valueOf(tm.getValueAt(rowIndex, 1));
-                String classroomName = String.valueOf(tm.getValueAt(rowIndex, 2));
+                String subjectName = String.valueOf(tm.getValueAt(rowIndex, 2));
+                String classroomName = String.valueOf(tm.getValueAt(rowIndex, 3));
                 try {
                     actionAdd = false;
                     setFieldsSession(file, session, subjectName, classroomName);

@@ -12,7 +12,7 @@ import javax.swing.table.AbstractTableModel;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class DownloadsTableModel extends AbstractTableModel{
 

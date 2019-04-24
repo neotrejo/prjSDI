@@ -13,7 +13,7 @@ import core.connections.sockets.FileServer2;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class NetworkConnections {
     

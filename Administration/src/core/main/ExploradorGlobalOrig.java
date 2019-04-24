@@ -55,7 +55,7 @@ import org.json.simple.JSONObject;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class ExploradorGlobalOrig extends javax.swing.JFrame implements MulticastListener, GenericListener {
 

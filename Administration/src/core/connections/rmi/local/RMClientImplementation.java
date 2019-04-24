@@ -15,7 +15,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class RMClientImplementation extends UnicastRemoteObject implements ClientCallback{
     

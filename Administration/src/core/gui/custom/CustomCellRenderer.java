@@ -20,7 +20,7 @@ import javax.swing.border.Border;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class CustomCellRenderer extends JLabel implements ListCellRenderer<Object>{
 

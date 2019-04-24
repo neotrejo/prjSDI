@@ -26,7 +26,7 @@ import javax.swing.JCheckBox;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class MulticastServer extends Thread {
 

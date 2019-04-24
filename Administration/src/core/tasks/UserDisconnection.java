@@ -20,7 +20,7 @@ import java.util.TimerTask;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class UserDisconnection extends TimerTask{
     

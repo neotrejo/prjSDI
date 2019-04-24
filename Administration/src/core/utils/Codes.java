@@ -7,7 +7,7 @@ package core.utils;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class Codes {
     public static final int NO_GROUP = 100;

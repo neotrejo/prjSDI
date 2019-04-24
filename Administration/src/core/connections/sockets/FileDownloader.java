@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class FileDownloader extends Thread {
 
