@@ -19,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class NotificationServerRpi extends Thread {
 

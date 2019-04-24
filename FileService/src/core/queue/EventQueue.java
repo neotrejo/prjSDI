@@ -11,7 +11,7 @@ import java.util.concurrent.BlockingQueue;
 
 /**
  *
- * @author Luis Martin
+ * @author SDI Martin
  */
 public class EventQueue extends Observable{
     

@@ -5,6 +5,7 @@
  */
 package core.main;
 
+import core.utils.Host;
 import core.webservices.NotificationServerRpi;
 import core.webservices.QueueConfig;
 import java.io.BufferedReader;
@@ -22,25 +23,22 @@ public class FileServiceMain {
     /**
      * @param args the command line arguments
      */
-    public static ArrayList<String> readConfig() {
+    public static ArrayList<Host> readConfig() {
         String line;
-        ArrayList<String> hosts = new ArrayList<>();
+        ArrayList<Host> hosts = new ArrayList<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader("ConfigSources.txt"));
 
             String path = br.readLine().split("=")[1].trim();
             System.out.println(path);
             line = br.readLine();
-            while (line != null) {
-                hosts.add(line.split("=")[1].trim());
+            while (line != null) {                
+                hosts.add( new Host(line.split("=")[1].trim(),Integer.parseInt(line.split("=")[2].trim())));
                 System.out.println(line);
                 line = br.readLine();
             }
-            //String host = br.readLine().split("=")[1].trim();
-
-            
+            //String host = br.readLine().split("=")[1].trim();            
             //System.out.println(host);
-
             QueueConfig.SHARED_FOLDER = path;
 
             return hosts;
@@ -56,11 +54,9 @@ public class FileServiceMain {
         // TODO code application logic here
 
         //OpenFileService.openFile("/home/luismartin/Documentos/Proyectos_LaboratorioComputacion_2015.pptx");
-        int port= 10001;
-        ArrayList<String> conf = readConfig();
-        for(String host: conf){
-            new NotificationServerRpi(host,port).start();
-            port++;
+        ArrayList<Host> conf = readConfig();
+        for(Host host: conf){
+            new NotificationServerRpi(host.getAddress(),host.getPort()).start();
         }
         //new NotificationServerRpi(conf[1]).start();
 

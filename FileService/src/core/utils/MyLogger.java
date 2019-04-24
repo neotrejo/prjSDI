@@ -7,7 +7,7 @@ package core.utils;
 
 /**
  *
- * @author Luis
+ * @author SDI
  */
 public class MyLogger {
     

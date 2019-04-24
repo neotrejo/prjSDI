@@ -7,7 +7,7 @@ package core.webservices;
 
 /**
  *
- * @author Luis Martin
+ * @author SDI Martin
  */
 public class QueueConfig {
     
