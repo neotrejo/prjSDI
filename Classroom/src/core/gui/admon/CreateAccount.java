@@ -9,7 +9,6 @@ import core.controller.MainController;
 import core.data.ConfigModel;
 import core.data.User;
 import core.utils.GenericUtils;
-import java.beans.PropertyVetoException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
@@ -22,7 +21,6 @@ import core.fingerprint.auth.FingerPrintAuth;
 import core.fingerprint.auth.readFingerPrintEvent;
 import java.awt.Image;
 
-import javax.swing.*;
 import java.io.File;
 import java.sql.SQLException;
 

@@ -7,79 +7,79 @@ package core.gui.admon;
 
 import core.controller.MainController;
 import core.data.ActiveSession;
-import core.data.Classroom;
-import core.data.ClientModel;
-import core.data.FileD;
-import core.data.FilesSession;
-import core.data.ServerFile;
-import core.data.Session;
 import core.data.User;
+import core.utils.FileTreeModel;
+import core.utils.MyFile;
+import core.webservices.FileUtils;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 import core.webservices.OpenFileService;
+import java.awt.ComponentOrientation;
+import javax.swing.Box;
+import javax.swing.tree.TreePath;
 
 /**
  *
  * @author Diana
  */
 public class ClassroomInter extends javax.swing.JFrame {
+
     private static ClassroomInter instance;
     private User user = new User();
-    private Classroom classToProject;
+
     /**
      * Creates new form Classroom
      */
-    public ClassroomInter( User user, Classroom classroom, boolean presentation) throws PropertyVetoException {
-        String path;
+    public ClassroomInter(User user, String pathRaspy) throws PropertyVetoException {
+        File root;
         initComponents();
-        classToProject = classroom;
+        jMenuBar1.add(Box.createHorizontalGlue());
+        jMenuBar1.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         this.user = user;
-        if (true) {
-            path = "";
-            //path = classToProject.getRootFolder() + "\\" + user.getUserName();
-            toProjectSession(path);
-//            }
-        }else{
-            logText.setText("No es aula...");
-        }
-        
+        panelTab.setTitleAt(0, "Files");
+        menuUser.setText(user == null ? "" : user.getName() + "  ");  
+        FileUtils.createPath(pathRaspy+"/"+user.getUserName());
+        root = new File(pathRaspy+"/"+user.getUserName());
+        // Create a TreeModel object to represent our tree of files
+        FileTreeModel model = new FileTreeModel(root);
+        treeDirectory.setModel(model);
+        toProjectSession();
     }
-    
-    public void toProjectSession(String path) {
-        FilesSession filesess;
-        FileD doc;
-        String[] aux;
-        String subject, pathTemp;
+
+    private void setlogTextArea(String line) {
+        logTextA.setText(logTextA.getText() + "\n" + line);
+    }
+
+    public void toProjectSession() {
+
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime firstDate = LocalDateTime.now();
         LocalDateTime lastDate = LocalDateTime.now().plusHours(2);
-        
+
         ArrayList<ActiveSession> sessionToday = MainController.getActiveSessionsDates(user.getId(), dtf.format(firstDate), dtf.format(lastDate));
-        
+
         for (ActiveSession s : sessionToday) {
-            
+
             System.out.println(s.getPathFile());
- 
+
             File file = new File(s.getPathFile());
             if (file.exists()) {
                 OpenFileService.openFile(s.getPathFile());
-                //MainController.getFileToOpen(doc.getFileName(), doc.getPath());
             } else {
-                logText.setText("<html>The following files where not found: <br>" + s.getPathFile()+ "</html>");
+                setlogTextArea("<html>The following files where not found: <br>" + s.getPathFile() + "</html>");
             }
         }
-        if (sessionToday.size()==0){
-            logText.setText("No hay sesiones...");
+        if (sessionToday.size() == 0) {
+            setlogTextArea("There aren't active sessions...");
         }
     }
-    
-     public static ClassroomInter getInstance(User user, Classroom classroom, boolean presentation) throws PropertyVetoException {
+
+    public static ClassroomInter getInstance(User user, String pathRaspy) throws PropertyVetoException {
         if (instance == null) {
-            instance = new ClassroomInter(user, classroom, presentation);
+            instance = new ClassroomInter(user, pathRaspy);
         }
         return instance;
     }
@@ -93,45 +93,140 @@ public class ClassroomInter extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        logText = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        panelLog = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        logTextA = new javax.swing.JTextArea();
+        panelTab = new javax.swing.JTabbedPane();
+        panelFiles = new javax.swing.JScrollPane();
+        treeDirectory = new javax.swing.JTree();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        menuUser = new javax.swing.JMenu();
+        itemToProyect = new javax.swing.JMenuItem();
+        itemExit = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("RaspClass");
+        getContentPane().setLayout(new java.awt.BorderLayout(0, 3));
 
-        jLabel1.setText("Messages: ");
+        panelLog.setPreferredSize(new java.awt.Dimension(651, 100));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(logText, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(0, 681, Short.MAX_VALUE)))
-                .addContainerGap())
+        logTextA.setColumns(20);
+        logTextA.setRows(5);
+        logTextA.setFocusable(false);
+        jScrollPane1.setViewportView(logTextA);
+
+        javax.swing.GroupLayout panelLogLayout = new javax.swing.GroupLayout(panelLog);
+        panelLog.setLayout(panelLogLayout);
+        panelLogLayout.setHorizontalGroup(
+            panelLogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 580, Short.MAX_VALUE)
+            .addGroup(panelLogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelLogLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 568, Short.MAX_VALUE)))
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(logText, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(33, Short.MAX_VALUE))
+        panelLogLayout.setVerticalGroup(
+            panelLogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 87, Short.MAX_VALUE)
+            .addGroup(panelLogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelLogLayout.createSequentialGroup()
+                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap()))
         );
+
+        getContentPane().add(panelLog, java.awt.BorderLayout.CENTER);
+
+        panelTab.setTabPlacement(javax.swing.JTabbedPane.LEFT);
+        panelTab.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        panelTab.setPreferredSize(new java.awt.Dimension(651, 300));
+
+        treeDirectory.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
+        treeDirectory.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                treeDirectoryMouseClicked(evt);
+            }
+        });
+        panelFiles.setViewportView(treeDirectory);
+
+        panelTab.addTab("tab2", panelFiles);
+
+        getContentPane().add(panelTab, java.awt.BorderLayout.PAGE_START);
+
+        jMenuBar1.setBorder(null);
+
+        menuUser.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/user.png"))); // NOI18N
+        menuUser.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        itemToProyect.setText("To project");
+        itemToProyect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemToProyectActionPerformed(evt);
+            }
+        });
+        menuUser.add(itemToProyect);
+
+        itemExit.setText("Exit");
+        itemExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemExitActionPerformed(evt);
+            }
+        });
+        menuUser.add(itemExit);
+
+        jMenuBar1.add(menuUser);
+
+        setJMenuBar(jMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void itemExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemExitActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_itemExitActionPerformed
+
+    private void itemToProyectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemToProyectActionPerformed
+        toProjectSession();
+    }//GEN-LAST:event_itemToProyectActionPerformed
+
+    private void treeDirectoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeDirectoryMouseClicked
+        MyFile mfile; String path;
+        int selRow = treeDirectory.getRowForLocation(evt.getX(), evt.getY());
+        TreePath selPath = treeDirectory.getPathForLocation(evt.getX(), evt.getY());
+        if (selRow != -1) {
+            if (evt.getClickCount() == 2) {
+                Object[] paths = selPath.getPath();
+                mfile = (MyFile) paths[paths.length - 1];
+                path = mfile.getFile().getPath();
+                File file = new File(path);
+                if (file.isFile()) {
+                    if (file.exists()) {
+                        OpenFileService.openFile(path);
+                    } else {
+                        setlogTextArea("<html>The following files where not found: <br>" + path + "</html>");
+                    }
+                }
+            }
+        }
+
+        Object node = treeDirectory.getLastSelectedPathComponent();// TODO add your handling code here:
+
+    }//GEN-LAST:event_treeDirectoryMouseClicked
 
     /**
      * @param args the command line arguments
      */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel logText;
+    private javax.swing.JMenuItem itemExit;
+    private javax.swing.JMenuItem itemToProyect;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea logTextA;
+    private javax.swing.JMenu menuUser;
+    private javax.swing.JScrollPane panelFiles;
+    private javax.swing.JPanel panelLog;
+    private javax.swing.JTabbedPane panelTab;
+    private javax.swing.JTree treeDirectory;
     // End of variables declaration//GEN-END:variables
 }

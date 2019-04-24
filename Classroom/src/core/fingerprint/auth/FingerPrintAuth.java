@@ -60,6 +60,10 @@ import javax.imageio.ImageIO;
         @Override 
         public void run(){ 
             String ret="";
+            if(myProcess==null){
+                running=false;
+                return;
+            }
             while ((running)&&(myProcess.isAlive() || myProcess.exitValue()==0)) {
                 try {
                     //Logger.getLogger(CreateAccount.class.getName()).log(Level.INFO, "Sleeping...", this);

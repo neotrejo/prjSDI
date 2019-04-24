@@ -22,7 +22,7 @@ public class FileUtils {
         File files = new File(path);
         if (!files.exists()) {
             if (files.mkdirs()) {
-                System.out.println("Multiple directories are created!");
+                System.out.println("Multiple directories are created! -" + path);
             } else {
                 System.out.println("Failed to create multiple directories!");
             }
