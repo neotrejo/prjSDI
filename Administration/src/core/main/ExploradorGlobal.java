@@ -1430,6 +1430,7 @@ public class ExploradorGlobal extends javax.swing.JFrame implements MulticastLis
                     fileData.put("subjectName", subject.getName());
                     fileData.put("fileName", fileChooserSes.getSelectedFile().getName());
                     fileData.put("pathFile", fileChooserSes.getSelectedFile().toString());
+                    fileData.put("userName", user.getUserName());
                     //
 
                     if (actionAdd) {
@@ -1453,7 +1454,6 @@ public class ExploradorGlobal extends javax.swing.JFrame implements MulticastLis
                         //
 
                     }
-
                     formaSessionIFrame.doDefaultCloseAction();
                     cleanFieldsSession();
                     updateSessionTable(true);
