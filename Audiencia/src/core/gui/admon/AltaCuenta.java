@@ -169,7 +169,7 @@ public class AltaCuenta extends javax.swing.JFrame {
         jPanel5 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("PreDisMad");
+        setTitle("PreDisMaD-Aud");
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/core/images/audi.png")));
         setPreferredSize(new java.awt.Dimension(565, 585));
         setSize(new java.awt.Dimension(565, 585));
