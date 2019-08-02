@@ -108,7 +108,7 @@ public class ClassroomInter extends javax.swing.JFrame {
         itemExit = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("RaspClass");
+        setTitle("PreDisMaD-Clas");
         setPreferredSize(new java.awt.Dimension(883, 743));
         setSize(new java.awt.Dimension(883, 743));
         getContentPane().setLayout(new java.awt.BorderLayout(0, 3));
