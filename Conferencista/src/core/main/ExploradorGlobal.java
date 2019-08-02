@@ -451,7 +451,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         itemClosed = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("PreDisMat");
+        setTitle("PreDisMaD-Conf");
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/core/images/confer.png")) );
         setPreferredSize(new java.awt.Dimension(841, 890));
         setResizable(false);

@@ -111,7 +111,7 @@ public class Login extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Conferencistas");
+        setTitle("PreDisMaD-Conf");
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/core/images/confer.png")) );
         setMinimumSize(new java.awt.Dimension(517, 365));
         setPreferredSize(new java.awt.Dimension(517, 365));
