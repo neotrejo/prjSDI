@@ -7,11 +7,11 @@ package core.db.dao;
 
 import core.data.Course;
 import core.data.Subscriptor;
-import core.db.sqlite.SQLiteConnection;
-import java.sql.ResultSet;
+import core.db.rqlite.RQLiteConnection;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.json.JSONArray;
 
 /**
  *
@@ -19,10 +19,10 @@ import java.util.Map;
  */
 public class DAOCourse {
 
-    private SQLiteConnection connection;
+    private RQLiteConnection connection;
 
     public DAOCourse() {
-        connection = SQLiteConnection.getInstance();
+        connection = RQLiteConnection.getInstance();
     }
 
     public void insertSubject(String name, String password, String description, String sharedfolder, String user_id) {
@@ -30,7 +30,6 @@ public class DAOCourse {
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
         params.put("passkey", password);
-//        params.put("description", description);
         params.put("sharedFolder", sharedfolder);
         params.put("userId", user_id);
         params.put("deleted", String.valueOf(false));
@@ -42,7 +41,6 @@ public class DAOCourse {
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
         params.put("passkey", password);
-//        params.put("description", description);
         params.put("sharedFolder", sharedfolder);
         connection.update("Course", params, "id=\"" + id + "\"");
     }
@@ -89,75 +87,130 @@ public class DAOCourse {
     }
 
     public ArrayList<Subscriptor> findSubscriptors(String subject_id, String user_id) {
+        Subscriptor subscriptor = null;
+        ArrayList<Subscriptor> subscriptors = new ArrayList<>();
         try {
             String query = "SELECT Subscription.id subscriptionId, User.name, User.email, Course.name course FROM Course\n"
                     + "INNER JOIN Subscription on Subscription.courseId = Course.id\n"
                     + "INNER JOIN User on User.id = Subscription.userId\n"
                     + "WHERE Course.userId = \"" + user_id + "\"  and  Course.id=" + subject_id;
-            ResultSet result = connection.select(query);
-            Subscriptor subscriptor = null;
-            ArrayList<Subscriptor> subscriptors = new ArrayList<>();
-            if (result != null) {
-                while (result.next()) {
-                    subscriptor = new Subscriptor();
-                    subscriptor.setSubscriptionId(result.getObject("subscriptionId").toString());
-                    subscriptor.setName(result.getObject("name").toString());
-                    subscriptor.setEmail(result.getObject("email").toString());
-                    subscriptor.setCourse(result.getObject("course").toString());
-                    subscriptors.add(subscriptor);
+
+            JSONArray resul = connection.select(query);
+
+            if (!resul.getJSONObject(0).has("error")) {
+                if (resul.getJSONObject(0).has("values")) {
+                    JSONArray cols = resul.getJSONObject(0).getJSONArray("columns");
+                    JSONArray values = resul.getJSONObject(0).getJSONArray("values");
+                    for (int i = 0; i < values.length(); i++) {
+                        JSONArray reg = values.getJSONArray(i);
+                        subscriptor = new Subscriptor();
+                        for (int j = 0; j < cols.length(); j++) {
+                            switch (cols.getString(j)) {
+                                case "subscriptionId":
+                                    subscriptor.setSubscriptionId(reg.get(j).toString());
+                                    break;
+                                case "name":
+                                    subscriptor.setName(reg.get(j).toString());
+                                    break;
+                                case "email":
+                                    subscriptor.setEmail(reg.get(j).toString());
+                                    break;
+                                case "course":
+                                    subscriptor.setCourse(reg.get(j).toString());
+                                    break;
+                            }
+                        }
+                        subscriptors.add(subscriptor);
+                    }
+                } else {
+                    System.out.println("no hay datos");
+                    return null;
                 }
+            } else {
+                System.out.println(resul.getJSONObject(0).get("error"));
+                return null;
             }
-            return subscriptors;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println(ex.toString());
         }
-        return null;
+        return subscriptors;
     }
 
     private Course executeQuery(String query) {
         try {
-            ResultSet result = connection.select(query);
             Course course = null;
-            if (result != null) {
-                if (result.next()) {
+            JSONArray resul = connection.select(query);
+            if (resul != null) {
+                JSONArray cols = resul.getJSONObject(0).getJSONArray("columns");
+                JSONArray values = resul.getJSONObject(0).getJSONArray("values");
+                for (int i = 0; i < values.length(); i++) {
+                    JSONArray reg = values.getJSONArray(i);
                     course = new Course();
-                    course.setId(result.getObject("id").toString());
-                    course.setName(result.getObject("name").toString());
-                    course.setPasskey(result.getObject("passkey").toString());
-//                    course.setDescription(result.getObject("description").toString());
-                    course.setSharedFolder(result.getObject("sharedFolder").toString());
-                    course.setUserId(result.getObject("userId").toString());
+                    for (int j = 0; j < cols.length(); j++) {
+                        switch (cols.getString(j)) {
+                            case "id":
+                                course.setId(reg.get(j).toString());
+                                break;
+                            case "name":
+                                course.setName(reg.get(j).toString());
+                                break;
+                            case "passkey":
+                                course.setPasskey(reg.get(j).toString());
+                                break;
+                            case "sharedFolder":
+                                course.setSharedFolder(reg.get(j).toString());
+                                break;
+                            case "userId":
+                                course.setUserId(reg.get(j).toString());
+                                break;
+                        }
+                    }
+                    return course;
                 }
             }
-            return course;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println(ex.toString());
         }
         return null;
     }
 
     private ArrayList<Course> executeQueryList(String query) {
+        ArrayList<Course> courses = new ArrayList<>();
         try {
-            ArrayList<Course> subjects = new ArrayList<>();
-            ResultSet result = connection.select(query);
             Course course = null;
-            if (result != null) {
-                while (result.next()) {
+            JSONArray resul = connection.select(query);
+            if (resul != null) {
+                JSONArray cols = resul.getJSONObject(0).getJSONArray("columns");
+                JSONArray values = resul.getJSONObject(0).getJSONArray("values");
+                for (int i = 0; i < values.length(); i++) {
+                    JSONArray reg = values.getJSONArray(i);
                     course = new Course();
-                    course.setId(result.getObject("id").toString());
-                    course.setName(result.getObject("name").toString());
-                    course.setPasskey(result.getObject("passkey").toString());
-//                    course.setDescription(result.getObject("description").toString());
-                    course.setSharedFolder(result.getObject("sharedFolder").toString());
-                    course.setUserId(result.getObject("userId").toString());
-                    subjects.add(course);
+                    for (int j = 0; j < cols.length(); j++) {
+                        switch (cols.getString(j)) {
+                            case "id":
+                                course.setId(reg.get(j).toString());
+                                break;
+                            case "name":
+                                course.setName(reg.get(j).toString());
+                                break;
+                            case "passkey":
+                                course.setPasskey(reg.get(j).toString());
+                                break;
+                            case "sharedFolder":
+                                course.setSharedFolder(reg.get(j).toString());
+                                break;
+                            case "userId":
+                                course.setUserId(reg.get(j).toString());
+                                break;
+                        }
+                    }
+                    courses.add(course);
                 }
             }
-            return subjects;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println(ex.toString());
         }
-        return null;
+        return courses;
     }
 
 }

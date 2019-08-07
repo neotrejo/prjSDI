@@ -47,7 +47,7 @@ public class Session {
     }
 
     public String getDate() throws ParseException {
-        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         Date dateD = (Date) formatter.parse(date);
         SimpleDateFormat newFormat = new SimpleDateFormat("dd-MM-yyyy");
         return newFormat.format(dateD);

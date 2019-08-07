@@ -8,6 +8,7 @@ package core.gui.admon;
 import core.controller.MainController;
 import core.crypt.CryptCipher;
 import core.data.User;
+import core.db.rqlite.RQLiteConnection;
 import core.main.ExploradorGlobal;
 import java.beans.PropertyVetoException;
 
@@ -39,8 +40,8 @@ public class Login extends javax.swing.JFrame {
             initComponents();
             setLocationRelativeTo(null);
             Mnemonico();
-            SQLiteConnection.getInstance().conectar();
-            String basePath = System.getProperty("user.dir");
+            RQLiteConnection.getInstance().conectar();
+            //String basePath = System.getProperty("user.dir");
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
