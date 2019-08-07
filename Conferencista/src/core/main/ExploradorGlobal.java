@@ -723,10 +723,10 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         subjectsCB.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
         subjectsCB.setPreferredSize(new java.awt.Dimension(32, 26));
         subjectsCB.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
             public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
                 subjectsCBInputMethodTextChanged(evt);
-            }
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
             }
         });
         subjectsCB.addActionListener(new java.awt.event.ActionListener() {
