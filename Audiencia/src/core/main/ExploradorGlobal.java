@@ -45,7 +45,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner.DateEditor;
+import javax.swing.JTabbedPane;
 import javax.swing.SpinnerDateModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DateFormatter;
@@ -110,6 +113,18 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         tabPanel.setEnabledAt(tabPanUser, false);
         tabPanel.setTitleAt(tabPanUser, "Usuario");
         
+        tabPanel.addChangeListener(new ChangeListener() {
+		public void stateChanged(ChangeEvent evt) {
+		    JTabbedPane tabbedPane = (JTabbedPane)evt.getSource();
+		    // Get current tab
+		    int tab = tabbedPane.getSelectedIndex();
+                    if(tab==0){
+                        updateSessionTable(true);
+                    }
+		    System.out.println("Tab is: " + (tab+1));
+		}
+
+	    });
         //-----------JDateChooser----------------//
         datePicker.getJCalendar().setMinSelectableDate(new Date());
 
@@ -713,10 +728,10 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         subjectsCB.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
         subjectsCB.setPreferredSize(new java.awt.Dimension(32, 26));
         subjectsCB.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
             public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
                 subjectsCBInputMethodTextChanged(evt);
-            }
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
             }
         });
         subjectsCB.addActionListener(new java.awt.event.ActionListener() {

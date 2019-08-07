@@ -6,10 +6,10 @@
 package core.db.dao;
 
 import core.data.FileSession;
-import core.db.sqlite.SQLiteConnection;
-import java.sql.ResultSet;
+import core.db.rqlite.RQLiteConnection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.json.JSONArray;
 
 /**
  *
@@ -17,10 +17,12 @@ import java.util.Map;
  */
 public class DAOFilesSession {
 
-    private SQLiteConnection connection;
+//    private SQLiteConnection connection;
+    private RQLiteConnection connection;
 
     public DAOFilesSession() {
-        connection = SQLiteConnection.getInstance();
+//        connection = SQLiteConnection.getInstance();
+        connection = RQLiteConnection.getInstance();
     }
 
     public void insertFilesSession(String file_id, String session_id, String deleted) {
@@ -42,19 +44,34 @@ public class DAOFilesSession {
     public FileSession findBySession(String session_id) {
         try {
             String query = "SELECT * FROM FileSession WHERE sessionId=\"" + session_id + "\"";
-            ResultSet result = connection.select(query);
+            JSONArray resul = connection.select(query);
             FileSession filesSession = null;
             String file = "";
-            if (result != null) {
-                if (result.next()) {
+            if (resul != null) {
+                JSONArray cols = resul.getJSONObject(0).getJSONArray("columns");
+                JSONArray values = resul.getJSONObject(0).getJSONArray("values");
+                for (int i = 0; i < values.length(); i++) {
+                    JSONArray reg = values.getJSONArray(i);
                     filesSession = new FileSession();
-                    filesSession.setId(result.getObject("id").toString());
-                    filesSession.setFileId(result.getObject("fileId").toString());
-                    filesSession.setSessionId(result.getObject("sessionId").toString());
-                    filesSession.setDeleted(result.getObject("deleted").toString());
+                    for (int j = 0; j < cols.length(); j++) {
+                        switch (cols.getString(j)) {
+                            case "id":
+                                filesSession.setId(reg.get(j).toString());
+                                break;
+                            case "fileId":
+                                filesSession.setFileId(reg.get(j).toString());
+                                break;
+                            case "sessionId":
+                                filesSession.setSessionId(reg.get(j).toString());
+                                break;
+                            case "deleted":
+                                filesSession.setDeleted(reg.get(j).toString());
+                                break;
+                        }                        
+                    }
+                    return filesSession;
                 }
             }
-            return filesSession;
         } catch (Exception ex) {
             ex.printStackTrace();
         }
