@@ -170,7 +170,7 @@ public class AltaCuenta extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("PreDisMaD-Clas");
-        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/core/images/confer.png")) );
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/core/images/class.png")) );
         setPreferredSize(new java.awt.Dimension(565, 585));
         setSize(new java.awt.Dimension(565, 585));
 

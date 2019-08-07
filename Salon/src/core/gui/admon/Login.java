@@ -8,13 +8,12 @@ package core.gui.admon;
 import core.controller.MainController;
 import core.crypt.CryptCipher;
 import core.data.User;
-import core.main.ExploradorGlobal;
+import core.db.rqlite.RQLiteConnection;
 import java.beans.PropertyVetoException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import core.db.sqlite.SQLiteConnection;
 import core.webservices.OpenFileService;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -43,8 +42,8 @@ public class Login extends javax.swing.JFrame {
             initComponents();
             setLocationRelativeTo(null);
             Mnemonico();
-            SQLiteConnection.getInstance().conectar();
-            String basePath = System.getProperty("user.dir");
+            RQLiteConnection.getInstance().conectar();
+            //String basePath = System.getProperty("user.dir");
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -116,7 +115,7 @@ public class Login extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("PreDisMaD-Clas");
-        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/core/images/raspi.png")) );
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/core/images/class.png")));
         setMinimumSize(new java.awt.Dimension(517, 365));
         setPreferredSize(new java.awt.Dimension(517, 365));
         setSize(new java.awt.Dimension(517, 365));

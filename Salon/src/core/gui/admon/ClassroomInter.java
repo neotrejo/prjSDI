@@ -6,7 +6,6 @@
 package core.gui.admon;
 
 import core.controller.MainController;
-import core.data.ActiveSession;
 import core.data.Session;
 import core.data.User;
 import core.utils.FileTreeModel;
@@ -19,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import core.webservices.OpenFileService;
 import java.awt.ComponentOrientation;
+import java.awt.Toolkit;
 import javax.swing.Box;
 import javax.swing.tree.TreePath;
 
@@ -109,40 +109,42 @@ public class ClassroomInter extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("PreDisMaD-Clas");
-        setPreferredSize(new java.awt.Dimension(883, 743));
-        setSize(new java.awt.Dimension(883, 743));
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/core/images/class.png")));
+        setPreferredSize(new java.awt.Dimension(883, 750));
+        setSize(new java.awt.Dimension(883, 750));
         getContentPane().setLayout(new java.awt.BorderLayout(0, 3));
 
-        panelLog.setPreferredSize(new java.awt.Dimension(651, 100));
+        panelLog.setPreferredSize(new java.awt.Dimension(651, 125));
 
         logTextA.setColumns(20);
         logTextA.setFont(new java.awt.Font("Monospaced", 0, 14)); // NOI18N
         logTextA.setRows(5);
         logTextA.setFocusable(false);
+        logTextA.setPreferredSize(new java.awt.Dimension(164, 100));
         jScrollPane1.setViewportView(logTextA);
 
         javax.swing.GroupLayout panelLogLayout = new javax.swing.GroupLayout(panelLog);
         panelLog.setLayout(panelLogLayout);
         panelLogLayout.setHorizontalGroup(
             panelLogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 883, Short.MAX_VALUE)
+            .addGap(0, 651, Short.MAX_VALUE)
             .addGroup(panelLogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(panelLogLayout.createSequentialGroup()
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelLogLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 859, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 627, Short.MAX_VALUE)
                     .addContainerGap()))
         );
         panelLogLayout.setVerticalGroup(
             panelLogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 116, Short.MAX_VALUE)
+            .addGap(0, 140, Short.MAX_VALUE)
             .addGroup(panelLogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelLogLayout.createSequentialGroup()
                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap()))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(21, 21, 21)))
         );
 
-        getContentPane().add(panelLog, java.awt.BorderLayout.CENTER);
+        getContentPane().add(panelLog, java.awt.BorderLayout.SOUTH);
 
         panelTab.setTabPlacement(javax.swing.JTabbedPane.LEFT);
         panelTab.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -158,15 +160,19 @@ public class ClassroomInter extends javax.swing.JFrame {
 
         panelTab.addTab("tab2", panelFiles);
 
-        getContentPane().add(panelTab, java.awt.BorderLayout.PAGE_START);
+        getContentPane().add(panelTab, java.awt.BorderLayout.CENTER);
 
         jMenuBar1.setBorder(null);
 
         menuUser.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/user.png"))); // NOI18N
+        menuUser.setText("Usuario");
+        menuUser.setToolTipText("");
         menuUser.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        menuUser.setFont(new java.awt.Font("Segoe UI", 1, 17)); // NOI18N
 
         itemToProyect.setFont(new java.awt.Font("Trebuchet MS", 0, 17)); // NOI18N
-        itemToProyect.setText("To project");
+        itemToProyect.setText("Proyectar");
+        itemToProyect.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         itemToProyect.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemToProyectActionPerformed(evt);
@@ -175,7 +181,8 @@ public class ClassroomInter extends javax.swing.JFrame {
         menuUser.add(itemToProyect);
 
         itemExit.setFont(new java.awt.Font("Trebuchet MS", 0, 17)); // NOI18N
-        itemExit.setText("Exit");
+        itemExit.setText("Salir");
+        itemExit.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         itemExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemExitActionPerformed(evt);
