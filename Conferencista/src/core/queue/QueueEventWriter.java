@@ -6,11 +6,11 @@
 package core.queue;
 
 
+import core.data.ACLMessage;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 /**
  *
  * @author SDI Martin
@@ -18,12 +18,11 @@ import java.util.logging.Logger;
 public class QueueEventWriter {
     
     private String address;
-
     public QueueEventWriter(String address) {
         this.address = address;
     }
 
-    public void writeToQueue(String data) {
+    public void writeToQueue( String data) {
         try {
             Socket socket = new Socket(this.address, QueueConfig.SERVER_PORT);
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -32,7 +31,6 @@ public class QueueEventWriter {
             socket.close();
         } catch (Exception ex) {
             Logger.getLogger(QueueEventWriter.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }
-
 }

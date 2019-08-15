@@ -28,7 +28,7 @@ public class DAOUser {
     }
 
     public void insertUser(String name, String username, String password,
-            String email, String hostcomputer, String sharedfolder) {
+            String email, String hostcomputer, String sharedfolder, String port) {
 
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
@@ -37,17 +37,19 @@ public class DAOUser {
         params.put("email", email);
         params.put("hostComputer", hostcomputer);
         params.put("sharedFolder", sharedfolder);
+        params.put("port", port);
         connection.insert("User", params);
 
     }
 
-    public void updateUser(String id, String name, String password, String email, String hostcomputer, String sharedfolder) {
+    public void updateUser(String id, String name, String password, String email, String hostcomputer, String sharedfolder, String port) {
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
         params.put("password", password);
         params.put("email", email);
         params.put("hostComputer", hostcomputer);
         params.put("sharedFolder", sharedfolder);
+        params.put("port", port);
         connection.update("User", params, "id=\"" + id + "\"");
     }
 
@@ -90,7 +92,7 @@ public class DAOUser {
                                 user.setName(reg.get(j).toString());
                                 break;
                             case "userName":
-                                user.setUserName(reg.get(j).toString());
+                                user.setUsername(reg.get(j).toString());
                                 break;
                             case "password":
                                 user.setPassword(reg.get(j).toString());
@@ -99,10 +101,13 @@ public class DAOUser {
                                 user.setEmail(reg.get(j).toString());
                                 break;
                             case "hostComputer":
-                                user.setHostComputer(reg.get(j).toString());
+                                user.setHostcomputer(reg.get(j).toString());
                                 break;
                             case "sharedFolder":
-                                user.setSharedFolder(reg.get(j).toString());
+                                user.setSharedfolder(reg.get(j).toString());
+                                break;
+                            case "port":
+                                user.setPort(reg.get(j).toString());
                                 break;
                         }
                     }
@@ -134,7 +139,7 @@ public class DAOUser {
                             user.setName(reg.get(j).toString());
                             break;
                         case "userName":
-                            user.setUserName(reg.get(j).toString());
+                            user.setUsername(reg.get(j).toString());
                             break;
                         case "password":
                             user.setPassword(reg.get(j).toString());
@@ -143,11 +148,14 @@ public class DAOUser {
                             user.setEmail(reg.get(j).toString());
                             break;
                         case "hostComputer":
-                            user.setHostComputer(reg.get(j).toString());
+                            user.setHostcomputer(reg.get(j).toString());
                             break;
                         case "sharedFolder":
-                            user.setSharedFolder(reg.get(j).toString());
+                            user.setSharedfolder(reg.get(j).toString());
                             break;
+                        case "port":
+                                user.setPort(reg.get(j).toString());
+                                break;
                     }
                 }
                 usersList.add(user);

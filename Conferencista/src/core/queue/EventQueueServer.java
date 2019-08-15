@@ -10,42 +10,52 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JTextArea;
 
 /**
  *
- * @author luismartin
+ * @author
  */
-public class EventQueueServer extends Thread{
-    
+public class EventQueueServer extends Thread {
+
+    JTextArea txtA;
     private ServerSocket listener;
-    
-    public EventQueueServer(){
+
+    public EventQueueServer() {
         createServer();
     }
-    
-    private void createServer(){
+
+    public EventQueueServer(JTextArea txtA) {
+        this.txtA = txtA;
+        createServer();
+    }
+
+    private void createServer() {
         try {
             listener = new ServerSocket(QueueConfig.SERVER_PORT);
         } catch (IOException ex) {
             Logger.getLogger(EventQueueServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     @Override
-    public void run(){
+    public void run() {
         try {
-            
+
             while (true) {
-                
+                if (txtA != null) {
+                    String auxText = txtA.getText();
+                    txtA.setText(auxText + "\n Esperando conexiones...");
+                }
                 System.out.println("Esperando conexiones...");
-                
-                Socket socket = listener.accept();  
-                
-                QueueEventReceiver singleClient = new QueueEventReceiver(socket);    
-                
+
+                Socket socket = listener.accept();
+
+                QueueEventReceiver singleClient = new QueueEventReceiver(socket);
+
             }
-            
-        }catch(IOException ex){
+
+        } catch (IOException ex) {
             Logger.getLogger(EventQueueServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

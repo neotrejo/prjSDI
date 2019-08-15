@@ -17,6 +17,7 @@ public class User {
     private String email;
     private String hostcomputer;
     private String sharedfolder;
+    private String port;
     
     public User(){
         
@@ -31,7 +32,6 @@ public class User {
         this.hostcomputer = hostcomputer;
         this.sharedfolder = sharedfolder;
     }
-    
 
     public String getId() {
         return id;
@@ -40,8 +40,8 @@ public class User {
     public void setId(String id) {
         this.id = id;
     }
-    
-      public String getName() {
+
+    public String getName() {
         return name;
     }
 
@@ -49,11 +49,11 @@ public class User {
         this.name = name;
     }
 
-    public String getUserName() {
+    public String getUsername() {
         return username;
     }
 
-    public void setUserName(String username) {
+    public void setUsername(String username) {
         this.username = username;
     }
 
@@ -63,29 +63,41 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }  
-    
-     public String getEmail() {
+    }
+
+    public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
-    }   
-    
-    public String getHostComputer() {
+    }
+
+    public String getHostcomputer() {
         return hostcomputer;
     }
 
-    public void setHostComputer(String hostcomputer) {
+    public void setHostcomputer(String hostcomputer) {
         this.hostcomputer = hostcomputer;
     }
-    
-    public String getSharedFolder() {
+
+    public String getSharedfolder() {
         return sharedfolder;
     }
 
-    public void setSharedFolder(String sharedfolder) {
+    public void setSharedfolder(String sharedfolder) {
         this.sharedfolder = sharedfolder;
     }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+    
+    
+
+   
 }

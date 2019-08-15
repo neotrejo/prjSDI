@@ -1,4 +1,4 @@
-package com.rqlite.impl;
+package core.db.rqlite.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -6,8 +6,8 @@ import java.io.OutputStream;
 
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
-import com.rqlite.Rqlite.ReadConsistencyLevel;
-import com.rqlite.dto.QueryResults;
+import core.db.rqlite.Rqlite.ReadConsistencyLevel;
+import core.db.rqlite.dto.QueryResults;
 
 public class QueryRequest {
 

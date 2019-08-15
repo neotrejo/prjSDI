@@ -15,6 +15,7 @@ public class Classroom {
     private String location;
     private String hostname;
     private String rootFolder;
+    private String port;
 
     public Classroom() {
 
@@ -66,6 +67,14 @@ public class Classroom {
 
     public void setRootFolder(String rootFolder) {
         this.rootFolder = rootFolder;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
     }
     
     

@@ -1,4 +1,4 @@
-package com.rqlite.dto;
+package core.db.rqlite.dto;
 
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.util.Key;

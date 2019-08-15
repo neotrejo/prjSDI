@@ -1,11 +1,11 @@
-package com.rqlite.impl;
+package core.db.rqlite.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
-import com.rqlite.dto.ExecuteResults;
+import core.db.rqlite.dto.ExecuteResults;
 
 public class ExecuteRequest {
 

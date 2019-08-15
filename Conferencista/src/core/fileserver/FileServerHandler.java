@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package core.queue;
+package core.fileserver;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.util.Observable;
 import java.util.Observer;
@@ -17,25 +18,15 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author SDI
+ * @author 
  */
-public class NotificationsHandler extends Thread implements Observer{
+public class FileServerHandler extends Thread implements Observer{
     
     private Socket socket;
-    private PrintWriter out;
-    private EventQueue queue;
      
-    public NotificationsHandler(Socket socket){
+    public FileServerHandler(Socket socket){
         
         this.socket = socket;
-        this.queue = EventQueue.getInstance();
-        this.queue.addObserver(this);
-        
-        try {
-            out = new PrintWriter(socket.getOutputStream(), true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         
         this.start();
     }
@@ -49,20 +40,39 @@ public class NotificationsHandler extends Thread implements Observer{
             
 
             if (input != null) {
-                System.out.println("Data :"+input);
-                 
+                System.out.println("File requested :"+input);
+                
+                OutputStream out = socket.getOutputStream();
+                
+                String path = input;
+                
+                RandomAccessFile raf = new RandomAccessFile(path, "r");
+                int file_size = (int)raf.length();
+                byte buffer[] = new byte[1024];
+                
+                int len = raf.read(buffer);
+                
+                while(len > 0){
+                    out.write(buffer,0,len);
+                    len = raf.read(buffer);
+                }
+                
+                System.out.println("File sent");
+                raf.close();
+                out.close();
+                
                 in.close();
                 socket.close();
             }
 
                       
         }catch(Exception ex){
-                Logger.getLogger(NotificationsHandler.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FileServerHandler.class.getName()).log(Level.SEVERE, null, ex);
         }finally {
             try {
                 socket.close();
             } catch (IOException ex) {
-                Logger.getLogger(NotificationsHandler.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FileServerHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -73,8 +83,6 @@ public class NotificationsHandler extends Thread implements Observer{
         try {
             System.out.println("Nuevo evento"+arg.toString());
             
-            out.println(arg.toString());
-             
         } catch (Exception e) {
             e.printStackTrace();
         }

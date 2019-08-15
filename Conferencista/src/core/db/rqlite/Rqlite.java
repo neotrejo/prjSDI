@@ -1,8 +1,8 @@
-package com.rqlite;
+package core.db.rqlite;
 
-import com.rqlite.dto.ExecuteResults;
-import com.rqlite.dto.Pong;
-import com.rqlite.dto.QueryResults;
+import core.db.rqlite.dto.ExecuteResults;
+import core.db.rqlite.dto.Pong;
+import core.db.rqlite.dto.QueryResults;
 
 public interface Rqlite {
 

@@ -1,4 +1,4 @@
-package com.rqlite.impl;
+package core.db.rqlite.impl;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package com.rqlite.dto;
+package core.db.rqlite.dto;
 
 public class Pong {
     public String version;

@@ -5,10 +5,8 @@
  */
 package core.db.rqlite;
 
-import com.rqlite.Rqlite;
-import com.rqlite.RqliteFactory;
-import com.rqlite.dto.ExecuteResults;
-import com.rqlite.dto.QueryResults;
+import core.db.rqlite.dto.ExecuteResults;
+import core.db.rqlite.dto.QueryResults;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;

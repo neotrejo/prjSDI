@@ -86,13 +86,9 @@ public class AltaCuenta extends javax.swing.JFrame {
                                             existUserName(usuarioTF.getText());
                                     if (user == null) {
                                         String passCryp = CryptCipher.encrypt(contraseñaPF.getText());
-                                        user = MainController.addUser(
-                                                nombreTF.getText(),
-                                                usuarioTF.getText(),
-                                                passCryp,
-                                                correoTF.getText(),
-                                                hostnameTF.getText(),
-                                                sharedfolderTF.getText());
+                                        user = MainController.addUser(nombreTF.getText(),usuarioTF.getText(),
+                                                passCryp, correoTF.getText(),hostnameTF.getText(),
+                                                sharedfolderTF.getText(), portTF.getText());                                        
                                         
                                         this.setVisible(false);
                                         try {
@@ -158,8 +154,9 @@ public class AltaCuenta extends javax.swing.JFrame {
         hostnameTF = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         sharedfolderTF = new javax.swing.JTextField();
-        jLabel8 = new javax.swing.JLabel();
         sharedFolderBtn = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        portTF = new javax.swing.JTextField();
         topJP = new javax.swing.JPanel();
         regresarL = new javax.swing.JLabel();
         bottomJP = new javax.swing.JPanel();
@@ -171,10 +168,11 @@ public class AltaCuenta extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("PreDisMaD-Conf");
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/core/images/confer.png")) );
-        setPreferredSize(new java.awt.Dimension(565, 585));
-        setSize(new java.awt.Dimension(565, 585));
+        setPreferredSize(new java.awt.Dimension(565, 620));
+        setSize(new java.awt.Dimension(565, 620));
 
         centerJP.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Registro de usuario", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Bahnschrift", 0, 16), new java.awt.Color(0, 102, 102))); // NOI18N
+        centerJP.setPreferredSize(new java.awt.Dimension(420, 410));
         centerJP.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
@@ -223,7 +221,6 @@ public class AltaCuenta extends javax.swing.JFrame {
 
         sharedfolderTF.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
         centerJP.add(sharedfolderTF, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 310, 216, 35));
-        centerJP.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 352, 216, 35));
 
         sharedFolderBtn.setFont(new java.awt.Font("Trebuchet MS", 0, 15)); // NOI18N
         sharedFolderBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/folder2.png"))); // NOI18N
@@ -234,6 +231,11 @@ public class AltaCuenta extends javax.swing.JFrame {
             }
         });
         centerJP.add(sharedFolderBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 310, 40, 35));
+
+        jLabel5.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
+        jLabel5.setText("Puerto:");
+        centerJP.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 360, -1, -1));
+        centerJP.add(portTF, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 360, 260, 35));
 
         getContentPane().add(centerJP, java.awt.BorderLayout.CENTER);
 
@@ -314,7 +316,7 @@ public class AltaCuenta extends javax.swing.JFrame {
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 425, Short.MAX_VALUE)
+            .addGap(0, 437, Short.MAX_VALUE)
         );
 
         getContentPane().add(jPanel4, java.awt.BorderLayout.LINE_END);
@@ -327,7 +329,7 @@ public class AltaCuenta extends javax.swing.JFrame {
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 425, Short.MAX_VALUE)
+            .addGap(0, 437, Short.MAX_VALUE)
         );
 
         getContentPane().add(jPanel5, java.awt.BorderLayout.LINE_START);
@@ -370,13 +372,14 @@ public class AltaCuenta extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JLabel logL;
     private javax.swing.JTextField nombreTF;
+    private javax.swing.JTextField portTF;
     private javax.swing.JLabel regresarL;
     private javax.swing.JButton sharedFolderBtn;
     private javax.swing.JTextField sharedfolderTF;

@@ -1,7 +1,6 @@
-package com.rqlite;
+package core.db.rqlite;
 
-import com.rqlite.impl.RqliteImpl;
-import com.rqlite.Rqlite;
+import core.db.rqlite.impl.*;
 
 public enum RqliteFactory {
     INSTANCE;

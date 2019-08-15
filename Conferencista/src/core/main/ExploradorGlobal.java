@@ -15,6 +15,8 @@ import core.data.FileD;
 import core.data.Subscription;
 import core.data.Subscriptor;
 import core.data.User;
+import core.queue.QueueConfig;
+import core.queue.QueueEventWriter;
 import core.utils.ColorColumnRenderer;
 import java.awt.Color;
 import java.awt.ComponentOrientation;
@@ -27,6 +29,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -39,7 +43,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.swing.Box;
-import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -89,7 +92,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
     private Calendar calendarD;
     private Boolean actionAdd; //  true is Add and false is Modify
     private String subject_id; // for update course
-     private int tabPanUser = 2; // number of user panel
+    private int tabPanUser = 2; // number of user panel
 
     private ExploradorGlobal(User user) throws PropertyVetoException {
         initComponents();
@@ -109,13 +112,12 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         tabPanel.setSelectedIndex(0);
         tabPanel.setEnabledAt(tabPanUser, false);
         tabPanel.setTitleAt(tabPanUser, "Usuario");
-        
-         
+
         //-----------JDateChooser----------------//
         datePicker.getJCalendar().setMinSelectableDate(new Date());
 
         //---------filechooser----------------------//
-        fileChooserSub = new JFileChooser(user.getSharedFolder());
+        fileChooserSub = new JFileChooser(user.getSharedfolder());
         fileChooserSub.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooserSub.setAcceptAllFileFilterUsed(false);
 
@@ -125,7 +127,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         fileChooserSes.addChoosableFileFilter(new FileNameExtensionFilter("MS Office", "docx", "pptx"));
         fileChooserSes.setAcceptAllFileFilterUsed(false);
 
-        fileChooserUser = new JFileChooser(user.getSharedFolder());
+        fileChooserUser = new JFileChooser(user.getSharedfolder());
         fileChooserUser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooserUser.setAcceptAllFileFilterUsed(false);
 
@@ -444,6 +446,8 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         sharedfolderUserTextF = new javax.swing.JTextField();
         sharedFolderUserBtn = new javax.swing.JButton();
         logUserLabel = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        portTF = new javax.swing.JTextField();
         logActiveSess = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         userMenu = new javax.swing.JMenu();
@@ -956,7 +960,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
 
         accountIFrame.setClosable(true);
         accountIFrame.setTitle("Modificar perfil");
-        accountIFrame.setPreferredSize(new java.awt.Dimension(550, 460));
+        accountIFrame.setPreferredSize(new java.awt.Dimension(550, 510));
         accountIFrame.setVisible(true);
         accountIFrame.addInternalFrameListener(new javax.swing.event.InternalFrameListener() {
             public void internalFrameActivated(javax.swing.event.InternalFrameEvent evt) {
@@ -1020,7 +1024,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                 modifyAccountBtnActionPerformed(evt);
             }
         });
-        jPanel1.add(modifyAccountBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 320, -1, -1));
+        jPanel1.add(modifyAccountBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 370, -1, -1));
 
         jLabel19.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
         jLabel19.setText("Folder a compartir:");
@@ -1040,7 +1044,12 @@ public class ExploradorGlobal extends javax.swing.JFrame {
 
         logUserLabel.setForeground(new java.awt.Color(153, 0, 51));
         logUserLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jPanel1.add(logUserLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 360, 322, 20));
+        jPanel1.add(logUserLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 400, 322, 20));
+
+        jLabel20.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
+        jLabel20.setText("Puerto:");
+        jPanel1.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 330, -1, -1));
+        jPanel1.add(portTF, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 320, 277, 33));
 
         javax.swing.GroupLayout accountIFrameLayout = new javax.swing.GroupLayout(accountIFrame.getContentPane());
         accountIFrame.getContentPane().setLayout(accountIFrameLayout);
@@ -1051,16 +1060,16 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                 .addGroup(accountIFrameLayout.createSequentialGroup()
                     .addGap(22, 22, 22)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 493, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(17, Short.MAX_VALUE)))
+                    .addContainerGap(100, Short.MAX_VALUE)))
         );
         accountIFrameLayout.setVerticalGroup(
             accountIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 421, Short.MAX_VALUE)
+            .addGap(0, 471, Short.MAX_VALUE)
             .addGroup(accountIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(accountIFrameLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(18, Short.MAX_VALUE)))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
 
         javax.swing.GroupLayout accountPanelLayout = new javax.swing.GroupLayout(accountPanel);
@@ -1077,7 +1086,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
             .addGroup(accountPanelLayout.createSequentialGroup()
                 .addGap(55, 55, 55)
                 .addComponent(accountIFrame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(217, Short.MAX_VALUE))
+                .addContainerGap(167, Short.MAX_VALUE))
         );
 
         tabPanel.addTab("tab5", accountPanel);
@@ -1234,36 +1243,45 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                     String date = new SimpleDateFormat("yyyy-MM-dd").format(datePicker.getDate()) + " " + hour;
                     classroom = MainController.getClassroomName(classroomsCB.getSelectedItem().toString());
 
-//
-                    JSONObject fileData = new JSONObject();
+                    JSONObject msgACL = new JSONObject();
+                    msgACL.put("performative", "INFORM");
+                    InetAddress hostSend = null;
+                    InetAddress hostReceive = null;
+                    try {
+                        hostSend = InetAddress.getByName(user.getHostcomputer());
+                        hostReceive = InetAddress.getByName(classroom.getHostname());
+                    } catch (UnknownHostException ex) {
+                        Logger.getLogger(ExploradorGlobal.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    System.out.println(hostSend.getHostAddress());
+                    msgACL.put("sender", hostSend.getHostAddress());
+                    msgACL.put("receiver",hostReceive.getHostAddress());
+                    msgACL.put("reply-to", "");                    
+                    msgACL.put("language", "");
+                    msgACL.put("encoding", "");
+                    msgACL.put("protocol", "");
+                    msgACL.put("conversation-id", "");
+                    msgACL.put("reply-with", "");
+                    msgACL.put("reply-with", "");
+                    msgACL.put("reply-by", "");
 
-                    fileData.put("user_id", user.getId());
-                    fileData.put("date", date);
-                    fileData.put("startTime", hour);
-                    fileData.put("subjectName", course.getName());
-                    fileData.put("fileName", fileChooserSes.getSelectedFile().getName());
-                    fileData.put("pathFile", fileChooserSes.getSelectedFile().toString());
-                    fileData.put("userName", user.getUserName());
                     //
-
                     if (actionAdd) {
                         session_id = MainController.addSession(date, hour, duration, classroom.getId(), course.getId());
                         file_id = MainController.addFile(fileChooserSes.getSelectedFile().getName(), "", fileChooserSes.getSelectedFile().toString());
-
 //                        //
-//                        fileData.put("session_id", session_id + "");
-//                        fileData.put("event", "add");
-//                        new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(fileData.toJSONString());
+                        msgACL.put("content", session_id + "");
+                        msgACL.put("ontology", "ADD");
+                        new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(msgACL.toJSONString());
 //                        //
                         MainController.addFileSession(String.valueOf(session_id), String.valueOf(file_id), String.valueOf(false));
                     } else {
                         MainController.updateSession(filesession.getSessionId(), date, hour, duration, classroom.getId(), course.getId());
                         MainController.updateFile(filesession.getFileId(), fileChooserSes.getSelectedFile().getName(), "", fileChooserSes.getSelectedFile().toString());
-
-//                        //
-//                        fileData.put("session_id", filesession.getSessionId());
-//                        fileData.put("event", "update");
-//                        new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(fileData.toJSONString());
+//                       
+                        msgACL.put("content", session_id + "");
+                        msgACL.put("ontology", "UPDATE");
+                        new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(msgACL.toJSONString());
 //                        //
 
                     }
@@ -1343,19 +1361,6 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                 if (response == JOptionPane.YES_OPTION) {
                     MainController.deleteFilesSession(Integer.parseInt(filesession.getId()));
                     updateSessionTable(true);
-
-//                    //
-//                    JSONObject fileData = new JSONObject();
-//
-//                    fileData.put("user_id", user.getId());
-//                    fileData.put("date", "");
-//                    fileData.put("startTime", "");
-//                    fileData.put("subjectName", "");
-//                    fileData.put("fileName", "");
-//                    fileData.put("pathFile", "");
-//                    fileData.put("session_id", filesession.getSessionId());
-//                    fileData.put("event", "delete");
-//                    new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(fileData.toJSONString());
 //                    //
                 }
                 break;
@@ -1472,7 +1477,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                     if (!hostnameTextF.getText().isEmpty()) {
                         if (!sharedfolderUserTextF.getText().isEmpty()) {
                             try {
-                                MainController.updateUser(user.getId(), nameUserTextF.getText(), CryptCipher.encrypt(passwordUserTextF.getText()), emailTextF.getText(), hostnameTextF.getText(), sharedfolderUserTextF.getText());
+                                MainController.updateUser(user.getId(), nameUserTextF.getText(), CryptCipher.encrypt(passwordUserTextF.getText()), emailTextF.getText(), hostnameTextF.getText(), sharedfolderUserTextF.getText(), portTF.getText());
                                 accountIFrame.doDefaultCloseAction();
                                 tabPanel.setEnabledAt(tabPanUser, false);
                                 tabPanel.setSelectedIndex(0);
@@ -1528,18 +1533,19 @@ public class ExploradorGlobal extends javax.swing.JFrame {
     }//GEN-LAST:event_accountIFrameInternalFrameClosed
 
     private void itemClosedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemClosedActionPerformed
-            System.exit(0);
+        System.exit(0);
     }//GEN-LAST:event_itemClosedActionPerformed
 
     private void itemEditPerfilActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemEditPerfilActionPerformed
         try {
             nameUserTextF.setText(user.getName());
             usernameTextF.setEnabled(false);
-            usernameTextF.setText(user.getUserName());
+            usernameTextF.setText(user.getUsername());
             passwordUserTextF.setText(CryptCipher.decrypt(user.getPassword()));
             emailTextF.setText(user.getEmail());
-            hostnameTextF.setText(user.getHostComputer());
-            sharedfolderUserTextF.setText(user.getSharedFolder());
+            hostnameTextF.setText(user.getHostcomputer());
+            sharedfolderUserTextF.setText(user.getSharedfolder());
+            portTF.setText(user.getPort());
             if (MainController.getSubjectsUser(user.getId()).size() > 0) {
                 sharedfolderUserTextF.enable(false);
                 fileChooserUser.setControlButtonsAreShown(false);
@@ -1597,6 +1603,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1622,6 +1629,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
     private javax.swing.JPasswordField passwordSubscField;
     private javax.swing.JPasswordField passwordTextF;
     private javax.swing.JPasswordField passwordUserTextF;
+    private javax.swing.JTextField portTF;
     private javax.swing.JButton savedSessBtn;
     private javax.swing.JButton savedSubjBtn;
     private javax.swing.JButton savedSubscriptionBtn;
@@ -1646,6 +1654,5 @@ public class ExploradorGlobal extends javax.swing.JFrame {
     private javax.swing.JMenu userMenu;
     private javax.swing.JTextField usernameTextF;
     // End of variables declaration//GEN-END:variables
-
 
 }

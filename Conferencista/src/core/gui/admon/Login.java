@@ -15,10 +15,12 @@ import java.beans.PropertyVetoException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import core.db.sqlite.SQLiteConnection;
+import core.queue.QueueConfig;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.net.Socket;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -41,9 +43,31 @@ public class Login extends javax.swing.JFrame {
             setLocationRelativeTo(null);
             Mnemonico();
             RQLiteConnection.getInstance().conectar();
+            ToVerifyService();
             //String basePath = System.getProperty("user.dir");
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void ToVerifyService(){
+        try {
+            Socket socket = new Socket(QueueConfig.ADDRESS, QueueConfig.SERVER_PORT);
+            socket.close();
+        } catch (Exception ex) {
+            System.out.println(ex.toString());
+            CompileAndRun();
+            //Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void CompileAndRun() {
+        try {
+            String dir = System.getProperty("user.dir") + "\\"+"FileServiceClient.jar";
+            //Runtime.getRuntime().exec("cmd /c start java -jar "+dir);
+            Runtime.getRuntime().exec("java -jar "+dir);            
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
