@@ -18,12 +18,13 @@ public class User {
     private String hostcomputer;
     private String sharedfolder;
     private String port;
+    private String location;
     
     public User(){
         
     }
 
-    public User(String id, String name, String username, String password, String email, String hostcomputer, String sharedfolder) {
+    public User(String id, String name, String username, String password, String email, String hostcomputer, String sharedfolder, String port, String location) {
         this.id = id;
         this.name = name;
         this.username = username;
@@ -31,6 +32,8 @@ public class User {
         this.email = email;
         this.hostcomputer = hostcomputer;
         this.sharedfolder = sharedfolder;
+        this.port = port;
+        this.location = location;
     }
 
     public String getId() {
@@ -95,6 +98,14 @@ public class User {
 
     public void setPort(String port) {
         this.port = port;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
     
     

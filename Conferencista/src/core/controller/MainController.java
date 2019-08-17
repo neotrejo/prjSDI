@@ -47,8 +47,8 @@ public class MainController {
     public static User addUser(String name, String username, String pass,
             String email,
             String hostcomputer,
-            String sharedfolder, String port) {
-        daoUser.insertUser(name, username, pass, email, hostcomputer, sharedfolder, port);
+            String sharedfolder, String port, String location) {
+        daoUser.insertUser(name, username, pass, email, hostcomputer, sharedfolder, port, location);
 
         User user = new User();
         user.setName(name);
@@ -61,8 +61,8 @@ public class MainController {
         return user;
     }
 
-    public static void updateUser(String id, String name, String pass, String email, String hostcomputer, String sharedfolder, String port) {
-        daoUser.updateUser(id, name, pass, email, hostcomputer, sharedfolder, port);
+    public static void updateUser(String id, String name, String pass, String email, String hostcomputer, String sharedfolder, String port, String location) {
+        daoUser.updateUser(id, name, pass, email, hostcomputer, sharedfolder, port, location);
 
     }
 

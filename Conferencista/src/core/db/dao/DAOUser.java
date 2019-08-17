@@ -28,7 +28,8 @@ public class DAOUser {
     }
 
     public void insertUser(String name, String username, String password,
-            String email, String hostcomputer, String sharedfolder, String port) {
+            String email, String hostcomputer, String sharedfolder, String port,String location ) {
+        
 
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
@@ -38,11 +39,12 @@ public class DAOUser {
         params.put("hostComputer", hostcomputer);
         params.put("sharedFolder", sharedfolder);
         params.put("port", port);
+        params.put("location", location);
         connection.insert("User", params);
 
     }
 
-    public void updateUser(String id, String name, String password, String email, String hostcomputer, String sharedfolder, String port) {
+    public void updateUser(String id, String name, String password, String email, String hostcomputer, String sharedfolder, String port, String location) {
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
         params.put("password", password);
@@ -50,6 +52,7 @@ public class DAOUser {
         params.put("hostComputer", hostcomputer);
         params.put("sharedFolder", sharedfolder);
         params.put("port", port);
+        params.put("location", location);
         connection.update("User", params, "id=\"" + id + "\"");
     }
 
@@ -109,6 +112,9 @@ public class DAOUser {
                             case "port":
                                 user.setPort(reg.get(j).toString());
                                 break;
+                            case "location":
+                                user.setLocation(reg.get(j).toString());
+                                break;
                         }
                     }
                     return user;
@@ -155,6 +161,9 @@ public class DAOUser {
                             break;
                         case "port":
                                 user.setPort(reg.get(j).toString());
+                                break;
+                        case "location":
+                                user.setLocation(reg.get(j).toString());
                                 break;
                     }
                 }

@@ -12,6 +12,7 @@ import core.data.FileSession;
 import core.data.Session;
 import core.data.Course;
 import core.data.FileD;
+import core.data.MessageACL;
 import core.data.Subscription;
 import core.data.Subscriptor;
 import core.data.User;
@@ -727,10 +728,10 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         subjectsCB.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
         subjectsCB.setPreferredSize(new java.awt.Dimension(32, 26));
         subjectsCB.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
-            }
             public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
                 subjectsCBInputMethodTextChanged(evt);
+            }
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
             }
         });
         subjectsCB.addActionListener(new java.awt.event.ActionListener() {
@@ -1243,35 +1244,18 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                     String date = new SimpleDateFormat("yyyy-MM-dd").format(datePicker.getDate()) + " " + hour;
                     classroom = MainController.getClassroomName(classroomsCB.getSelectedItem().toString());
 
-                    JSONObject msgACL = new JSONObject();
-                    msgACL.put("performative", "INFORM");
-                    InetAddress hostSend = null;
-                    InetAddress hostReceive = null;
-                    try {
-                        hostSend = InetAddress.getByName(user.getHostcomputer());
-                        hostReceive = InetAddress.getByName(classroom.getHostname());
-                    } catch (UnknownHostException ex) {
-                        Logger.getLogger(ExploradorGlobal.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    System.out.println(hostSend.getHostAddress());
-                    msgACL.put("sender", hostSend.getHostAddress());
-                    msgACL.put("receiver",hostReceive.getHostAddress());
-                    msgACL.put("reply-to", "");                    
-                    msgACL.put("language", "");
-                    msgACL.put("encoding", "");
-                    msgACL.put("protocol", "");
-                    msgACL.put("conversation-id", "");
-                    msgACL.put("reply-with", "");
-                    msgACL.put("reply-with", "");
-                    msgACL.put("reply-by", "");
+                    MessageACL msgACL = new MessageACL();
+                    msgACL.setPerformative(msgACL.INFORM_IF);
+                    msgACL.setSender(user.getLocation());
+                    msgACL.setReceiver("multicast");
 
                     //
                     if (actionAdd) {
                         session_id = MainController.addSession(date, hour, duration, classroom.getId(), course.getId());
                         file_id = MainController.addFile(fileChooserSes.getSelectedFile().getName(), "", fileChooserSes.getSelectedFile().toString());
 //                        //
-                        msgACL.put("content", session_id + "");
-                        msgACL.put("ontology", "ADD");
+                        msgACL.setContent(String.valueOf(session_id));
+                        msgACL.setOntology(msgACL.ADD);
                         new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(msgACL.toJSONString());
 //                        //
                         MainController.addFileSession(String.valueOf(session_id), String.valueOf(file_id), String.valueOf(false));
@@ -1279,11 +1263,10 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                         MainController.updateSession(filesession.getSessionId(), date, hour, duration, classroom.getId(), course.getId());
                         MainController.updateFile(filesession.getFileId(), fileChooserSes.getSelectedFile().getName(), "", fileChooserSes.getSelectedFile().toString());
 //                       
-                        msgACL.put("content", session_id + "");
-                        msgACL.put("ontology", "UPDATE");
+                        msgACL.setContent(filesession.getSessionId());
+                        msgACL.setOntology(msgACL.UPDATE);
                         new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(msgACL.toJSONString());
 //                        //
-
                     }
                     formaSessionIFrame.doDefaultCloseAction();
                     cleanFieldsSession();
@@ -1471,13 +1454,19 @@ public class ExploradorGlobal extends javax.swing.JFrame {
 
     private void modifyAccountBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modifyAccountBtnActionPerformed
         // TODO add your handling code here:
+        InetAddress host = null;
         if (!nameUserTextF.getText().isEmpty()) {
             if (!passwordUserTextF.getText().isEmpty()) {
                 if (!emailTextF.getText().isEmpty()) {
                     if (!hostnameTextF.getText().isEmpty()) {
                         if (!sharedfolderUserTextF.getText().isEmpty()) {
                             try {
-                                MainController.updateUser(user.getId(), nameUserTextF.getText(), CryptCipher.encrypt(passwordUserTextF.getText()), emailTextF.getText(), hostnameTextF.getText(), sharedfolderUserTextF.getText(), portTF.getText());
+                                try {
+                                    host = InetAddress.getByName(hostnameTextF.getText());
+                                } catch (UnknownHostException ex) {
+                                    Logger.getLogger(ExploradorGlobal.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                MainController.updateUser(user.getId(), nameUserTextF.getText(), CryptCipher.encrypt(passwordUserTextF.getText()), emailTextF.getText(), hostnameTextF.getText(), sharedfolderUserTextF.getText(), portTF.getText(), host.getHostAddress());
                                 accountIFrame.doDefaultCloseAction();
                                 tabPanel.setEnabledAt(tabPanUser, false);
                                 tabPanel.setSelectedIndex(0);

@@ -14,6 +14,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.Toolkit;
 import java.beans.PropertyVetoException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -64,7 +66,11 @@ public class AltaCuenta extends javax.swing.JFrame {
         Action action = new AbstractAction("Guardar") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                onClickCrearCta();
+                try {
+                    onClickCrearCta();
+                } catch (UnknownHostException ex) {
+                    Logger.getLogger(AltaCuenta.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         };
         action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
@@ -73,7 +79,8 @@ public class AltaCuenta extends javax.swing.JFrame {
         crearCtaBtn.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put((KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "myAction");
     }
     
-    private void onClickCrearCta(){
+    private void onClickCrearCta() throws UnknownHostException{
+        InetAddress host = null;
         if (!nombreTF.getText().isEmpty()) {
             if (!usuarioTF.getText().isEmpty()) {
                 if (!contraseñaPF.getText().isEmpty()) {
@@ -86,10 +93,15 @@ public class AltaCuenta extends javax.swing.JFrame {
                                             existUserName(usuarioTF.getText());
                                     if (user == null) {
                                         String passCryp = CryptCipher.encrypt(contraseñaPF.getText());
+                                         try {
+                                            host = InetAddress.getByName(hostnameTF.getText());
+                                        } catch (UnknownHostException ex) {
+                                            Logger.getLogger(AltaCuenta.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
                                         user = MainController.addUser(nombreTF.getText(),usuarioTF.getText(),
                                                 passCryp, correoTF.getText(),hostnameTF.getText(),
-                                                sharedfolderTF.getText(), portTF.getText());                                        
-                                        
+                                                sharedfolderTF.getText(), portTF.getText(),host.getHostAddress());                                        
+                                        user = MainController.existUserName(usuarioTF.getText());
                                         this.setVisible(false);
                                         try {
                                             ExploradorGlobal.getInstance(user).setVisible(true);
@@ -338,8 +350,12 @@ public class AltaCuenta extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void crearCtaBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crearCtaBtnActionPerformed
-        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
             onClickCrearCta();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(AltaCuenta.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_crearCtaBtnActionPerformed
 
     private void sharedFolderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sharedFolderBtnActionPerformed

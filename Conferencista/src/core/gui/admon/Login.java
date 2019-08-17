@@ -43,7 +43,7 @@ public class Login extends javax.swing.JFrame {
             setLocationRelativeTo(null);
             Mnemonico();
             RQLiteConnection.getInstance().conectar();
-            ToVerifyService();
+            //ToVerifyService();
             //String basePath = System.getProperty("user.dir");
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
@@ -57,14 +57,12 @@ public class Login extends javax.swing.JFrame {
         } catch (Exception ex) {
             System.out.println(ex.toString());
             CompileAndRun();
-            //Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
     public void CompileAndRun() {
         try {
             String dir = System.getProperty("user.dir") + "\\"+"FileServiceClient.jar";
-            //Runtime.getRuntime().exec("cmd /c start java -jar "+dir);
             Runtime.getRuntime().exec("java -jar "+dir);            
         } catch (IOException ex) {
             ex.printStackTrace();
