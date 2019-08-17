@@ -13,7 +13,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,8 +54,8 @@ public class FileServiceClient {
         FileServer fileServer = new FileServer();
 
         server.start();
-        nserver.start();
-        fileServer.start();
+//        nserver.start();
+//        fileServer.start();
         }catch(Exception ex){
             System.out.println(ex.getLocalizedMessage());
         }

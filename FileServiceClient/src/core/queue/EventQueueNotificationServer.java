@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JTextArea;
 
 /**
  *
@@ -18,14 +19,22 @@ import java.util.logging.Logger;
 public class EventQueueNotificationServer extends Thread{
     
     private ServerSocket listener;
+    private JTextArea txtArea;
     
     public EventQueueNotificationServer(int port){
         createServer(port);
     }
     
+    public EventQueueNotificationServer(int port, JTextArea txtArea){
+        createServer(port);
+        this.txtArea = txtArea;
+    }
+
+    
     private void createServer(int port){
         try {
             listener = new ServerSocket(port);
+          
         } catch (IOException ex) {
             Logger.getLogger(EventQueueNotificationServer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -41,7 +50,7 @@ public class EventQueueNotificationServer extends Thread{
                 
                 Socket socket = listener.accept();  
                 
-                NotificationsHandler singleClient = new NotificationsHandler(socket);    
+                NotificationsHandler singleClient = new NotificationsHandler(socket,this.txtArea);    
                 
             }
             

@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package core.queue;
+package core.fileserver;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.util.Observable;
 import java.util.Observer;
@@ -20,42 +21,21 @@ import javax.swing.JTextArea;
  *
  * @author 
  */
-public class NotificationsHandler extends Thread implements Observer{
+public class FileServerHandler extends Thread implements Observer{
     
     private Socket socket;
-    private PrintWriter out;
-    private EventQueue queue;
-    public JTextArea txtArea;
-    public NotificationsHandler(Socket socket){
-        
+     private JTextArea txtArea;
+    public FileServerHandler(Socket socket){
         this.socket = socket;
-        this.queue = EventQueue.getInstance();
-        this.queue.addObserver(this);
-        
-        try {
-            out = new PrintWriter(socket.getOutputStream(), true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         
         this.start();
     }
-    
-    public NotificationsHandler(Socket socket, JTextArea txtArea){
+    public FileServerHandler(Socket socket, JTextArea txtArea){
         this.txtArea = txtArea;
         this.socket = socket;
-        this.queue = EventQueue.getInstance();
-        this.queue.addObserver(this);
-        
-        try {
-            out = new PrintWriter(socket.getOutputStream(), true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         
         this.start();
     }
-    
     
     @Override
     public void run(){
@@ -63,25 +43,45 @@ public class NotificationsHandler extends Thread implements Observer{
                         
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String input = in.readLine();
+            
 
             if (input != null) {
-                 if (this.txtArea != null) {
-                     String msg = txtArea.getText();
+                System.out.println("File requested :"+input);
+                if(this.txtArea!=null){
+                    String msg = txtArea.getText();
                      this.txtArea.setText(msg+"\n"+input);
-                 }
-                System.out.println("Data NotificationHandler :"+input);
-                 
+                }
+                OutputStream out = socket.getOutputStream();
+                
+                String path = input;
+                
+                RandomAccessFile raf = new RandomAccessFile(path, "r");
+                int file_size = (int)raf.length();
+                byte buffer[] = new byte[1024];
+                
+                int len = raf.read(buffer);
+                
+                while(len > 0){
+                    out.write(buffer,0,len);
+                    len = raf.read(buffer);
+                }
+                
+                System.out.println("File sent");
+                raf.close();
+                out.close();
+                
                 in.close();
                 socket.close();
             }
+
                       
         }catch(Exception ex){
-                Logger.getLogger(NotificationsHandler.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FileServerHandler.class.getName()).log(Level.SEVERE, null, ex);
         }finally {
             try {
                 socket.close();
             } catch (IOException ex) {
-                Logger.getLogger(NotificationsHandler.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FileServerHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -92,8 +92,6 @@ public class NotificationsHandler extends Thread implements Observer{
         try {
             System.out.println("Nuevo evento"+arg.toString());
             
-            out.println(arg.toString());
-             
         } catch (Exception e) {
             e.printStackTrace();
         }

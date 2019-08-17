@@ -5,12 +5,16 @@
  */
 package core.queue;
 
+import core.data.MessageACL;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JTextArea;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 /**
  *
@@ -20,8 +24,16 @@ public class QueueEventReceiver extends Thread{
     
     private Socket socket;
     private EventQueue queue;
+    private JTextArea txtArea;
     
     public QueueEventReceiver(Socket socket){
+        this.socket = socket;
+        this.queue = EventQueue.getInstance();
+        this.start();
+    }
+    
+    public QueueEventReceiver(Socket socket, JTextArea txtArea){
+        this.txtArea = txtArea;
         this.socket = socket;
         this.queue = EventQueue.getInstance();
         this.start();
@@ -36,7 +48,16 @@ public class QueueEventReceiver extends Thread{
             
 
             if (input != null) {
-                System.out.println("Data :"+input);
+                System.out.println(input);
+                JSONParser parser = new JSONParser();
+                JSONObject obj = (JSONObject)parser.parse(input);
+                MessageACL msgRec = new MessageACL(obj);
+                
+                System.out.println("Data receiver :"+input);
+                if (this.txtArea != null) {
+                     String msg = txtArea.getText();
+                     this.txtArea.setText(msg+"\n"+msgRec.getSender()+" => "+msgRec.getReceiver()+"    "+msgRec.getPerformative());
+                 }
                 
                 queue.addEvent(input);
                 
