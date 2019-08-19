@@ -23,6 +23,7 @@ public class Session {
     private String classroomId;
     private String courseId;
     private String file; // archivo asociado a la sesión
+    private String pathFile; // auxiliar
 
   
 
@@ -99,5 +100,13 @@ public class Session {
 
     public void setFile(String file) {
         this.file = file;
+    }
+
+    public String getPathFile() {
+        return pathFile;
+    }
+
+    public void setPathFile(String pathFile) {
+        this.pathFile = pathFile;
     }
 }

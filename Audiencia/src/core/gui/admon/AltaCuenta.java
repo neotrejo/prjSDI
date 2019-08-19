@@ -10,10 +10,12 @@ import core.crypt.CryptCipher;
 import core.data.User;
 import core.main.ExploradorGlobal;
 import core.utils.GenericUtils;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.Toolkit;
 import java.beans.PropertyVetoException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -24,7 +26,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
@@ -58,7 +59,7 @@ public class AltaCuenta extends javax.swing.JFrame {
         }
         return instance;
     }
-    
+
     private void Mnemonicos() {
         // create an Action doing what you want
         Action action = new AbstractAction("Guardar") {
@@ -72,8 +73,9 @@ public class AltaCuenta extends javax.swing.JFrame {
         crearCtaBtn.getActionMap().put("myAction", action);
         crearCtaBtn.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put((KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "myAction");
     }
-    
-    private void onClickCrearCta(){
+
+    private void onClickCrearCta() {
+        InetAddress host = null;
         if (!nombreTF.getText().isEmpty()) {
             if (!usuarioTF.getText().isEmpty()) {
                 if (!contraseñaPF.getText().isEmpty()) {
@@ -86,14 +88,15 @@ public class AltaCuenta extends javax.swing.JFrame {
                                             existUserName(usuarioTF.getText());
                                     if (user == null) {
                                         String passCryp = CryptCipher.encrypt(contraseñaPF.getText());
-                                        user = MainController.addUser(
-                                                nombreTF.getText(),
-                                                usuarioTF.getText(),
-                                                passCryp,
-                                                correoTF.getText(),
-                                                hostnameTF.getText(),
-                                                sharedfolderTF.getText());
-                                        
+                                        try {
+                                            host = InetAddress.getByName(hostnameTF.getText());
+                                        } catch (UnknownHostException ex) {
+                                            Logger.getLogger(AltaCuenta.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                        user = MainController.addUser(nombreTF.getText(), usuarioTF.getText(),
+                                                passCryp, correoTF.getText(), hostnameTF.getText(),
+                                                sharedfolderTF.getText(), portTF.getText(), host.getHostAddress());
+                                        user = MainController.existUserName(usuarioTF.getText());
                                         this.setVisible(false);
                                         try {
                                             ExploradorGlobal.getInstance(user).setVisible(true);
@@ -158,8 +161,9 @@ public class AltaCuenta extends javax.swing.JFrame {
         hostnameTF = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         sharedfolderTF = new javax.swing.JTextField();
-        jLabel8 = new javax.swing.JLabel();
         sharedFolderBtn = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        portTF = new javax.swing.JTextField();
         topJP = new javax.swing.JPanel();
         regresarL = new javax.swing.JLabel();
         bottomJP = new javax.swing.JPanel();
@@ -169,12 +173,12 @@ public class AltaCuenta extends javax.swing.JFrame {
         jPanel5 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("PreDisMaD-Aud");
-        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/core/images/audi.png")));
-        setPreferredSize(new java.awt.Dimension(565, 585));
-        setSize(new java.awt.Dimension(565, 585));
+        setTitle("PreDisMaD-Conf");
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/core/images/confer.png")) );
+        setSize(new java.awt.Dimension(565, 620));
 
         centerJP.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Registro de usuario", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Bahnschrift", 0, 16), new java.awt.Color(0, 102, 102))); // NOI18N
+        centerJP.setPreferredSize(new java.awt.Dimension(420, 410));
         centerJP.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
@@ -223,7 +227,6 @@ public class AltaCuenta extends javax.swing.JFrame {
 
         sharedfolderTF.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
         centerJP.add(sharedfolderTF, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 310, 216, 35));
-        centerJP.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 352, 216, 35));
 
         sharedFolderBtn.setFont(new java.awt.Font("Trebuchet MS", 0, 15)); // NOI18N
         sharedFolderBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/core/images/folder2.png"))); // NOI18N
@@ -234,6 +237,11 @@ public class AltaCuenta extends javax.swing.JFrame {
             }
         });
         centerJP.add(sharedFolderBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 310, 40, 35));
+
+        jLabel5.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
+        jLabel5.setText("Puerto:");
+        centerJP.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 360, -1, -1));
+        centerJP.add(portTF, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 360, 260, 35));
 
         getContentPane().add(centerJP, java.awt.BorderLayout.CENTER);
 
@@ -314,7 +322,7 @@ public class AltaCuenta extends javax.swing.JFrame {
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 425, Short.MAX_VALUE)
+            .addGap(0, 437, Short.MAX_VALUE)
         );
 
         getContentPane().add(jPanel4, java.awt.BorderLayout.LINE_END);
@@ -327,7 +335,7 @@ public class AltaCuenta extends javax.swing.JFrame {
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 425, Short.MAX_VALUE)
+            .addGap(0, 437, Short.MAX_VALUE)
         );
 
         getContentPane().add(jPanel5, java.awt.BorderLayout.LINE_START);
@@ -337,7 +345,7 @@ public class AltaCuenta extends javax.swing.JFrame {
 
     private void crearCtaBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crearCtaBtnActionPerformed
         // TODO add your handling code here:
-            onClickCrearCta();
+        onClickCrearCta();
     }//GEN-LAST:event_crearCtaBtnActionPerformed
 
     private void sharedFolderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sharedFolderBtnActionPerformed
@@ -370,13 +378,14 @@ public class AltaCuenta extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JLabel logL;
     private javax.swing.JTextField nombreTF;
+    private javax.swing.JTextField portTF;
     private javax.swing.JLabel regresarL;
     private javax.swing.JButton sharedFolderBtn;
     private javax.swing.JTextField sharedfolderTF;

@@ -28,7 +28,7 @@ public class RQLiteConnection {
     private static RQLiteConnection instance;
 
     private RQLiteConnection() {
-        ip = "localhost";
+        ip = "10.0.5.181";
         port = 4001;
     }
 

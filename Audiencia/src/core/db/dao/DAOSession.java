@@ -90,6 +90,16 @@ public class DAOSession {
                 + "WHERE (Course.userId=\"" + user_id + "\"  or Course.userId=" + user_id + ") and FileSession.deleted = \"false\" and  Session.date between \"" + dateFirst + "\" and  \"" + dateLast + "\"";
         return executeQueryList(query);
     }
+    
+    public Session getByIdSession(String sessionId){
+        String query = "SELECT Session.date, Session.startTime, Session.duration, Course.name subject, Classroom.name classroom, FileD.fileName file, Session.id, FileD.path"
+                +" FROM Session INNER JOIN Course on Course.id = Session.courseId" 
+                +" INNER JOIN Classroom on Classroom.id = Session.classroomId" 
+                +" INNER JOIN FileSession on FileSession.sessionId = Session.id"
+                +" INNER JOIN FileD on FileD.id = FileSession.fileId" 
+                +" WHERE  FileSession.id=\"" + sessionId + "\"  or  FileSession.id=" + sessionId;
+        return executeQuery(query);
+    }
 
     public Session findById(String id) {
         try {
@@ -165,6 +175,9 @@ public class DAOSession {
                                 break;
                             case "file":
                                 session.setFile(reg.get(j).toString());
+                                break;
+                            case "path":
+                                session.setPathFile(reg.get(j).toString());
                                 break;
                         }
                     }

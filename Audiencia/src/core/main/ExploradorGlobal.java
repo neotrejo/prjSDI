@@ -27,6 +27,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -129,7 +131,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         datePicker.getJCalendar().setMinSelectableDate(new Date());
 
         //---------filechooser----------------------//
-        fileChooserSub = new JFileChooser(user.getSharedFolder());
+        fileChooserSub = new JFileChooser(user.getSharedfolder());
         fileChooserSub.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooserSub.setAcceptAllFileFilterUsed(false);
 
@@ -139,7 +141,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         fileChooserSes.addChoosableFileFilter(new FileNameExtensionFilter("MS Office", "docx", "pptx"));
         fileChooserSes.setAcceptAllFileFilterUsed(false);
 
-        fileChooserUser = new JFileChooser(user.getSharedFolder());
+        fileChooserUser = new JFileChooser(user.getSharedfolder());
         fileChooserUser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooserUser.setAcceptAllFileFilterUsed(false);
 
@@ -457,6 +459,8 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         sharedfolderUserTextF = new javax.swing.JTextField();
         sharedFolderUserBtn = new javax.swing.JButton();
         logUserLabel = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        portTF = new javax.swing.JTextField();
         logActiveSess = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         userMenu = new javax.swing.JMenu();
@@ -642,7 +646,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, subjectPanelLayout.createSequentialGroup()
                         .addGroup(subjectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(subscriptorsPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(conSubPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 750, Short.MAX_VALUE))
+                            .addComponent(conSubPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 744, Short.MAX_VALUE))
                         .addContainerGap())))
         );
         subjectPanelLayout.setVerticalGroup(
@@ -957,9 +961,13 @@ public class ExploradorGlobal extends javax.swing.JFrame {
 
         accountIFrame.setClosable(true);
         accountIFrame.setTitle("Modificar perfil");
-        accountIFrame.setPreferredSize(new java.awt.Dimension(550, 460));
+        accountIFrame.setPreferredSize(new java.awt.Dimension(550, 510));
         accountIFrame.setVisible(true);
         accountIFrame.addInternalFrameListener(new javax.swing.event.InternalFrameListener() {
+            public void internalFrameIconified(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameOpened(javax.swing.event.InternalFrameEvent evt) {
+            }
             public void internalFrameActivated(javax.swing.event.InternalFrameEvent evt) {
             }
             public void internalFrameClosed(javax.swing.event.InternalFrameEvent evt) {
@@ -970,10 +978,6 @@ public class ExploradorGlobal extends javax.swing.JFrame {
             public void internalFrameDeactivated(javax.swing.event.InternalFrameEvent evt) {
             }
             public void internalFrameDeiconified(javax.swing.event.InternalFrameEvent evt) {
-            }
-            public void internalFrameIconified(javax.swing.event.InternalFrameEvent evt) {
-            }
-            public void internalFrameOpened(javax.swing.event.InternalFrameEvent evt) {
             }
         });
 
@@ -1021,7 +1025,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                 modifyAccountBtnActionPerformed(evt);
             }
         });
-        jPanel1.add(modifyAccountBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 320, -1, -1));
+        jPanel1.add(modifyAccountBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 370, -1, -1));
 
         jLabel19.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
         jLabel19.setText("Folder a compartir:");
@@ -1041,27 +1045,32 @@ public class ExploradorGlobal extends javax.swing.JFrame {
 
         logUserLabel.setForeground(new java.awt.Color(153, 0, 51));
         logUserLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jPanel1.add(logUserLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 360, 322, 20));
+        jPanel1.add(logUserLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 410, 322, 20));
+
+        jLabel2.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
+        jLabel2.setText("Puerto:");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 320, -1, -1));
+        jPanel1.add(portTF, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 320, 277, 33));
 
         javax.swing.GroupLayout accountIFrameLayout = new javax.swing.GroupLayout(accountIFrame.getContentPane());
         accountIFrame.getContentPane().setLayout(accountIFrameLayout);
         accountIFrameLayout.setHorizontalGroup(
             accountIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 527, Short.MAX_VALUE)
+            .addGap(0, 530, Short.MAX_VALUE)
             .addGroup(accountIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(accountIFrameLayout.createSequentialGroup()
                     .addGap(22, 22, 22)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 493, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(17, Short.MAX_VALUE)))
+                    .addContainerGap(100, Short.MAX_VALUE)))
         );
         accountIFrameLayout.setVerticalGroup(
             accountIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 421, Short.MAX_VALUE)
+            .addGap(0, 469, Short.MAX_VALUE)
             .addGroup(accountIFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(accountIFrameLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(18, Short.MAX_VALUE)))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 443, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
 
         javax.swing.GroupLayout accountPanelLayout = new javax.swing.GroupLayout(accountPanel);
@@ -1244,7 +1253,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                     fileData.put("subjectName", course.getName());
                     fileData.put("fileName", fileChooserSes.getSelectedFile().getName());
                     fileData.put("pathFile", fileChooserSes.getSelectedFile().toString());
-                    fileData.put("userName", user.getUserName());
+                    fileData.put("userName", user.getUsername());
                     //
 
                     if (actionAdd) {
@@ -1337,20 +1346,6 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                 if (response == JOptionPane.YES_OPTION) {
                     MainController.deleteFilesSession(Integer.parseInt(filesession.getId()));
                     updateSessionTable(true);
-
-//                    //
-//                    JSONObject fileData = new JSONObject();
-//
-//                    fileData.put("user_id", user.getId());
-//                    fileData.put("date", "");
-//                    fileData.put("startTime", "");
-//                    fileData.put("subjectName", "");
-//                    fileData.put("fileName", "");
-//                    fileData.put("pathFile", "");
-//                    fileData.put("session_id", filesession.getSessionId());
-//                    fileData.put("event", "delete");
-//                    new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(fileData.toJSONString());
-//                    //
                 }
                 break;
             default:
@@ -1460,13 +1455,19 @@ public class ExploradorGlobal extends javax.swing.JFrame {
 
     private void modifyAccountBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modifyAccountBtnActionPerformed
         // TODO add your handling code here:
+        InetAddress host = null;
         if (!nameUserTextF.getText().isEmpty()) {
             if (!passwordUserTextF.getText().isEmpty()) {
                 if (!emailTextF.getText().isEmpty()) {
                     if (!hostnameTextF.getText().isEmpty()) {
                         if (!sharedfolderUserTextF.getText().isEmpty()) {
                             try {
-                                MainController.updateUser(user.getId(), nameUserTextF.getText(), CryptCipher.encrypt(passwordUserTextF.getText()), emailTextF.getText(), hostnameTextF.getText(), sharedfolderUserTextF.getText());
+                                try {
+                                      host = InetAddress.getByName(hostnameTextF.getText());
+                                        } catch (UnknownHostException ex) {
+                                            Logger.getLogger(ExploradorGlobal.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                MainController.updateUser(user.getId(), nameUserTextF.getText(), CryptCipher.encrypt(passwordUserTextF.getText()), emailTextF.getText(), hostnameTextF.getText(), sharedfolderUserTextF.getText(), portTF.getText(), host.getHostAddress());
                                 accountIFrame.doDefaultCloseAction();
                                 tabPanel.setEnabledAt(tabPanUser, false);
                                 tabPanel.setSelectedIndex(0);
@@ -1529,11 +1530,12 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         try {
             nameUserTextF.setText(user.getName());
             usernameTextF.setEnabled(false);
-            usernameTextF.setText(user.getUserName());
+            usernameTextF.setText(user.getUsername());
             passwordUserTextF.setText(CryptCipher.decrypt(user.getPassword()));
             emailTextF.setText(user.getEmail());
-            hostnameTextF.setText(user.getHostComputer());
-            sharedfolderUserTextF.setText(user.getSharedFolder());
+            hostnameTextF.setText(user.getHostcomputer());
+            sharedfolderUserTextF.setText(user.getSharedfolder());
+            portTF.setText(user.getPort());
             if (MainController.getSubjectsUser(user.getId()).size() > 0) {
                 sharedfolderUserTextF.enable(false);
                 fileChooserUser.setControlButtonsAreShown(false);
@@ -1590,6 +1592,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1615,6 +1618,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
     private javax.swing.JPasswordField passwordSubscField;
     private javax.swing.JPasswordField passwordTextF;
     private javax.swing.JPasswordField passwordUserTextF;
+    private javax.swing.JTextField portTF;
     private javax.swing.JButton savedSessBtn;
     private javax.swing.JButton savedSubjBtn;
     private javax.swing.JButton savedSubscriptionBtn;
