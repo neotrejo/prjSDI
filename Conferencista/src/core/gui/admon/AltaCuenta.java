@@ -9,6 +9,7 @@ import core.controller.MainController;
 import core.crypt.CryptCipher;
 import core.data.User;
 import core.main.ExploradorGlobal;
+import core.utils.CheckFile;
 import core.utils.GenericUtils;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -26,7 +27,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
@@ -60,7 +60,7 @@ public class AltaCuenta extends javax.swing.JFrame {
         }
         return instance;
     }
-    
+
     private void Mnemonicos() {
         // create an Action doing what you want
         Action action = new AbstractAction("Guardar") {
@@ -78,8 +78,8 @@ public class AltaCuenta extends javax.swing.JFrame {
         crearCtaBtn.getActionMap().put("myAction", action);
         crearCtaBtn.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put((KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "myAction");
     }
-    
-    private void onClickCrearCta() throws UnknownHostException{
+
+    private void onClickCrearCta() throws UnknownHostException {
         InetAddress host = null;
         if (!nombreTF.getText().isEmpty()) {
             if (!usuarioTF.getText().isEmpty()) {
@@ -93,15 +93,21 @@ public class AltaCuenta extends javax.swing.JFrame {
                                             existUserName(usuarioTF.getText());
                                     if (user == null) {
                                         String passCryp = CryptCipher.encrypt(contraseñaPF.getText());
-                                         try {
+                                        try {
                                             host = InetAddress.getByName(hostnameTF.getText());
                                         } catch (UnknownHostException ex) {
                                             Logger.getLogger(AltaCuenta.class.getName()).log(Level.SEVERE, null, ex);
                                         }
-                                        user = MainController.addUser(nombreTF.getText(),usuarioTF.getText(),
-                                                passCryp, correoTF.getText(),hostnameTF.getText(),
-                                                sharedfolderTF.getText(), portTF.getText(),host.getHostAddress());                                        
+                                        user = MainController.addUser(nombreTF.getText(), usuarioTF.getText(),
+                                                passCryp, correoTF.getText(), hostnameTF.getText(),
+                                                sharedfolderTF.getText(), portTF.getText(), host.getHostAddress());
                                         user = MainController.existUserName(usuarioTF.getText());
+                                        String basePath = System.getProperty("user.dir"); //crear archivo de configuración para el servicio de agentes
+                                        CheckFile cfile = new CheckFile(basePath + "/user.txt");
+                                        if (!cfile.existsFile()) {
+                                            cfile.addLine(user.getUsername());
+                                        }
+                                        //ToVerifyService();
                                         this.setVisible(false);
                                         try {
                                             ExploradorGlobal.getInstance(user).setVisible(true);

@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import core.queue.QueueConfig;
+import core.utils.CheckFile;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -43,8 +44,7 @@ public class Login extends javax.swing.JFrame {
             setLocationRelativeTo(null);
             Mnemonico();
             RQLiteConnection.getInstance().conectar();
-            //ToVerifyService();
-            //String basePath = System.getProperty("user.dir");
+            
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -96,8 +96,14 @@ public class Login extends javax.swing.JFrame {
             }
             user = MainController.existUser(usuarioTF.getText(), passCryp);
             if (user != null) {
+                String basePath = System.getProperty("user.dir");
+                CheckFile cfile = new CheckFile(basePath+"/user.txt"); //crear archivo de configuración para el servicio de agentes
+                if(!cfile.existsFile()){
+                    cfile.addLine(user.getUsername());
+                }
+                //ToVerifyService();
+           
                 this.setVisible(false);
-
                 try {
                     ExploradorGlobal.getInstance(user).setVisible(true);
                 } catch (PropertyVetoException ex) {

@@ -18,6 +18,7 @@ import core.data.Subscriptor;
 import core.data.User;
 import core.queue.QueueConfig;
 import core.queue.QueueEventWriter;
+import core.utils.CheckFile;
 import core.utils.ColorColumnRenderer;
 import java.awt.Color;
 import java.awt.ComponentOrientation;
@@ -1249,22 +1250,30 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                     msgACL.setSender(user.getLocation());
                     msgACL.setReceiver("multicast");
 
-                    //
+                    //ADD
                     if (actionAdd) {
                         session_id = MainController.addSession(date, hour, duration, classroom.getId(), course.getId());
                         file_id = MainController.addFile(fileChooserSes.getSelectedFile().getName(), "", fileChooserSes.getSelectedFile().toString());
-//                        //
+                        MainController.addFileSession(String.valueOf(session_id), String.valueOf(file_id), String.valueOf(false));
+                   //
                         msgACL.setContent(String.valueOf(session_id));
                         msgACL.setOntology(msgACL.ADD);
                         new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(msgACL.toJSONString());
 //                        //
-                        MainController.addFileSession(String.valueOf(session_id), String.valueOf(file_id), String.valueOf(false));
-                    } else {
+                        
+                    } else { //UPDATE
+                        CheckFile cFile = new CheckFile(fileChooserSes.getSelectedFile().toString());
+                        
                         MainController.updateSession(filesession.getSessionId(), date, hour, duration, classroom.getId(), course.getId());
                         MainController.updateFile(filesession.getFileId(), fileChooserSes.getSelectedFile().getName(), "", fileChooserSes.getSelectedFile().toString());
-//                       
-                        msgACL.setContent(filesession.getSessionId());
+//                      
+                        JSONObject cont = new JSONObject();
+                        cont.put("idSession", filesession.getSessionId());
+                        cont.put("fileName", cFile.getNameFile());
+                        cont.put("size", cFile.getSize());
+                        msgACL.setContent(cont.toJSONString());
                         msgACL.setOntology(msgACL.UPDATE);
+                        
                         new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(msgACL.toJSONString());
 //                        //
                     }
