@@ -14,17 +14,21 @@ public class FileD {
     private String fileName;
     private String currentPage;
     private String path;
+    private String host;
         
     public FileD() {
 
     }
 
-    public FileD(String id, String fileName, String currentPage, String path) {
+    public FileD(String id, String fileName, String currentPage, String path, String host) {
         this.id = id;
         this.fileName = fileName;
         this.currentPage = currentPage;
         this.path = path;
+        this.host = host;
     }
+
+    
 
     public String getId() {
         return id;
@@ -56,6 +60,14 @@ public class FileD {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
     }
     
 }

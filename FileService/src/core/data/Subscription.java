@@ -11,66 +11,91 @@ package core.data;
  */
 public class Subscription {
     private String id;
-    private String subject_id;
-    private String user_id;
     private String deleted;
-    private String professor;
-    private String subject;
+    private String userId;
+    private String courseId;
+    private String professorName;
+    private String courseName;
+    private String hostProfesor;
+    private String portHostProf;
+
+    
     public Subscription(){
         
     }
-    
-    public Subscription(String id, String subject_id, String user_id, String deleted){
+
+    public Subscription(String id, String deleted, String userId, String courseId) {
         this.id = id;
-        this.subject_id = subject_id;
-        this.user_id = user_id;
+        this.deleted = deleted;
+        this.userId = userId;
+        this.courseId = courseId;
+    }
+    
+
+    
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(String deleted) {
         this.deleted = deleted;
     }
-    
-    public String getId(){
-        return this.id;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(String courseId) {
+        this.courseId = courseId;
+    }
+
+    public String getProfessorName() {
+        return professorName;
+    }
+
+    public void setProfessorName(String professorName) {
+        this.professorName = professorName;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+    public String getHostProfesor() {
+        return hostProfesor;
+    }
+
+    public void setHostProfesor(String hostProfesor) {
+        this.hostProfesor = hostProfesor;
+    }
+
+    public String getPortHostProf() {
+        return portHostProf;
+    }
+
+    public void setPortHostProf(String portHostProf) {
+        this.portHostProf = portHostProf;
     }
     
-    public void setId(String id){
-        this.id = id;
-    }
-    
-    public String getUserId(){
-        return this.user_id;
-    }
-    
-    public void setUserId(String user_id){
-        this.user_id = user_id;
-    }
-    
-    public String getSubjectId(){
-        return this.subject_id;
-    }
-    
-    public void setSubjectId(String subject_id){
-        this.subject_id = subject_id;
-    }
-    public String getDeleted(){
-        return this.deleted;
-    }
-    
-    public void setDeleted(String deleted){
-        this.deleted = deleted;
-    }
-    public String getSubject(){
-        return this.subject;
-    }
-    
-    public void setSubject(String subject){
-        this.subject = subject;
-    }
-    
-    public String getprofessor(){
-        return this.professor;
-    } 
-    
-    public void setProfessor(String professor){
-        this.professor = professor;
-    }
     
 }

@@ -13,16 +13,16 @@ public class Subscriptor {
     private String subscription_id;
     private String name;
     private String email;
-    private String subject;
+    private String course;
     
     public Subscriptor(){
     }
     
-    public Subscriptor(String subscription_id, String name,String email, String subject  ){
+    public Subscriptor(String subscription_id, String name,String email, String course  ){
         this.subscription_id=subscription_id;
         this.name =name;
         this.email = email;
-        this.subject = subject;
+        this.course = course;
     }
     
     public String getSubscriptionId(){
@@ -47,12 +47,12 @@ public class Subscriptor {
     public void setEmail(String email ){
         this.email=email;
     }
-    public String getSubject(){
-        return subject;
+    public String getCourse(){
+        return course;
     }
     
-    public void setSubject(String subject ){
-        this.subject=subject;
+    public void setCourse(String course ){
+        this.course=course;
     }
     
     

@@ -1,0 +1,4 @@
+dggomez
+PATH = /home/pi/SDI_APP/Classes
+HOST1 = 10.0.5.140 = 10001
+HOST2 = 10.0.5.182 = 10002

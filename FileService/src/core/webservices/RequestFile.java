@@ -19,29 +19,33 @@ public class RequestFile extends Thread{
     private Socket socket;
     private PrintWriter out;
     private FileOutputStream fos;
-    private String filePath;
+    private String msgACL;
     private String fileName;
+    private String ipServer;
+    private boolean download;
     
-    public RequestFile(String filePath, String fileName){
+    public RequestFile(String msgACL, String fileName, String ipServer, boolean download){
         this.fileName = fileName;
-        this.filePath = filePath;
+        this.msgACL = msgACL;
+        this.ipServer = ipServer;
+        this.download = download;
         createServer();
     }
     
     private void createServer(){
         try {
-            socket = new Socket("10.0.5.182", 5002);
+            socket = new Socket(ipServer, 5002);
             
             fos = new FileOutputStream(fileName);
             
             out = new PrintWriter(socket.getOutputStream());
             
-            out.println(filePath);
+            out.println(msgACL);
             
             out.flush();
-            
-            //out.close();
-            
+            if(!download){
+                fos.close();
+            }            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -65,7 +69,7 @@ public class RequestFile extends Thread{
                 }
                 fos.flush();
                 fos.close();
-                
+                //setMessage(receiver + " => " + sender + "   " + "CONFIRM");
             //}
         } catch (Exception e) {
             e.printStackTrace();

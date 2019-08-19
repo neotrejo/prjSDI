@@ -15,6 +15,9 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JTextArea;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 /**
  *
@@ -23,9 +26,9 @@ import java.util.logging.Logger;
 public class FileServerHandler extends Thread implements Observer{
     
     private Socket socket;
-     
-    public FileServerHandler(Socket socket){
-        
+    private JTextArea txtArea;
+    public FileServerHandler(Socket socket, JTextArea txtArea){
+        this.txtArea= txtArea;
         this.socket = socket;
         
         this.start();
@@ -42,6 +45,28 @@ public class FileServerHandler extends Thread implements Observer{
             if (input != null) {
                 System.out.println("File requested :"+input);
                 
+                ///////////////////////////////////////////////
+                    JSONParser parser = new JSONParser();
+                    JSONObject obj = (JSONObject) parser.parse(input);
+
+                    String performative = (String) obj.get("performative");
+                    String sender = (String) obj.get("sender");
+                    String receiver = (String) obj.get("receiver");
+                    String reply_to = (String) obj.get("reply-to");
+                    String content = (String) obj.get("content");
+                    String language = (String) obj.get("language");
+                    String encoding = (String) obj.get("encoding");
+                    String ontology = (String) obj.get("ontology");
+                    String protocol = (String) obj.get("protocol");
+                    String conversation_id = (String) obj.get("conversation-id");
+                    String reply_with = (String) obj.get("reply-with");
+                    String in_reply_to = (String) obj.get("in-reply-to");
+                    String reply_by = (String) obj.get("reply-by");
+                    
+                    setMessage(receiver + " <= " + sender + "   " + performative);
+                    
+                    //////////////////////////////////////////////////
+                if(ontology.equals("DOWNLOAD")){
                 OutputStream out = socket.getOutputStream();
                 
                 String path = input;
@@ -63,6 +88,8 @@ public class FileServerHandler extends Thread implements Observer{
                 
                 in.close();
                 socket.close();
+                setMessage(receiver + " => " + sender + "   " + "CONFIRM");
+                }
             }
 
                       
@@ -85,6 +112,13 @@ public class FileServerHandler extends Thread implements Observer{
             
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    public void setMessage(String msg) {
+        if (txtArea != null) {
+            String aux = txtArea.getText();
+            txtArea.setText(aux + "\n" + msg);
         }
     }
     

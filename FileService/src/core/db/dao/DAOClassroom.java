@@ -6,11 +6,11 @@
 package core.db.dao;
 
 import core.data.Classroom;
-import core.db.sqlite.SQLiteConnection;
-import java.sql.ResultSet;
+import core.db.rqlite.RQLiteConnection;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.json.JSONArray;
 
 /**
  *
@@ -18,10 +18,10 @@ import java.util.Map;
  */
 public class DAOClassroom {
 
-    private SQLiteConnection connection;
+    private RQLiteConnection connection;
 
     public DAOClassroom() {
-        connection = SQLiteConnection.getInstance();
+        connection = RQLiteConnection.getInstance();
     }
 
     public void insertClassroom(String name, String location, String hostname, String rootFolder) {
@@ -29,27 +29,46 @@ public class DAOClassroom {
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
         params.put("location", location);
-        params.put("hostName", hostname);
-        params.put("root", rootFolder );
+        params.put("hostname", hostname);
+        params.put("rootFolder", rootFolder);
 
-        connection.insert("ClassRoom", params);
+        connection.insert("Classroom", params);
     }
 
     public ArrayList<Classroom> getClassrooms() {
         try {
             ArrayList<Classroom> classrooms = new ArrayList<>();
-            String query = "SELECT * FROM ClassRoom";
-            ResultSet result = connection.select(query);
-            Classroom classroom = null;
-            String file = "";
-            if (result != null) {
-                while (result.next()) {
+            String query = "SELECT * FROM Classroom";
+            JSONArray resul = connection.select(query);
+            if (resul != null) {
+                Classroom classroom = null;
+                JSONArray cols = resul.getJSONObject(0).getJSONArray("columns");
+                JSONArray values = resul.getJSONObject(0).getJSONArray("values");
+                for (int i = 0; i < values.length(); i++) {
+                    JSONArray reg = values.getJSONArray(i);
                     classroom = new Classroom();
-                    classroom.setId(result.getObject("id").toString());
-                    classroom.setName(result.getObject("name").toString());
-                    classroom.setLocation(result.getObject("location").toString());
-                    classroom.setHostname(result.getObject("hostName").toString());
-                    classroom.setRootFolder(result.getObject("rootFolder").toString());
+                    for (int j = 0; j < cols.length(); j++) {
+                        switch (cols.getString(j)) {
+                            case "id":
+                                classroom.setId(reg.get(j).toString());
+                                break;
+                            case "name":
+                                classroom.setName(reg.get(j).toString());
+                                break;
+                            case "location":
+                                classroom.setLocation(reg.get(j).toString());
+                                break;
+                            case "hostname":
+                                classroom.setHostname(reg.get(j).toString());
+                                break;
+                            case "rootFolder":
+                                classroom.setRootFolder(reg.get(j).toString());
+                                break;
+                            case "port":
+                                classroom.setPort(reg.get(j).toString());
+                                break;
+                        }                        
+                    }
                     classrooms.add(classroom);
                 }
             }
@@ -61,35 +80,55 @@ public class DAOClassroom {
     }
 
     public Classroom getByName(String name) {
-        String query = "SELECT * FROM ClassRoom WHERE name=\"" + name + "\"";
+        String query = "SELECT * FROM Classroom WHERE name=\"" + name + "\"";
         return executeQuery(query);
     }
-    
+
     public Classroom getByHostName(String hostName) {
-        String query = "SELECT * FROM ClassRoom WHERE hostName=\"" + hostName + "\" LIMIT 1";
+        String query = "SELECT * FROM Classroom WHERE hostname=\"" + hostName + "\" LIMIT 1";
         return executeQuery(query);
-    }    
+    }
 
     public Classroom getById(String id) {
-        String query = "SELECT * FROM ClassRoom WHERE id=" + id;
+        String query = "SELECT * FROM Classroom WHERE id=" + id;
         return executeQuery(query);
     }
 
     private Classroom executeQuery(String query) {
         try {
-            ResultSet result = connection.select(query);
-            Classroom classroom = null;
-            if (result != null) {
-                if (result.next()) {
+            JSONArray resul = connection.select(query);
+            if (resul != null) {
+                Classroom classroom = null;
+                JSONArray cols = resul.getJSONObject(0).getJSONArray("columns");
+                JSONArray values = resul.getJSONObject(0).getJSONArray("values");
+                for (int i = 0; i < values.length(); i++) {
+                    JSONArray reg = values.getJSONArray(i);
                     classroom = new Classroom();
-                    classroom.setId(result.getObject("id").toString());
-                    classroom.setName(result.getObject("name").toString());
-                    classroom.setLocation(result.getObject("location").toString());
-                    classroom.setHostname(result.getObject("hostName").toString());
-                    classroom.setRootFolder(result.getObject("rootFolder").toString());
+                    for (int j = 0; j < cols.length(); j++) {
+                        switch (cols.getString(j)) {
+                            case "id":
+                                classroom.setId(reg.get(j).toString());
+                                break;
+                            case "name":
+                                classroom.setName(reg.get(j).toString());
+                                break;
+                            case "location":
+                                classroom.setLocation(reg.get(j).toString());
+                                break;
+                            case "hostname":
+                                classroom.setHostname(reg.get(j).toString());
+                                break;
+                            case "rootFolder":
+                                classroom.setRootFolder(reg.get(j).toString());
+                                break;
+                            case "port":
+                                classroom.setPort(reg.get(j).toString());
+                                break;
+                        }                       
+                    }
+                     return classroom;
                 }
             }
-            return classroom;
         } catch (Exception ex) {
             ex.printStackTrace();
         }

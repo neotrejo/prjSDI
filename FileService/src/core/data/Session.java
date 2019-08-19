@@ -8,14 +8,7 @@ package core.data;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  *
@@ -26,22 +19,23 @@ public class Session {
     private String id;
     private String date;
     private String startTime;
-    private String durationHrs;
-    private String classRoom_id;
-    private String subject_id;
-    private String file;
+    private String duration;
+    private String classroomId;
+    private String courseId;
+    private String file; // archivo asociado a la sesión
+    private String pathFile; // auxiliar
+  
 
     public Session() {
     }
 
-    public Session(String id, String date, String startTime, String durationHrs, String classRoom_id, String subject_id, String file) {
+    public Session(String id, String date, String startTime, String duration, String classRoomId, String courseId) {
         this.id = id;
         this.date = date;
         this.startTime = startTime;
-        this.durationHrs = durationHrs;
-        this.classRoom_id = classRoom_id;
-        this.subject_id = subject_id;
-        this.file = file;
+        this.duration = duration;
+        this.classroomId = classRoomId;
+        this.courseId = courseId;
     }
 
     public String getId() {
@@ -53,7 +47,7 @@ public class Session {
     }
 
     public String getDate() throws ParseException {
-        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         Date dateD = (Date) formatter.parse(date);
         SimpleDateFormat newFormat = new SimpleDateFormat("dd-MM-yyyy");
         return newFormat.format(dateD);
@@ -75,28 +69,28 @@ public class Session {
         this.startTime = startTime;
     }
 
-    public String getDurationHrs() {
-        return durationHrs;
+    public String getDuration() {
+        return duration;
     }
 
-    public void setDurationHrs(String durationHrs) {
-        this.durationHrs = durationHrs;
+    public void setDuration(String duration) {
+        this.duration = duration;
     }
 
-    public String getClassRoomId() {
-        return classRoom_id;
+      public String getCourseId() {
+        return courseId;
     }
 
-    public void setClassRoomId(String classRoom_id) {
-        this.classRoom_id = classRoom_id;
+    public void setCourseId(String courseId) {
+        this.courseId = courseId;
     }
 
-    public String getSubjectId() {
-        return subject_id;
+    public String getClassroomId() {
+        return classroomId;
     }
 
-    public void setSubjectId(String subject_id) {
-        this.subject_id = subject_id;
+    public void setClassroomId(String classroomId) {
+        this.classroomId = classroomId;
     }
 
     public String getFile() {
@@ -107,4 +101,11 @@ public class Session {
         this.file = file;
     }
 
+    public String getPathFile() {
+        return pathFile;
+    }
+
+    public void setPathFile(String pathFile) {
+        this.pathFile = pathFile;
+    }
 }

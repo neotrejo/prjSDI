@@ -6,93 +6,127 @@
 package core.db.dao;
 
 import core.data.Subscription;
-import core.data.Subscriptor;
-import core.db.sqlite.SQLiteConnection;
-import java.sql.ResultSet;
+import core.db.rqlite.RQLiteConnection;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.json.JSONArray;
 
 /**
  *
  * @author Diana
  */
 public class DAOSubscription {
-    private SQLiteConnection connection;
-    
+
+    private RQLiteConnection connection;
+
     public DAOSubscription() {
-        connection = SQLiteConnection.getInstance();
+        connection = RQLiteConnection.getInstance();
     }
-    
-    public int  insertSubscription(String subject_id, String user_id,String deleted) {
+
+    public int insertSubscription(String subject_id, String user_id, String deleted) {
         Map<String, String> params = new LinkedHashMap<>();
-        params.put("subject_id", subject_id);
-        params.put("user_id", user_id);
+        params.put("courseId", subject_id);
+        params.put("userId", user_id);
         params.put("deleted", deleted);
         return connection.insert("Subscription", params);
     }
-    
-    public void deleteSubscription (int id){
+
+    public void deleteSubscription(int id) {
         Map<String, String> params = new LinkedHashMap<>();
-        params.put("deleted",String.valueOf(true));
-        connection.update("Subscription", params, "id=\"" + id + "\"");    
+        params.put("deleted", String.valueOf(true));
+        connection.update("Subscription", params, "id=\"" + id + "\"");
     }
-    
-    public Subscription findById(String id){        
-            String query = "SELECT * FROM Subscription WHERE id="+ id;
-            return executeQuery(query);
+
+    public Subscription findById(String id) {
+        String query = "SELECT * FROM Subscription WHERE id=" + id;
+        return executeQuery(query);
     }
-    public Subscription findBySubjectUser(String subject_id, String user_id){     
-            String query = "SELECT * FROM Subscription WHERE subject_id=\""+ subject_id+"\" and user_id=\""+user_id+"\" and deleted=\"false\"" ;
-            return executeQuery(query);
+
+    public Subscription findBySubjectUser(String subject_id, String user_id) {
+        String query = "SELECT * FROM Subscription WHERE courseId=\"" + subject_id + "\" and userId=\"" + user_id + "\" and deleted=\"false\"";
+        return executeQuery(query);
     }
-    
-    private Subscription executeQuery(String query){
-         try {
-            ResultSet result = connection.select(query);
+
+    private Subscription executeQuery(String query) {
+        try {
+            JSONArray resul = connection.select(query);
             Subscription subscription = null;
-            if (result != null) {
-                if(result.next()){
+            if (resul != null) {
+                JSONArray cols = resul.getJSONObject(0).getJSONArray("columns");
+                JSONArray values = resul.getJSONObject(0).getJSONArray("values");
+                for (int i = 0; i < values.length(); i++) {
+                    JSONArray reg = values.getJSONArray(i);
                     subscription = new Subscription();
-                    subscription.setId(result.getObject("id").toString());
-                    subscription.setSubjectId(result.getObject("subject_id").toString());
-                    subscription.setUserId(result.getObject("user_id").toString());                 
+                    for (int j = 0; j < cols.length(); j++) {
+                        switch (cols.getString(j)) {
+                            case "id":
+                                subscription.setId(reg.get(j).toString());
+                                break;
+                            case "courseId":
+                                subscription.setCourseId(reg.get(j).toString());
+                                break;
+                            case "userId":
+                                subscription.setUserId(reg.get(j).toString());
+                                break;
+                        }
+                    }
+                    return subscription;
                 }
-            }           
-            return subscription;
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
-        }        
+        }
         return null;
     }
-    
-     public ArrayList<Subscription> findByUserId(String user_id){        
+
+    public ArrayList<Subscription> findByUserId(String user_id) {
         try {
             ArrayList<Subscription> subscriptions = new ArrayList<>();
-            String query = "SELECT Subscription.*, Subject.subjectName, User.name professor\n" +
-                            "FROM Subscription\n" +
-                            "INNER JOIN Subject on Subject.id = Subscription.subject_id\n" +
-                            "INNER JOIN User on User.id= Subject.user_id WHERE Subscription.user_id = \""+ user_id+"\" and Subscription.deleted=\"false\"";
-            ResultSet result = connection.select(query);
+            String query = "SELECT Subscription.*, Course.name course, User.name professor, User.location hostProfesor, User.port portHost\n"
+                    + "FROM Subscription\n"
+                    + "INNER JOIN Course on Course.id = Subscription.courseId\n"
+                    + "INNER JOIN User on User.id= Course.userId WHERE Subscription.userId = \"" + user_id + "\" and Subscription.deleted=\"false\"";
+            JSONArray resul = connection.select(query);
             Subscription subscription = null;
-            if (result != null) {
-                while(result.next()){
+            if (resul != null) {
+                JSONArray cols = resul.getJSONObject(0).getJSONArray("columns");
+                JSONArray values = resul.getJSONObject(0).getJSONArray("values");
+                for (int i = 0; i < values.length(); i++) {
+                    JSONArray reg = values.getJSONArray(i);
                     subscription = new Subscription();
-                    subscription.setId(result.getObject("id").toString());
-                    subscription.setSubjectId(result.getObject("subject_id").toString());
-                    subscription.setUserId(result.getObject("user_id").toString()); 
-                    subscription.setSubject(result.getObject("subjectName").toString());
-                    subscription.setProfessor(result.getObject("professor").toString()); 
+                    for (int j = 0; j < cols.length(); j++) {
+                        switch (cols.getString(j)) {
+                            case "id":
+                                subscription.setId(reg.get(j).toString());
+                                break;
+                            case "courseId":
+                                subscription.setCourseId(reg.get(j).toString());
+                                break;
+                            case "userId":
+                                subscription.setUserId(reg.get(j).toString());
+                                break;
+                            case "course":
+                                subscription.setCourseName(reg.get(j).toString());
+                                break;
+                            case "professor":
+                                subscription.setProfessorName(reg.get(j).toString());
+                                break;
+                            case "hostProfesor":
+                                subscription.setHostProfesor(reg.get(j).toString());
+                                break;
+                            case "portHost":
+                                subscription.setPortHostProf(reg.get(j).toString());
+                                break;
+                        }
+                    }
                     subscriptions.add(subscription);
                 }
-            }           
+            }
             return subscriptions;
         } catch (Exception ex) {
             ex.printStackTrace();
-        }        
+        }
         return null;
     }
-     
-     
-    
 }
