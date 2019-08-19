@@ -44,12 +44,11 @@ public class AgentConferencista extends javax.swing.JFrame {
         String username;
         try {
             BufferedReader br = new BufferedReader(new FileReader("user.txt"));
-
             username = br.readLine().split("\\s+")[0].trim();
             System.out.println(username);
             return username;
 
-        } catch (Exception ex) {
+        } catch (Exception ex) {            
             Logger.getLogger(AgentConferencista.class.getName()).log(Level.SEVERE, null, ex);
         }
 

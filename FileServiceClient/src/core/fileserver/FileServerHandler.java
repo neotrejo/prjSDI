@@ -30,10 +30,11 @@ public class FileServerHandler extends Thread implements Observer {
 
     private Socket socket;
     private JTextArea txtArea;
+
     public FileServerHandler(Socket socket, JTextArea txtArea) {
         this.txtArea = txtArea;
         this.socket = socket;
-        
+
         this.start();
     }
 
@@ -55,34 +56,39 @@ public class FileServerHandler extends Thread implements Observer {
                 setMessage(msgRec.getReceiver() + " <= " + msgRec.getSender() + "   " + msgRec.getPerformative());
 
                 //////////////////////////////////////////////////
-                if (msgRec.getOntology().equals(msgRec.DOWNLOAD)) {
-                    OutputStream out = socket.getOutputStream();
+                switch (msgRec.getPerformative()) {
+                    case "REQUEST":
+                        OutputStream out = socket.getOutputStream();
 
-                    String path = msgRec.getContent();
+                        String path = msgRec.getContent();
 
-                    RandomAccessFile raf = new RandomAccessFile(path, "r");
-                    int file_size = (int) raf.length();
-                    byte buffer[] = new byte[1024];
+                        RandomAccessFile raf = new RandomAccessFile(path, "r");
+                        int file_size = (int) raf.length();
+                        byte buffer[] = new byte[1024];
 
-                    int len = raf.read(buffer);
+                        int len = raf.read(buffer);
 
-                    while (len > 0) {
-                        out.write(buffer, 0, len);
-                        len = raf.read(buffer);
-                    }
+                        while (len > 0) {
+                            out.write(buffer, 0, len);
+                            len = raf.read(buffer);
+                        }
 
-                    System.out.println("File sent");
-                    raf.close();
-                    out.close();
+                        System.out.println("File sent");
+                        raf.close();
+                        out.close();
 
-                    in.close();
-                    socket.close();
-                    MessageACL msgSend = new MessageACL();
-                    msgSend.setSender(msgRec.getReceiver());
-                    msgSend.setReceiver(msgRec.getSender());                    
-                    msgSend.setPerformative(msgSend.AGREE);
-                    
-                    new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(msgSend.toJSONString());
+                        in.close();
+                        socket.close();
+                        MessageACL msgSend = new MessageACL();
+                        msgSend.setSender(msgRec.getReceiver());
+                        msgSend.setReceiver(msgRec.getSender());
+                        msgSend.setPerformative(msgSend.AGREE);
+
+                        new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(msgSend.toJSONString());
+
+                        break;
+                    case "REFUSE":
+                        break;
                 }
             }
 
@@ -102,7 +108,6 @@ public class FileServerHandler extends Thread implements Observer {
 
         try {
             System.out.println("Nuevo evento" + arg.toString());
-
         } catch (Exception e) {
             e.printStackTrace();
         }
