@@ -15,6 +15,11 @@ public class YellowPage {
     private String name;
     private String typeServiceId;
     
+    //tipos de servicios
+    public static final String CONFERENCISTA = "2";
+    public static final String AUDIENCIA = "1";
+    public static final String SALON = "3";
+    
     public YellowPage(){
         
     }

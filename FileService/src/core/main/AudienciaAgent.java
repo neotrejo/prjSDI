@@ -9,6 +9,7 @@ import core.controller.MainController;
 import core.data.Classroom;
 import core.data.Subscription;
 import core.data.User;
+import core.data.YellowPage;
 import core.db.rqlite.RQLiteConnection;
 import core.utils.Host;
 import core.webservices.NotificationServer;
@@ -37,54 +38,48 @@ public class AudienciaAgent extends javax.swing.JFrame {
         try {
             RQLiteConnection.getInstance().conectar();
             initComponents();
-            initCommunication();
+            setupAgent();
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(AudienciaAgent.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private void initCommunication() {
-        ArrayList<Host> conf = setupAgent();
-        
+    private void setupAgent() {
+        ArrayList<Host> conf = setAgent();
         for (Host host : conf) {
             new NotificationServer(host.getAddress(), host.getPort(), user, txtArea).start();
         }
         if (conf.isEmpty()) {
             txtArea.setText("No hay registros de cursos...");
-        }else{
-             txtArea.setText("Monitoreando...");
+        } else {
+            txtArea.setText("Monitoreando...");
         }
     }
 
-    public ArrayList<Host> setupAgent() {
+    public ArrayList<Host> setAgent() {
+        YellowPage yPage;
         ArrayList<Host> hosts = new ArrayList<>();
-        InetAddress hostTemp;
-        InetAddress host;
         String username;
-        try {
-            username = readUsername();
-            user = MainController.existUserName(username);
-
-            if (user != null) {
-                System.out.println(user.getHostcomputer());
-                host = InetAddress.getByName(user.getHostcomputer());
-                subscriptions = MainController.getSubscriptionUserId(user.getId());
-                for (Subscription subs : subscriptions) {
-                    if (!subs.getPortHostProf().isEmpty()) {
-                        hosts.add(new Host(subs.getHostProfesor(), Integer.parseInt(subs.getPortHostProf())));
-                    }
+        username = readUsername();
+        user = MainController.existUserName(username);
+        if (user != null) {
+            yPage = MainController.existsServiceYP(username, YellowPage.AUDIENCIA);
+            if (yPage == null) {
+                MainController.addServicesYP(user.getLocation(), username, YellowPage.AUDIENCIA); // ip,nombre,tipo de servicio
+            }
+            System.out.println(user.getHostcomputer());
+            subscriptions = MainController.getSubscriptionUserId(user.getId());
+            for (Subscription subs : subscriptions) {
+                if (!subs.getPortHostProf().isEmpty()) {
+                    hosts.add(new Host(subs.getHostProfesor(), Integer.parseInt(subs.getPortHostProf())));
                 }
             }
-            classrooms = MainController.getClassrooms();
-            for (Classroom clas : classrooms) {
-                if (isInteger(clas.getPort())) {
-                    hostTemp = InetAddress.getByName(clas.getHostname());
-                    hosts.add(new Host(hostTemp.getHostAddress(), Integer.parseInt(clas.getPort())));
-                }
+        }
+        classrooms = MainController.getClassrooms();
+        for (Classroom clas : classrooms) {
+            if (isInteger(clas.getPort())) {
+                hosts.add(new Host(clas.getLocation(), Integer.parseInt(clas.getPort())));
             }
-
-        } catch (UnknownHostException ex) {
-            Logger.getLogger(AudienciaAgent.class.getName()).log(Level.SEVERE, null, ex);
         }
         return hosts;
     }

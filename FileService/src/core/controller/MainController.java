@@ -15,6 +15,7 @@ import core.data.User;
 import core.data.Course;
 import core.data.Subscription;
 import core.data.Subscriptor;
+import core.data.YellowPage;
 import core.db.dao.DAOClassroom;
 import core.db.dao.DAOFile;
 import core.db.dao.DAOFilesSession;
@@ -22,6 +23,7 @@ import core.db.dao.DAOSession;
 import core.db.dao.DAOCourse;
 import core.db.dao.DAOSubscription;
 import core.db.dao.DAOUser;
+import core.db.dao.DAOYellowPage;
 import java.util.ArrayList;
 
 /**
@@ -38,6 +40,7 @@ public class MainController {
     private static DAOFile daoFile = new DAOFile();
     private static DAOFilesSession daoFileSession = new DAOFilesSession();
     private static DAOSubscription daoSubscription = new DAOSubscription();
+    private static DAOYellowPage daoYellowPage = new DAOYellowPage();
 
     public MainController() {
 
@@ -211,6 +214,14 @@ public class MainController {
 
     public static void deleteSubscription(int id) {
         daoSubscription.deleteSubscription(id);
+    }
+    
+    public static void addServicesYP(String hostname, String name, String typeServiceId){
+        daoYellowPage.insertYellowPage(name, hostname, typeServiceId);
+    }
+    
+    public static YellowPage existsServiceYP(String name, String typeServiceId){
+        return daoYellowPage.findByNameAndType(name, typeServiceId);
     }
 
     //-----------------------------------------------------------------------------------------

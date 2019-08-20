@@ -7,11 +7,11 @@ package core.db.dao;
 
 import core.data.YellowPage;
 import core.db.rqlite.RQLiteConnection;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.json.JSONArray;
+import org.json.JSONException;
 
 /**
  *
@@ -39,6 +39,12 @@ public class DAOYellowPage {
         params.put("deleted", String.valueOf(true));
         connection.update("YellowPage", params, "id=\"" + id + "\"");
     }  
+ 
+  public YellowPage findByNameAndType(String name, String typeServiceId) {
+        String query = "SELECT * FROM YellowPage "
+                + "WHERE name=\"" + name + "\" and typeServiceId=\"" + typeServiceId + "\"";
+        return executeQuery(query);
+  }
  
  public ArrayList<YellowPage> findByTypeService(String TypeService) {
         String query = "SELECT * FROM YellowPage INNER JOIN TypeService on TypeService.id= YellowPage.typeServiceId  "
@@ -74,7 +80,7 @@ public class DAOYellowPage {
                     return yellowPage;
                 }
             }            
-        } catch (Exception ex) {
+        } catch (JSONException ex) {
             ex.printStackTrace();
         }
         return null;
@@ -110,7 +116,7 @@ public class DAOYellowPage {
                 }
             }
             return yellosPages;
-        } catch (Exception ex) {
+        } catch (JSONException ex) {
             ex.printStackTrace();
         }
         return null;
