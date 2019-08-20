@@ -7,7 +7,6 @@ package core.db.dao;
 
 import core.data.YellowPage;
 import core.db.rqlite.RQLiteConnection;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -18,12 +17,13 @@ import org.json.JSONArray;
  * @author Diana
  */
 public class DAOYellowPage {
-     private RQLiteConnection connection;
+
+    private RQLiteConnection connection;
 
     public DAOYellowPage() {
         connection = RQLiteConnection.getInstance();
     }
-    
+
     public void insertYellowPage(String name, String hostname, String typeService) {
 
         Map<String, String> params = new LinkedHashMap<>();
@@ -33,19 +33,26 @@ public class DAOYellowPage {
 
         connection.insert("YellowPage", params);
     }
-    
- public void deleteSubject(int id) {
+
+    public void deleteSubject(int id) {
         Map<String, String> params = new LinkedHashMap<>();
         params.put("deleted", String.valueOf(true));
         connection.update("YellowPage", params, "id=\"" + id + "\"");
-    }  
- 
- public ArrayList<YellowPage> findByTypeService(String TypeService) {
+    }
+
+    public YellowPage findByNameAndType(String name, String typeServiceId) {
+        String query = "SELECT * FROM YellowPage "
+                + "WHERE name=\"" + name + "\" and typeServiceId=\"" + typeServiceId + "\"";
+        return executeQuery(query);
+    }
+
+    public ArrayList<YellowPage> findByTypeService(String TypeService) {
         String query = "SELECT * FROM YellowPage INNER JOIN TypeService on TypeService.id= YellowPage.typeServiceId  "
                 + "WHERE TypeService.name=\"" + TypeService + "\"";
         return executeQueryList(query);
     }
-  private YellowPage executeQuery(String query) {
+
+    private YellowPage executeQuery(String query) {
         try {
             JSONArray resul = connection.select(query);
             YellowPage yellowPage = null;
@@ -68,18 +75,19 @@ public class DAOYellowPage {
                                 break;
                             case "typeServiceId":
                                 yellowPage.setTypeServiceId(reg.get(j).toString());
-                             
+
                         }
                     }
                     return yellowPage;
                 }
-            }            
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return null;
     }
-  private ArrayList<YellowPage> executeQueryList(String query) {
+
+    private ArrayList<YellowPage> executeQueryList(String query) {
         try {
             ArrayList<YellowPage> yellosPages = new ArrayList<>();
             JSONArray resul = connection.select(query);
@@ -103,7 +111,7 @@ public class DAOYellowPage {
                                 break;
                             case "typeServiceId":
                                 yellowPage.setTypeServiceId(reg.get(j).toString());
-                             
+
                         }
                     }
                     yellosPages.add(yellowPage);

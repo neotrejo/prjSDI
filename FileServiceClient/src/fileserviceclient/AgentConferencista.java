@@ -7,6 +7,7 @@ package fileserviceclient;
 
 import core.controller.MainController;
 import core.data.User;
+import core.data.YellowPage;
 import core.db.rqlite.RQLiteConnection;
 import core.fileserver.FileServer;
 import core.fileserver.Host;
@@ -31,7 +32,7 @@ public class AgentConferencista extends javax.swing.JFrame {
         try {
             RQLiteConnection.getInstance().conectar();
             initComponents();
-            initComunication();
+            setupAgent();
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(AgentConferencista.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -48,27 +49,35 @@ public class AgentConferencista extends javax.swing.JFrame {
             System.out.println(username);
             return username;
 
-        } catch (Exception ex) {            
+        } catch (Exception ex) {
             Logger.getLogger(AgentConferencista.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return null;
     }
 
-    public void initComunication() {
+    public void setupAgent() {
+        YellowPage yPage;
         String username;
         User user;
         EventQueueNotificationServer nserver;
         try {
             username = readUsername();
+            
             user = MainController.existUserName(username);
+            yPage = MainController.existsServiceYP(username, YellowPage.CONFERENCISTA);            
+            if (yPage == null) {
+                MainController.addServicesYP(user.getLocation(), username, YellowPage.CONFERENCISTA); // ip,nombre,tipo de servicio
+            }
+            
             EventQueueServer server = new EventQueueServer(this.txtA_msg);
-            if(user!= null && isInteger(user.getPort())){
-                 nserver = new EventQueueNotificationServer(Integer.parseInt(user.getPort()), this.txtA_msg);
-            }else{
-                 nserver = new EventQueueNotificationServer(10002, this.txtA_msg);
+            if (user != null && isInteger(user.getPort())) {
+                nserver = new EventQueueNotificationServer(Integer.parseInt(user.getPort()), this.txtA_msg);
+            } else {
+                nserver = new EventQueueNotificationServer(10002, this.txtA_msg);
             }
             FileServer fileServer = new FileServer(this.txtA_msg);
+            
             nserver.start();
             server.start();
             fileServer.start();
@@ -77,7 +86,7 @@ public class AgentConferencista extends javax.swing.JFrame {
             System.out.println(ex.getLocalizedMessage());
         }
     }
-    
+
     private boolean isInteger(String input) {
         try {
             Integer.parseInt(input);

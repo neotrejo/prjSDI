@@ -113,7 +113,7 @@ public class DAOUser {
                                 user.setPort(reg.get(j).toString());
                                 break;
                             case "location":
-                                user.setPort(reg.get(j).toString());
+                                user.setLocation(reg.get(j).toString());
                                 break;
                         }
                     }
@@ -163,7 +163,7 @@ public class DAOUser {
                                 user.setPort(reg.get(j).toString());
                                 break;
                         case "location":
-                                user.setPort(reg.get(j).toString());
+                                user.setLocation(reg.get(j).toString());
                                 break;
                     }
                 }
