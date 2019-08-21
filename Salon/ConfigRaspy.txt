@@ -1,3 +1,8 @@
+Gabriela
+PPT_CMD = libreoffice --show
+PDF_CMD = qpdfview
+
+
 PATH = C:\Users\Diana\Desktop\PreDisMat\Clases
 HOST1 = 10.0.5.182
 PPT_CMD = libreoffice --show

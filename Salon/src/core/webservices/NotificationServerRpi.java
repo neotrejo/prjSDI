@@ -21,7 +21,7 @@ public class NotificationServerRpi extends Thread {
 
     private Socket socket;
     private String path = QueueConfig.SHARED_FOLDER;
-//    private ActiveSession activeSession;
+
 
     public NotificationServerRpi() {
         createServer();

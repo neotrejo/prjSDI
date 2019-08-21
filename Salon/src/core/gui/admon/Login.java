@@ -7,6 +7,7 @@ package core.gui.admon;
 
 import core.controller.MainController;
 import core.crypt.CryptCipher;
+import core.data.Classroom;
 import core.data.User;
 import core.db.rqlite.RQLiteConnection;
 import java.beans.PropertyVetoException;
@@ -36,6 +37,7 @@ public class Login extends javax.swing.JFrame {
      */
     private User user;
     private static String pathRaspy;
+    private Classroom classroom;
 
     public Login() {
         try {
@@ -65,9 +67,9 @@ public class Login extends javax.swing.JFrame {
         loginBtn.getActionMap().put("myAction", action);
         loginBtn.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put((KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "myAction");
     }
-    
-    private void onClickLogin(){
-         String passCryp = "";
+
+    private void onClickLogin() {
+        String passCryp = "";
         if (!usuarioTF.getText().isEmpty() && contraseñaPF.getPassword().length != 0) {
             try {
                 passCryp = CryptCipher.encrypt(contraseñaPF.getText());
@@ -76,10 +78,10 @@ public class Login extends javax.swing.JFrame {
             }
             user = MainController.existUser(usuarioTF.getText(), passCryp);
             if (user != null) {
+                readConfig();
                 this.setVisible(false);
-
                 try {
-                    ClassroomInter.getInstance(user, pathRaspy).setVisible(true);
+                    ClassroomInter.getInstance(user, classroom).setVisible(true);
                 } catch (PropertyVetoException ex) {
                     Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -144,7 +146,7 @@ public class Login extends javax.swing.JFrame {
         topJPLayout.setVerticalGroup(
             topJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, topJPLayout.createSequentialGroup()
-                .addContainerGap(14, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(altaCtaTF)
                 .addContainerGap())
         );
@@ -181,7 +183,6 @@ public class Login extends javax.swing.JFrame {
 
         bottomJP.setPreferredSize(new java.awt.Dimension(517, 80));
 
-        loginBtn.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
         loginBtn.setText("Entrar");
         loginBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -253,7 +254,7 @@ public class Login extends javax.swing.JFrame {
 
     private void loginBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBtnActionPerformed
         // TODO add your handling code here:
-       onClickLogin();
+        onClickLogin();
     }//GEN-LAST:event_loginBtnActionPerformed
 
     private void altaCtaTFMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_altaCtaTFMouseClicked
@@ -300,29 +301,31 @@ public class Login extends javax.swing.JFrame {
             }
         });
     }
-    
-        public static String[] readConfig(){
+
+    public  void readConfig() {
+        String hostname;
         try {
             BufferedReader br = new BufferedReader(new FileReader("ConfigRaspy.txt"));
-            
-            pathRaspy = br.readLine().split("=")[1].trim();
-            String host = br.readLine().split("=")[1].trim();
+            hostname = br.readLine().split("\\s+")[0].trim();
+            classroom = MainController.existClassroomHostName(hostname);
+//            pathRaspy = classroom.getRootFolder();
+//            String host = br.readLine().split("=")[1].trim();
             String pptApp = br.readLine().split("=")[1].trim();
             String pdfApp = br.readLine().split("=")[1].trim();
-            
+
             OpenFileService.pdfApp = pdfApp;
             OpenFileService.pptApp = pptApp;
-            
-            System.out.println(pathRaspy);
-            System.out.println(host);
-            
-            return new String[]{pathRaspy,host};
-            
+
+//            System.out.println(pathRaspy);
+//            System.out.println(host);
+
+           //return new String[]{pathRaspy, host};
+
         } catch (Exception ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        return null;
+
+        //return null;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

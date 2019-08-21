@@ -19,12 +19,13 @@ public class User {
     private String sharedfolder;
     private String port;
     private String location;
+    private String tagId;
     
     public User(){
         
     }
 
-    public User(String id, String name, String username, String password, String email, String hostcomputer, String sharedfolder, String port, String location) {
+    public User(String id, String name, String username, String password, String email, String hostcomputer, String sharedfolder, String port, String location, String tagId) {
         this.id = id;
         this.name = name;
         this.username = username;
@@ -34,6 +35,7 @@ public class User {
         this.sharedfolder = sharedfolder;
         this.port = port;
         this.location = location;
+        this.tagId = tagId;
     }
 
     public String getId() {
@@ -106,6 +108,14 @@ public class User {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getTagId() {
+        return tagId;
+    }
+
+    public void setTagId(String tagId) {
+        this.tagId = tagId;
     }
     
     

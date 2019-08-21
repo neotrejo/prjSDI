@@ -24,14 +24,14 @@ public class DAOClassroom {
         connection = RQLiteConnection.getInstance();
     }
 
-    public void insertClassroom(String name, String location, String hostname, String rootFolder) {
+    public void insertClassroom(String name, String location, String hostname, String rootFolder, String port) {
 
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
         params.put("location", location);
         params.put("hostname", hostname);
         params.put("rootFolder", rootFolder);
-
+        params.put("port", port);
         connection.insert("Classroom", params);
     }
 
@@ -63,6 +63,9 @@ public class DAOClassroom {
                                 break;
                             case "rootFolder":
                                 classroom.setRootFolder(reg.get(j).toString());
+                                break;
+                            case "port":
+                                classroom.setPort(reg.get(j).toString());
                                 break;
                         }                        
                     }
@@ -117,6 +120,9 @@ public class DAOClassroom {
                                 break;
                             case "rootFolder":
                                 classroom.setRootFolder(reg.get(j).toString());
+                                break;
+                            case "port":
+                                classroom.setPort(reg.get(j).toString());
                                 break;
                         }                       
                     }

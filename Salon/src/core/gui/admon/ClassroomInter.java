@@ -6,6 +6,7 @@
 package core.gui.admon;
 
 import core.controller.MainController;
+import core.data.Classroom;
 import core.data.Session;
 import core.data.User;
 import core.utils.FileTreeModel;
@@ -31,21 +32,23 @@ public class ClassroomInter extends javax.swing.JFrame {
     private static ClassroomInter instance;
     private User user = new User();
     private String path;
+    private Classroom classroom;
 
     /**
      * Creates new form Classroom
      */
-    public ClassroomInter(User user, String pathRaspy) throws PropertyVetoException {
+    public ClassroomInter(User user, Classroom classroom) throws PropertyVetoException {
         File root;
+        this.classroom = classroom;
         initComponents();
         jMenuBar1.add(Box.createHorizontalGlue());
         jMenuBar1.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         this.user = user;
         panelTab.setTitleAt(0, "Archivos");
         menuUser.setText(user == null ? "" : user.getName() + "  ");  
-        FileUtils.createPath(pathRaspy+"/"+user.getUsername());
-        path = pathRaspy+"/"+user.getUsername();
-        root = new File(pathRaspy+"/"+user.getUsername());
+        FileUtils.createPath(this.classroom.getLocation()+"/"+user.getUsername());
+        path = this.classroom+"/"+user.getUsername();
+        root = new File(this.classroom+"/"+user.getUsername());
         // Create a TreeModel object to represent our tree of files
         FileTreeModel model = new FileTreeModel(root);
         treeDirectory.setModel(model);
@@ -80,9 +83,9 @@ public class ClassroomInter extends javax.swing.JFrame {
         }
     }
 
-    public static ClassroomInter getInstance(User user, String pathRaspy) throws PropertyVetoException {
+    public static ClassroomInter getInstance(User user, Classroom classroom) throws PropertyVetoException {
         if (instance == null) {
-            instance = new ClassroomInter(user, pathRaspy);
+            instance = new ClassroomInter(user, classroom);
         }
         return instance;
     }

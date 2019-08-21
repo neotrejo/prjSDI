@@ -96,7 +96,7 @@ public class AltaCuenta extends javax.swing.JFrame {
                                         }
                                         user = MainController.addUser(nombreTF.getText(),usuarioTF.getText(),
                                                 passCryp, correoTF.getText(),hostnameTF.getText(),
-                                                sharedfolderTF.getText(), portTF.getText(),host.getHostAddress());                                        
+                                                sharedfolderTF.getText(), portTF.getText(),host.getHostAddress(),"");                                        
                                         user = MainController.existUserName(usuarioTF.getText());
                                         this.setVisible(false);
                                         try {
