@@ -47,8 +47,8 @@ public class MainController {
     public static User addUser(String name, String username, String pass,
             String email,
             String hostcomputer,
-            String sharedfolder, String port, String location) {
-        daoUser.insertUser(name, username, pass, email, hostcomputer, sharedfolder, port, location);
+            String sharedfolder, String port, String location, String tagId) {
+        daoUser.insertUser(name, username, pass, email, hostcomputer, sharedfolder, port, location, tagId);
 
         User user = new User();
         user.setName(name);
@@ -58,6 +58,7 @@ public class MainController {
         user.setHostcomputer(hostcomputer);
         user.setSharedfolder(sharedfolder);
         user.setPort(port);
+        user.setTagId(tagId);
         return user;
     }
 

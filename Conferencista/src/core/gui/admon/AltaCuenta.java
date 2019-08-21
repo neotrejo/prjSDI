@@ -100,7 +100,7 @@ public class AltaCuenta extends javax.swing.JFrame {
                                         }
                                         user = MainController.addUser(nombreTF.getText(), usuarioTF.getText(),
                                                 passCryp, correoTF.getText(), hostnameTF.getText(),
-                                                sharedfolderTF.getText(), portTF.getText(), host.getHostAddress());
+                                                sharedfolderTF.getText(), portTF.getText(), host.getHostAddress(),"");
                                         user = MainController.existUserName(usuarioTF.getText());
                                         String basePath = System.getProperty("user.dir"); //crear archivo de configuración para el servicio de agentes
                                         CheckFile cfile = new CheckFile(basePath + "/user.txt");

@@ -28,8 +28,7 @@ public class DAOUser {
     }
 
     public void insertUser(String name, String username, String password,
-            String email, String hostcomputer, String sharedfolder, String port,String location ) {
-        
+            String email, String hostcomputer, String sharedfolder, String port, String location, String tagId) {
 
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
@@ -40,6 +39,7 @@ public class DAOUser {
         params.put("sharedFolder", sharedfolder);
         params.put("port", port);
         params.put("location", location);
+        params.put("tagId", tagId);
         connection.insert("User", params);
 
     }
@@ -115,6 +115,9 @@ public class DAOUser {
                             case "location":
                                 user.setLocation(reg.get(j).toString());
                                 break;
+                            case "tagId":
+                                user.setTagId(reg.get(j).toString());
+                                break;
                         }
                     }
                     return user;
@@ -160,11 +163,14 @@ public class DAOUser {
                             user.setSharedfolder(reg.get(j).toString());
                             break;
                         case "port":
-                                user.setPort(reg.get(j).toString());
-                                break;
+                            user.setPort(reg.get(j).toString());
+                            break;
                         case "location":
-                                user.setLocation(reg.get(j).toString());
-                                break;
+                            user.setLocation(reg.get(j).toString());
+                            break;
+                        case "tagId":
+                            user.setTagId(reg.get(j).toString());
+                            break;
                     }
                 }
                 usersList.add(user);
