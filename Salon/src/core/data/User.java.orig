@@ -17,14 +17,12 @@ public class User {
     private String email;
     private String hostcomputer;
     private String sharedfolder;
-    private String port;
-    private String location;
     
     public User(){
         
     }
 
-    public User(String id, String name, String username, String password, String email, String hostcomputer, String sharedfolder, String port, String location) {
+    public User(String id, String name, String username, String password, String email, String hostcomputer, String sharedfolder) {
         this.id = id;
         this.name = name;
         this.username = username;
@@ -32,9 +30,8 @@ public class User {
         this.email = email;
         this.hostcomputer = hostcomputer;
         this.sharedfolder = sharedfolder;
-        this.port = port;
-        this.location = location;
     }
+    
 
     public String getId() {
         return id;
@@ -43,8 +40,8 @@ public class User {
     public void setId(String id) {
         this.id = id;
     }
-
-    public String getName() {
+    
+      public String getName() {
         return name;
     }
 
@@ -52,11 +49,11 @@ public class User {
         this.name = name;
     }
 
-    public String getUsername() {
+    public String getUserName() {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUserName(String username) {
         this.username = username;
     }
 
@@ -66,49 +63,29 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getEmail() {
+    }  
+    
+     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getHostcomputer() {
+    }   
+    
+    public String getHostComputer() {
         return hostcomputer;
     }
 
-    public void setHostcomputer(String hostcomputer) {
+    public void setHostComputer(String hostcomputer) {
         this.hostcomputer = hostcomputer;
     }
-
-    public String getSharedfolder() {
+    
+    public String getSharedFolder() {
         return sharedfolder;
     }
 
-    public void setSharedfolder(String sharedfolder) {
+    public void setSharedFolder(String sharedfolder) {
         this.sharedfolder = sharedfolder;
     }
-
-    public String getPort() {
-        return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-    
-    
-
-   
 }

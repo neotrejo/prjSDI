@@ -27,6 +27,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -115,7 +117,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         datePicker.getJCalendar().setMinSelectableDate(new Date());
 
         //---------filechooser----------------------//
-        fileChooserSub = new JFileChooser(user.getSharedFolder());
+        fileChooserSub = new JFileChooser(user.getSharedfolder());
         fileChooserSub.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooserSub.setAcceptAllFileFilterUsed(false);
 
@@ -125,7 +127,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         fileChooserSes.addChoosableFileFilter(new FileNameExtensionFilter("MS Office", "docx", "pptx"));
         fileChooserSes.setAcceptAllFileFilterUsed(false);
 
-        fileChooserUser = new JFileChooser(user.getSharedFolder());
+        fileChooserUser = new JFileChooser(user.getSharedfolder());
         fileChooserUser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooserUser.setAcceptAllFileFilterUsed(false);
 
@@ -723,10 +725,10 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         subjectsCB.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
         subjectsCB.setPreferredSize(new java.awt.Dimension(32, 26));
         subjectsCB.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
             public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
                 subjectsCBInputMethodTextChanged(evt);
-            }
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
             }
         });
         subjectsCB.addActionListener(new java.awt.event.ActionListener() {
@@ -1243,7 +1245,7 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                     fileData.put("subjectName", course.getName());
                     fileData.put("fileName", fileChooserSes.getSelectedFile().getName());
                     fileData.put("pathFile", fileChooserSes.getSelectedFile().toString());
-                    fileData.put("userName", user.getUserName());
+                    fileData.put("userName", user.getUsername());
                     //
 
                     if (actionAdd) {
@@ -1466,13 +1468,19 @@ public class ExploradorGlobal extends javax.swing.JFrame {
 
     private void modifyAccountBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modifyAccountBtnActionPerformed
         // TODO add your handling code here:
+        InetAddress host = null;
         if (!nameUserTextF.getText().isEmpty()) {
             if (!passwordUserTextF.getText().isEmpty()) {
                 if (!emailTextF.getText().isEmpty()) {
                     if (!hostnameTextF.getText().isEmpty()) {
                         if (!sharedfolderUserTextF.getText().isEmpty()) {
                             try {
-                                MainController.updateUser(user.getId(), nameUserTextF.getText(), CryptCipher.encrypt(passwordUserTextF.getText()), emailTextF.getText(), hostnameTextF.getText(), sharedfolderUserTextF.getText());
+                                try {
+                                    host = InetAddress.getByName(hostnameTextF.getText());
+                                } catch (UnknownHostException ex) {
+                                    Logger.getLogger(ExploradorGlobal.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                MainController.updateUser(user.getId(), nameUserTextF.getText(), CryptCipher.encrypt(passwordUserTextF.getText()), emailTextF.getText(), hostnameTextF.getText(), sharedfolderUserTextF.getText(),  "",host.getHostAddress());
                                 accountIFrame.doDefaultCloseAction();
                                 tabPanel.setEnabledAt(tabPanUser, false);
                                 tabPanel.setSelectedIndex(0);
@@ -1535,11 +1543,11 @@ public class ExploradorGlobal extends javax.swing.JFrame {
         try {
             nameUserTextF.setText(user.getName());
             usernameTextF.setEnabled(false);
-            usernameTextF.setText(user.getUserName());
+            usernameTextF.setText(user.getUsername());
             passwordUserTextF.setText(CryptCipher.decrypt(user.getPassword()));
             emailTextF.setText(user.getEmail());
-            hostnameTextF.setText(user.getHostComputer());
-            sharedfolderUserTextF.setText(user.getSharedFolder());
+            hostnameTextF.setText(user.getHostcomputer());
+            sharedfolderUserTextF.setText(user.getSharedfolder());
             if (MainController.getSubjectsUser(user.getId()).size() > 0) {
                 sharedfolderUserTextF.enable(false);
                 fileChooserUser.setControlButtonsAreShown(false);

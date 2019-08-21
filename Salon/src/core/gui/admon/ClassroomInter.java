@@ -43,9 +43,9 @@ public class ClassroomInter extends javax.swing.JFrame {
         this.user = user;
         panelTab.setTitleAt(0, "Archivos");
         menuUser.setText(user == null ? "" : user.getName() + "  ");  
-        FileUtils.createPath(pathRaspy+"/"+user.getUserName());
-        path = pathRaspy+"/"+user.getUserName();
-        root = new File(pathRaspy+"/"+user.getUserName());
+        FileUtils.createPath(pathRaspy+"/"+user.getUsername());
+        path = pathRaspy+"/"+user.getUsername();
+        root = new File(pathRaspy+"/"+user.getUsername());
         // Create a TreeModel object to represent our tree of files
         FileTreeModel model = new FileTreeModel(root);
         treeDirectory.setModel(model);

@@ -5,8 +5,7 @@
  */
 package core.webservices;
 
-import core.data.ActiveSession;
-import core.db.dao.DAOActiveSession;
+
 import core.db.sqlite.SQLiteConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -22,7 +21,7 @@ public class NotificationServerRpi extends Thread {
 
     private Socket socket;
     private String path = QueueConfig.SHARED_FOLDER;
-    private ActiveSession activeSession;
+//    private ActiveSession activeSession;
 
     public NotificationServerRpi() {
         createServer();
@@ -78,29 +77,29 @@ public class NotificationServerRpi extends Thread {
                     System.out.println(fileName);
                     System.out.println(filePath);
                     
-                    DAOActiveSession daoAS = new DAOActiveSession();
-                    
-                     switch(event){
-                        case "add":
-                            FileUtils.createPath(path+userID+"/"+subjectName);
-                            daoAS.insertSession(sessionID, userID, date, startTime, subjectName, fileName, path+userID+"/"+subjectName+"/"+fileName);
-                            new RequestFile(filePath,path+userID+"/"+subjectName+"/"+fileName).start();
-                            break;
-                        case "update":
-                            activeSession = daoAS.findBySession(sessionID, userID);
-                            if(activeSession!=null){
-                                daoAS.updateActiveSession(activeSession.getId(),sessionID, userID, date, startTime, subjectName, fileName, path+userID+"/"+subjectName+"/"+fileName);
-                                new RequestFile(filePath,path+userID+"/"+subjectName+"/"+fileName).start();
-                            }
-                            break;
-                        case "delete":
-                            activeSession = daoAS.findBySession(sessionID, userID);
-                            if(activeSession!=null){
-                                daoAS.deleteActiveSession(activeSession.getId());
-                            }
-                            break;
-                        default:                           
-                    }
+//                    DAOActiveSession daoAS = new DAOActiveSession();
+//                    
+//                     switch(event){
+//                        case "add":
+//                            FileUtils.createPath(path+userID+"/"+subjectName);
+//                            daoAS.insertSession(sessionID, userID, date, startTime, subjectName, fileName, path+userID+"/"+subjectName+"/"+fileName);
+//                            new RequestFile(filePath,path+userID+"/"+subjectName+"/"+fileName).start();
+//                            break;
+//                        case "update":
+//                            activeSession = daoAS.findBySession(sessionID, userID);
+//                            if(activeSession!=null){
+//                                daoAS.updateActiveSession(activeSession.getId(),sessionID, userID, date, startTime, subjectName, fileName, path+userID+"/"+subjectName+"/"+fileName);
+//                                new RequestFile(filePath,path+userID+"/"+subjectName+"/"+fileName).start();
+//                            }
+//                            break;
+//                        case "delete":
+//                            activeSession = daoAS.findBySession(sessionID, userID);
+//                            if(activeSession!=null){
+//                                daoAS.deleteActiveSession(activeSession.getId());
+//                            }
+//                            break;
+//                        default:                           
+//                    }
                 }
             }
 
