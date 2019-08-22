@@ -15,7 +15,7 @@ import java.beans.PropertyVetoException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import core.db.sqlite.SQLiteConnection;
+import core.utils.CheckFile;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -63,9 +63,9 @@ public class Login extends javax.swing.JFrame {
         loginBtn.getActionMap().put("myAction", action);
         loginBtn.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put((KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "myAction");
     }
-    
-    private void onClickLogin(){
-         String passCryp = "";
+
+    private void onClickLogin() {
+        String passCryp = "";
         if (!usuarioTF.getText().isEmpty() && contraseñaPF.getPassword().length != 0) {
             try {
                 passCryp = CryptCipher.encrypt(contraseñaPF.getText());
@@ -74,6 +74,11 @@ public class Login extends javax.swing.JFrame {
             }
             user = MainController.existUser(usuarioTF.getText(), passCryp);
             if (user != null) {
+                String basePath = System.getProperty("user.dir");
+                CheckFile cfile = new CheckFile(basePath + "/Config.txt"); //crear archivo de configuración para el servicio de agentes
+                if (!cfile.existsFile()) {
+                    cfile.addLine("AUDIENCIA \n"+user.getUsername());
+                }
                 this.setVisible(false);
 
                 try {
@@ -251,7 +256,7 @@ public class Login extends javax.swing.JFrame {
 
     private void loginBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBtnActionPerformed
         // TODO add your handling code here:
-       onClickLogin();
+        onClickLogin();
     }//GEN-LAST:event_loginBtnActionPerformed
 
     private void altaCtaTFMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_altaCtaTFMouseClicked

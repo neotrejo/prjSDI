@@ -9,6 +9,7 @@ import core.controller.MainController;
 import core.crypt.CryptCipher;
 import core.data.User;
 import core.main.ExploradorGlobal;
+import core.utils.CheckFile;
 import core.utils.GenericUtils;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -97,15 +98,23 @@ public class AltaCuenta extends javax.swing.JFrame {
                                                 passCryp, correoTF.getText(), hostnameTF.getText(),
                                                 sharedfolderTF.getText(), portTF.getText(), host.getHostAddress());
                                         user = MainController.existUserName(usuarioTF.getText());
-                                        this.setVisible(false);
-                                        try {
-                                            ExploradorGlobal.getInstance(user).setVisible(true);
-                                        } catch (PropertyVetoException ex) {
-                                            Logger.getLogger(AltaCuenta.class.getName()).log(Level.SEVERE, null, ex);
+                                        if (user != null) {
+                                            String basePath = System.getProperty("user.dir");
+                                            CheckFile cfile = new CheckFile(basePath + "/Config.txt"); //crear archivo de configuración para el servicio de agentes
+                                            if (!cfile.existsFile()) {
+                                                cfile.addLine("AUDIENCIA \n"+user.getUsername());
+                                            }
+                                            this.setVisible(false);
+                                            try {
+                                                ExploradorGlobal.getInstance(user).setVisible(true);
+                                            } catch (PropertyVetoException ex) {
+                                                Logger.getLogger(AltaCuenta.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
                                         }
                                     } else {
                                         logL.setText("Usuario ya existe");
                                     }
+
                                 } catch (NoSuchPaddingException ex) {
                                     Logger.getLogger(AltaCuenta.class.getName()).log(Level.SEVERE, null, ex);
                                 } catch (NoSuchAlgorithmException ex) {
