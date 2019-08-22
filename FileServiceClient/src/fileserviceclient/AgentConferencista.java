@@ -6,16 +6,13 @@
 package fileserviceclient;
 
 import core.controller.MainController;
-import core.data.User;
-import core.data.YellowPage;
+import core.data.ModelAgent;
 import core.db.rqlite.RQLiteConnection;
 import core.fileserver.FileServer;
-import core.fileserver.Host;
-import core.queue.EventQueueNotificationServer;
 import core.queue.EventQueueServer;
+import core.server.ActionServer;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +25,9 @@ public class AgentConferencista extends javax.swing.JFrame {
     /**
      * Creates new form AgentConferencista
      */
+    private String agentType;
+    private String agentname;
+
     public AgentConferencista() {
         try {
             RQLiteConnection.getInstance().conectar();
@@ -39,49 +39,48 @@ public class AgentConferencista extends javax.swing.JFrame {
 
     }
 
-    public String readUsername() {
-        String line;
-        ArrayList<Host> hosts = new ArrayList<>();
-        String username;
+    public Boolean readUsername() {
+
         try {
-            BufferedReader br = new BufferedReader(new FileReader("user.txt"));
-            username = br.readLine().split("\\s+")[0].trim();
-            System.out.println(username);
-            return username;
+            BufferedReader br = new BufferedReader(new FileReader("Config1.txt"));  // 
+            //tipo de agente (CONFERENCISTA | AUDIENCIA | SALON)
+            this.agentType = br.readLine().split("\\s+")[0].trim();
+            // agentname o hostname(classroom)          
+            this.agentname = br.readLine().split("\\s+")[0].trim();
+            System.out.println(agentname);
 
         } catch (Exception ex) {
             Logger.getLogger(AgentConferencista.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
-
-        return null;
+        return true;
     }
 
     public void setupAgent() {
-        YellowPage yPage;
-        String username;
-        User user;
-        EventQueueNotificationServer nserver;
         try {
-            username = readUsername();
             
-            user = MainController.existUserName(username);
-            yPage = MainController.existsServiceYP(username, YellowPage.CONFERENCISTA);            
-            if (yPage == null) {
-                MainController.addServicesYP(user.getLocation(), username, YellowPage.CONFERENCISTA); // ip,nombre,tipo de servicio
-            }
-            
-            EventQueueServer server = new EventQueueServer(this.txtA_msg);
-            if (user != null && isInteger(user.getPort())) {
-                nserver = new EventQueueNotificationServer(Integer.parseInt(user.getPort()), this.txtA_msg);
-            } else {
-                nserver = new EventQueueNotificationServer(10002, this.txtA_msg);
-            }
-            FileServer fileServer = new FileServer(this.txtA_msg);
-            
-            nserver.start();
-            server.start();
-            fileServer.start();
+            if (readUsername()) {
+                this.setTitle(agentType);
+                ModelAgent agent = new ModelAgent();
+                agent.setConfigAgent(agentType, agentname);              
+                if (agent.getyPage() == null) {
+                    MainController.addServicesYP(agent.getIp(), agentname, agent.getType(), agent.getPort()); // ip,nombre,tipo de servicio, port
+                }
 
+                EventQueueServer server = new EventQueueServer(this.txtA_msg,agent,10009);
+                ActionServer actionServer = new ActionServer(this.txtA_msg,agent,Integer.parseInt(agent.getPort()));
+
+//            if (user != null && isInteger(user.getPort())) {
+//                nserver = new EventQueueNotificationServer(Integer.parseInt(user.getPort()), this.txtA_msg);
+//            } else {
+//                nserver = new EventQueueNotificationServer(10002, this.txtA_msg);
+//            }
+                FileServer fileServer = new FileServer(this.txtA_msg, 5002,agent );
+
+                //server.start();
+                actionServer.start();
+                fileServer.start();
+            }
         } catch (Exception ex) {
             System.out.println(ex.getLocalizedMessage());
         }

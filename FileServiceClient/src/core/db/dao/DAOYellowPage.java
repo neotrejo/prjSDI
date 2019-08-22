@@ -24,12 +24,13 @@ public class DAOYellowPage {
         connection = RQLiteConnection.getInstance();
     }
 
-    public void insertYellowPage(String name, String hostname, String typeService) {
+    public void insertYellowPage(String name, String hostname, String typeService,String port) {
 
         Map<String, String> params = new LinkedHashMap<>();
         params.put("name", name);
         params.put("hostname", hostname);
         params.put("typeServiceId", typeService);
+        params.put("port", port);
 
         connection.insert("YellowPage", params);
     }
@@ -46,9 +47,15 @@ public class DAOYellowPage {
         return executeQuery(query);
     }
 
-    public ArrayList<YellowPage> findByTypeService(String TypeService) {
+    public YellowPage findByHostname(String hostname, String typeService) {
         String query = "SELECT * FROM YellowPage INNER JOIN TypeService on TypeService.id= YellowPage.typeServiceId  "
-                + "WHERE TypeService.name=\"" + TypeService + "\"";
+                + "WHERE YellowPage.hostname=\"" + hostname + "\" and typeServiceId=\"" + typeService + "\"";
+        return executeQuery(query);
+    }
+    
+    public ArrayList<YellowPage> getAllButNot(String TypeService) {
+        String query = "SELECT * FROM YellowPage INNER JOIN TypeService on TypeService.id= YellowPage.typeServiceId  "
+                + "WHERE YellowPage.typeServiceId!=\"" + TypeService + "\"";
         return executeQueryList(query);
     }
 
@@ -75,6 +82,10 @@ public class DAOYellowPage {
                                 break;
                             case "typeServiceId":
                                 yellowPage.setTypeServiceId(reg.get(j).toString());
+                                break;
+                            case "port":
+                                yellowPage.setPort(reg.get(j).toString());
+                                break;
 
                         }
                     }
@@ -111,6 +122,10 @@ public class DAOYellowPage {
                                 break;
                             case "typeServiceId":
                                 yellowPage.setTypeServiceId(reg.get(j).toString());
+                                break;
+                            case "port":
+                                yellowPage.setPort(reg.get(j).toString());
+                                break;
 
                         }
                     }

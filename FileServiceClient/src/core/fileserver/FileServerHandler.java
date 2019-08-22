@@ -5,13 +5,15 @@
  */
 package core.fileserver;
 
+import core.controller.MainController;
 import core.data.MessageACL;
-import core.queue.QueueConfig;
-import core.queue.QueueEventWriter;
+import core.data.ModelAgent;
+import core.data.YellowPage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.util.Observable;
@@ -30,12 +32,38 @@ public class FileServerHandler extends Thread implements Observer {
 
     private Socket socket;
     private JTextArea txtArea;
+    private ModelAgent agent;
 
-    public FileServerHandler(Socket socket, JTextArea txtArea) {
+    public FileServerHandler(Socket socket, JTextArea txtArea, ModelAgent agent) {
         this.txtArea = txtArea;
         this.socket = socket;
-
+        this.agent = agent;
         this.start();
+    }
+    public void sendMessage(String ip, int port, String message) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // TODO code application logic here
+                    Socket sender = new Socket(ip, port);
+                    OutputStream os = sender.getOutputStream();
+                    PrintWriter pw = new PrintWriter(os);
+
+                    pw.println(message);
+                    pw.flush();
+
+                    os.close();
+                    pw.close();
+                    sender.close();
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }).start();
+
     }
 
     @Override
@@ -83,9 +111,10 @@ public class FileServerHandler extends Thread implements Observer {
                         msgSend.setSender(msgRec.getReceiver());
                         msgSend.setReceiver(msgRec.getSender());
                         msgSend.setPerformative(msgSend.AGREE);
-
-                        new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(msgSend.toJSONString());
-
+                        msgSend.setOntology("-");
+                        msgSend.setTypeSender(agent.getType());                        
+                         YellowPage yp = MainController.getYPByIP(msgRec.getSender(), msgRec.getTypeSender());
+                         sendMessage(msgSend.getReceiver(), Integer.parseInt(yp.getPort()), msgSend.toJSONString());
                         break;
                     case "REFUSE":
                         break;

@@ -5,6 +5,7 @@
  */
 package core.fileserver;
 
+import core.data.ModelAgent;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,20 +21,22 @@ public class FileServer extends Thread{
     
     private ServerSocket listener;
     private JTextArea txtArea;
+    private ModelAgent agent;
     
-    public FileServer(JTextArea txt){
+    public FileServer(JTextArea txt, int port, ModelAgent agent){
         this.txtArea = txt;
-        createServer();
+        this.agent= agent;
+        createServer(port);
     }
-    public FileServer(){
+    public FileServer(int port){
        
-        createServer();
+        createServer(port);
     }
     
-    private void createServer(){
+    private void createServer(int port){
         try {
            
-            listener = new ServerSocket(5002);
+            listener = new ServerSocket(port);
         } catch (IOException ex) {
             Logger.getLogger(FileServer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -49,7 +52,7 @@ public class FileServer extends Thread{
                 
                 Socket socket = listener.accept();  
                 
-                FileServerHandler singleClient = new FileServerHandler(socket, txtArea);    
+                FileServerHandler singleClient = new FileServerHandler(socket, txtArea, agent);    
                 
             }
             

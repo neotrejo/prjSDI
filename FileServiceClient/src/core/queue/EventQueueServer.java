@@ -5,6 +5,7 @@
  */
 package core.queue;
 
+import core.data.ModelAgent;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,19 +21,21 @@ public class EventQueueServer extends Thread {
 
     JTextArea txtA;
     private ServerSocket listener;
+    private ModelAgent agent;
 
-    public EventQueueServer(JTextArea txtA) {
+    public EventQueueServer(JTextArea txtA, ModelAgent agentType, int port) {
         this.txtA = txtA;
-        createServer();
+        this.agent = agentType;
+        createServer(port);
     }
 
-    public EventQueueServer() {
-        createServer();
+    public EventQueueServer(int port) {
+        createServer(port);
     }
 
-    private void createServer() {
+    private void createServer(int port) {
         try {
-            listener = new ServerSocket(QueueConfig.SERVER_PORT);
+            listener = new ServerSocket(port);
         } catch (IOException ex) {
             Logger.getLogger(EventQueueServer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -53,7 +56,7 @@ public class EventQueueServer extends Thread {
 
                 Socket socket = listener.accept();
 
-                QueueEventReceiver singleClient = new QueueEventReceiver(socket, txtA);
+                QueueEventReceiver singleClient = new QueueEventReceiver(socket, txtA, agent);
 
             }
 

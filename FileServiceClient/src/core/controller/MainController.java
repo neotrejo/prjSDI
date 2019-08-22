@@ -209,12 +209,23 @@ public class MainController {
         daoSubscription.deleteSubscription(id);
     }
     
-    public static void addServicesYP(String hostname, String name, String typeServiceId){
-        daoYellowPage.insertYellowPage(name, hostname, typeServiceId);
+    public static Session getSessionByID(String id) {
+        return daoSession.getByIdSession(id);
+    }
+    
+    public static void addServicesYP(String hostname, String name, String typeServiceId, String port){
+        daoYellowPage.insertYellowPage(name, hostname, typeServiceId, port);
     }
     
     public static YellowPage existsServiceYP(String name, String typeServiceId){
         return daoYellowPage.findByNameAndType(name, typeServiceId);
+    }
+    public static ArrayList<YellowPage> getAllYellowPageButNot(String typeServiceId){
+        return daoYellowPage.getAllButNot(typeServiceId);
+    }
+    
+    public static YellowPage getYPByIP(String ip, String typeService){
+        return daoYellowPage.findByHostname(ip, typeService);
     }
 
     //-----------------------------------------------------------------------------------------
