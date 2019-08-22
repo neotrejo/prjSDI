@@ -11,19 +11,26 @@ package core.data;
  */
 public class YellowPage {
     private String id;
-    private String hostname;
+    private String hostname; // ip
     private String name;
     private String typeServiceId;
+    private String port;
+    
+    //tipos de servicios
+    public static final String CONFERENCISTA = "2";
+    public static final String AUDIENCIA = "1";
+    public static final String SALON = "3";
     
     public YellowPage(){
         
     }
 
-    public YellowPage(String id, String hostname, String name, String typeServiceId) {
+    public YellowPage(String id, String hostname, String name, String typeServiceId, String port) {
         this.id = id;
         this.hostname = hostname;
         this.name = name;
         this.typeServiceId = typeServiceId;
+        this.port = port;
     }
 
     public String getId() {
@@ -56,6 +63,14 @@ public class YellowPage {
 
     public void setTypeServiceId(String typeServiceId) {
         this.typeServiceId = typeServiceId;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
     }
     
     

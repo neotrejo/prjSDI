@@ -16,8 +16,6 @@ import org.json.simple.JSONObject;
  */
 public class MessageACL implements JSONAware {
     
-    
-    
     private String performative;    //Type of communicative acts 
     private String sender;          //Participant in communication 
     private String receiver;        //Participant in communication
@@ -31,8 +29,9 @@ public class MessageACL implements JSONAware {
     private String replyWith;       //Control of conversation
     private String inReplyTo;       //Control of conversation
     private String replyBy;         //Control of conversation
+    private String typeSender; 
     
-    // TYPES OF PERFORMATIVES    
+        // TYPES OF PERFORMATIVES    
     public final String REQUEST ="REQUEST";
     public final String INFORM ="INFORM";
     public final String INFORM_IF ="INFORM_IF";
@@ -43,7 +42,6 @@ public class MessageACL implements JSONAware {
     public final String ADD ="ADD";
     public final String UPDATE ="UPDATE";
     public final String DOWNLOAD ="DOWNLOAD";  
-    
     
     public MessageACL(JSONObject obj){
        
@@ -60,6 +58,7 @@ public class MessageACL implements JSONAware {
        this.setReplyTo((String) obj.get("replyTo"));
        this.setReplyWith((String) obj.get("replyWith"));
        this.setSender((String) obj.get("sender"));
+       this.setTypeSender((String) obj.get("typeSender"));
     }
 
     public MessageACL() {
@@ -76,6 +75,7 @@ public class MessageACL implements JSONAware {
         replyTo="";
         replyWith="";
         sender="";
+        typeSender="";
     }
     
     @Override
@@ -94,6 +94,7 @@ public class MessageACL implements JSONAware {
         msgACL.put("replyTo", getReplyTo());
         msgACL.put("replyWith", getReplyWith());
         msgACL.put("sender", getSender());
+        msgACL.put("typeSender", getTypeSender());
         return JSONObject.toJSONString(msgACL);
     }
 
@@ -199,6 +200,14 @@ public class MessageACL implements JSONAware {
 
     public void setReplyBy(String replyBy) {
         this.replyBy = replyBy;
+    }
+
+    public String getTypeSender() {
+        return typeSender;
+    }
+
+    public void setTypeSender(String typeSender) {
+        this.typeSender = typeSender;
     }
     
     

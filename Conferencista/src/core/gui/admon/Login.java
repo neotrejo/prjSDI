@@ -97,9 +97,9 @@ public class Login extends javax.swing.JFrame {
             user = MainController.existUser(usuarioTF.getText(), passCryp);
             if (user != null) {
                 String basePath = System.getProperty("user.dir");
-                CheckFile cfile = new CheckFile(basePath+"/user.txt"); //crear archivo de configuración para el servicio de agentes
+                CheckFile cfile = new CheckFile(basePath+"/Config.txt"); //crear archivo de configuración para el servicio de agentes
                 if(!cfile.existsFile()){
-                    cfile.addLine(user.getUsername());
+                    cfile.addLine("CONFERENCISTA\n"+user.getUsername());
                 }
                 //ToVerifyService();
            

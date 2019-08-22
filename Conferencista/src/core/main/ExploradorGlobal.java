@@ -16,6 +16,7 @@ import core.data.MessageACL;
 import core.data.Subscription;
 import core.data.Subscriptor;
 import core.data.User;
+import core.data.YellowPage;
 import core.queue.QueueConfig;
 import core.queue.QueueEventWriter;
 import core.utils.CheckFile;
@@ -1258,7 +1259,8 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                    //
                         msgACL.setContent(String.valueOf(session_id));
                         msgACL.setOntology(msgACL.ADD);
-                        new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(msgACL.toJSONString());
+                        msgACL.setTypeSender(YellowPage.CONFERENCISTA);
+                        new QueueEventWriter(QueueConfig.ADDRESS, Integer.parseInt(user.getPort())).writeToQueue(msgACL.toJSONString());
 //                        //
                         
                     } else { //UPDATE
@@ -1273,8 +1275,8 @@ public class ExploradorGlobal extends javax.swing.JFrame {
                         cont.put("size", cFile.getSize());
                         msgACL.setContent(cont.toJSONString());
                         msgACL.setOntology(msgACL.UPDATE);
-                        
-                        new QueueEventWriter(QueueConfig.ADDRESS).writeToQueue(msgACL.toJSONString());
+                        msgACL.setTypeSender(YellowPage.CONFERENCISTA);
+                        new QueueEventWriter(QueueConfig.ADDRESS, Integer.parseInt(user.getPort())).writeToQueue(msgACL.toJSONString());
 //                        //
                     }
                     formaSessionIFrame.doDefaultCloseAction();

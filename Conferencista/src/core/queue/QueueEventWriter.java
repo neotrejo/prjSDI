@@ -17,13 +17,15 @@ import java.util.logging.Logger;
 public class QueueEventWriter {
     
     private String address;
-    public QueueEventWriter(String address) {
+    private int port;
+    public QueueEventWriter(String address, int port) {
         this.address = address;
+        this.port=port;
     }
 
     public void writeToQueue( String data) {
         try {
-            Socket socket = new Socket(this.address, QueueConfig.SERVER_PORT);
+            Socket socket = new Socket(this.address, this.port);
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             out.println(data);
             out.close();

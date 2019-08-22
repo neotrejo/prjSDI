@@ -103,9 +103,9 @@ public class AltaCuenta extends javax.swing.JFrame {
                                                 sharedfolderTF.getText(), portTF.getText(), host.getHostAddress(),"");
                                         user = MainController.existUserName(usuarioTF.getText());
                                         String basePath = System.getProperty("user.dir"); //crear archivo de configuración para el servicio de agentes
-                                        CheckFile cfile = new CheckFile(basePath + "/user.txt");
+                                        CheckFile cfile = new CheckFile(basePath + "/Config.txt");
                                         if (!cfile.existsFile()) {
-                                            cfile.addLine(user.getUsername());
+                                            cfile.addLine("CONFERENCISTA\n"+user.getUsername());
                                         }
                                         //ToVerifyService();
                                         this.setVisible(false);
