@@ -1,0 +1,6 @@
+CONFERENCISTA
+dggomezm
+
+// Tabla de busqueda (User|Classroom)
+//tipo de agente (CONFERENCISTA | AUDIENCIA | SALON)
+// username o hostname(classroom)
