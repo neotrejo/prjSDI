@@ -77,12 +77,12 @@ public class ClassroomInter extends javax.swing.JFrame {
 
         for (Session s : sessionToday) {
             System.out.println(path + "/" + s.getFile());
-
-            File file = new File(path + "/" + s.getFile());
+            
+            File file = new File(path +"/"+ s.getCourseId().replace(" ", "")+"/" + s.getFile());
             if (file.exists()) {
-                OpenFileService.openFile(path + "/" + s.getFile());
+                OpenFileService.openFile(path +"/"+ s.getCourseId().replace(" ", "")+"/" + s.getFile());
             } else {
-                setlogTextArea("<html>El siguiente archivo no se encontró: <br>" + path + "/" + s.getFile() + "</html>");
+                setlogTextArea("El siguiente archivo no se encontró:" +path +"/"+ s.getCourseId().replace(" ", "")+"/" + s.getFile());
             }
         }
         if (sessionToday.size() == 0) {
@@ -107,7 +107,7 @@ public class ClassroomInter extends javax.swing.JFrame {
 
         for (Session s : sessionToday) {
 //            System.out.println(path + "/" + s.getFile());
-            File file = new File(path + "/" + s.getFile());
+            File file = new File(path +"/"+ s.getCourseId().replace(" ", "")+"/" + s.getFile());
             Date modifiedDate = null;
             if (file.exists()) {
                 modifiedDate = new Date(file.lastModified());

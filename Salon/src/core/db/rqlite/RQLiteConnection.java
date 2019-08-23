@@ -28,7 +28,7 @@ public class RQLiteConnection {
     private static RQLiteConnection instance;
 
     private RQLiteConnection() {
-        this.ip = "192.168.0.118";
+        this.ip = "192.168.0.116";
         this.port = 4001;
     }
 
