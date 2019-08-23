@@ -11,6 +11,7 @@ import core.data.MessageACL;
 import core.data.ModelAgent;
 import core.data.Session;
 import core.data.Subscription;
+import core.data.User;
 import core.data.YellowPage;
 import core.fileserver.CheckFile;
 import core.fileserver.FileUtils;
@@ -47,6 +48,7 @@ public class ActionClient extends Thread {
         this.agent = agentType;
         this.start();
     }
+
     public void sendMessage(String ip, int port, String message) {
 
         new Thread(new Runnable() {
@@ -98,11 +100,9 @@ public class ActionClient extends Thread {
                         case "INFORM_IF":
                             ///////////////                           
                             if (msgRec.getReceiver().equals(agent.getIp())) {
-                                if (agent.getUser() != null) {
-                                    dirDownload = agent.getPathRootFolder() + "/";
-                                } else {
-                                    dirDownload = agent.getPathRootFolder() + "/cursos/";
-                                }
+
+                                dirDownload = agent.getPathRootFolder() + "/";
+
                                 MessageACL msgSend = new MessageACL(obj);
                                 msgSend.setSender(msgRec.getReceiver());
                                 msgSend.setReceiver(msgRec.getSender());
@@ -118,7 +118,11 @@ public class ActionClient extends Thread {
                                         long size = (Long) jsonObject.get("size");
                                         msgRec.setContent(idSession); // se modifica el mensaje recibido
                                         session = MainController.getSessionByID(idSession);
-                                        String path = dirDownload + "" + session.getCourseId() + "/" + session.getFile();
+                                        if (agent.getClassroom() != null) {
+                                            User user = MainController.getProfesorSession(session.getId());
+                                            dirDownload = dirDownload + user.getUsername() + "/";
+                                        }
+                                        String path = dirDownload + "" + session.getCourseId().replace(" ", "") + "/" + session.getFile();
                                         CheckFile cFile = new CheckFile(path);
                                         if (cFile.getSize() == size && cFile.getNameFile().equals(fileName)) {
                                             addAndUpdate(session, msgSend, msgRec, dirDownload, false);
@@ -192,11 +196,12 @@ public class ActionClient extends Thread {
                 Course curso = MainController.getSubjectNameUserId(session.getCourseId(), agent.getUser().getId());
                 if (curso == null) {
                     download = false;
-                }                
+                }
             }
         }
         msgSend.setTypeSender(agent.getType());
-        dirDownload = dirDownload + "" + session.getCourseId();
+
+        dirDownload = dirDownload + "" + session.getCourseId().replace(" ", "");
         FileUtils.createPath(dirDownload);
 
         if (download) {

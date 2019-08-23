@@ -80,6 +80,10 @@ public class MainController {
     public static User getUserId(String id) {
         return daoUser.findById(id);
     }
+    
+    public static User getProfesorSession(String sessionId) {
+        return daoUser.findBySessionId(sessionId);
+    }
 
     public static List<User> getAllUsers() throws SQLException {
         return daoUser.getAllUsers();

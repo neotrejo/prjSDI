@@ -70,6 +70,17 @@ public class DAOUser {
         String query = "SELECT * FROM User WHERE userName=\"" + username + "\" LIMIT 1";
         return executeQuery(query);
     }
+    
+    public User findBySessionId(String sessionId) {
+        
+        String query = "SELECT User.userName FROM Session\n" +
+                    "INNER JOIN Course on Session.courseId=Course.id\n" +
+                    "INNER JOIN User on Course.userId= User.id\n" +
+                    "WHERE Session.id=\"" + sessionId + "\"";
+        return executeQuery(query);
+    }
+    
+    
 
     public List<User> getAllUsers() throws SQLException {
         String query = "SELECT * FROM User";
